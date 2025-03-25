@@ -10,6 +10,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -21,9 +22,14 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import jakarta.annotation.security.RolesAllowed;
+
+import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Random;
 
 import jakarta.transaction.Transactional;
+import net.datafaker.Faker;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
@@ -50,7 +56,10 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
     private TextField comment;
 
     private final Button cancel = new Button("Cancel");
+
     private final Button save = new Button("Save");
+
+    private final Button autoFillButton = new Button("Автозаполнить", VaadinIcon.MAGIC.create());
 
     private final BeanValidationBinder<Employees> binder;
 
@@ -102,6 +111,8 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
             clearForm();
             refreshGrid();
         });
+
+        autoFillButton.addClickListener(event -> autoFillWithCustomData());
 
         save.addClickListener(e -> {
             try {
@@ -160,8 +171,6 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
         phone = new TextField("Phone");
         dateOfBirth = new DatePicker("Date Of Birth");
         comment = new TextField("Комментарий");
-        //role = new TextField("Role");
-        //important = new Checkbox("Important");
 
         formLayout.add(firstName, middleName, lastName, email, phone, dateOfBirth, comment);
 
@@ -171,12 +180,33 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
         splitLayout.addToSecondary(editorLayoutDiv);
     }
 
+    private void autoFillWithCustomData() {
+        try {
+            Faker faker = new Faker(new Locale("ru"));
+
+            firstName.setValue(faker.name().firstName());
+            lastName.setValue(faker.name().lastName());
+            middleName.setValue(faker.name().firstName() + "ович");
+            email.setValue(faker.internet().emailAddress());
+            phone.setValue("+7" + faker.phoneNumber().subscriberNumber(10));
+            comment.setValue(faker.lorem().sentence(3));
+            dateOfBirth.setValue(LocalDate.now()
+                    .minusYears(faker.random().nextInt(18, 65))
+                    .minusMonths(faker.random().nextInt(0, 12))
+                    .minusDays(faker.random().nextInt(0, 28)));
+
+        } catch (Exception e) {
+            Notification.show("Ошибка автозаполнения: " + e.getMessage(),
+                    3000, Position.MIDDLE);
+        }
+    }
     private void createButtonLayout(Div editorLayoutDiv) {
         HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setClassName("button-layout");
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(save, cancel);
+        autoFillButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buttonLayout.add(save, cancel, autoFillButton);
         editorLayoutDiv.add(buttonLayout);
     }
 

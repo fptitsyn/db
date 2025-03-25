@@ -3,6 +3,7 @@ package com.example.application.data;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;
+import java.util.Random;
 
 @Entity
 @Table(name = "employees")
