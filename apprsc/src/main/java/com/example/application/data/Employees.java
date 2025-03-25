@@ -1,13 +1,15 @@
 package com.example.application.data;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "employees")
-public class Employees extends AbstractEntity {
+public class Employees {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long employee_id;
 
     private String first_name;
     private String last_name;
@@ -18,12 +20,13 @@ public class Employees extends AbstractEntity {
     private String comment;
     private LocalDate date_of_birth;
 
-    public String getFirstName() {
-        return first_name;
+    public Long getId() { return employee_id;  }
+    public void setId(Long id) {
+        this.employee_id = id;
     }
-    public void setFirstName(String first_name) {
-        this.first_name = first_name;
-    }
+
+    public String getFirstName() { return first_name; }
+    public void setFirstName(String first_name) { this.first_name = first_name; }
     public String getLastName() {
         return last_name;
     }
