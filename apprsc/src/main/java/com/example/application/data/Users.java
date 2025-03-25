@@ -1,21 +1,17 @@
 package com.example.application.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class Users extends AbstractEntity {
+public class Users {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long user_id;
 
     private String username;
     private String name;
@@ -28,8 +24,15 @@ public class Users extends AbstractEntity {
     @Column(length = 1000000)
     private byte[] profilePicture;
 
+    @OneToOne(cascade = CascadeType.REFRESH)
+    @JoinColumn(name = "employee_id", unique = true)
+    private Employees employee;
+
     public Users() {
         this.roles = new HashSet<>(); // Конструктор для инициализации
+    }
+    public Long getId() {
+        return user_id;
     }
     public String getUsername() {
         return username;
@@ -59,5 +62,7 @@ public class Users extends AbstractEntity {
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
     }
+    public Employees getEmployee() {return employee;}
+    public void setEmployee(Employees employee) {this.employee = employee;}
 
 }

@@ -1,5 +1,6 @@
 package com.example.application.services;
 
+import com.example.application.data.Employees;
 import com.example.application.data.Users;
 import com.example.application.data.UsersRepository;
 
@@ -37,7 +38,17 @@ public class UsersService {
     public Page<Users> list(Pageable pageable, Specification<Users> filter) {
         return repository.findAll(filter, pageable);
     }
-
+    public Page<Users> listWithEmployees(Pageable pageable) {
+        return repository.findAll(pageable); // Будет использовать метод с EntityGraph
+    }
+    public boolean isEmployeeLinked(Employees employee) {
+        return repository.existsByEmployee(employee);
+    }
+    public boolean isEmployeeLinkedToCurrentUser(Employees employee, Users currentUser) {
+        return currentUser != null &&
+                currentUser.getEmployee() != null &&
+                currentUser.getEmployee().equals(employee);
+    }
     public int count() {
         return (int) repository.count();
     }

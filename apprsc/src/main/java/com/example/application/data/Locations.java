@@ -13,7 +13,12 @@ public class Locations {
 
 
     private String name;
-    private String address;
+    private String phone_number;
+    private String postal_code;
+    private String country;
+    private String city;
+    private String street;
+    private String building_number;
 
     @ManyToOne
     @JoinColumn(name = "location_type_id")
@@ -28,8 +33,8 @@ public class Locations {
         return name;
     }
 
-    public String getAddress() {
-        return address;
+    public String getStreet() {
+        return street;
     }
 
     public LocationsType getLocationType() {
@@ -45,8 +50,8 @@ public class Locations {
         this.name = name;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setStreet(String street) {
+        this.street = street;
     }
 
     public void setLocationType(LocationsType locationType) {

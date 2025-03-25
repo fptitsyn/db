@@ -36,7 +36,7 @@ public class LocationsView extends VerticalLayout {
 
     // Form fields
     private TextField name = new TextField("Название");
-    private TextField address = new TextField("Адрес");
+    private TextField street = new TextField("Улица");
     private ComboBox<LocationsType> locationType = new ComboBox<>("Тип территории");
     private Button saveButton = new Button("Сохранить");
     private Button deleteButton = new Button("Удалить");
@@ -63,8 +63,8 @@ public class LocationsView extends VerticalLayout {
                 .setHeader("Название")
                 .setAutoWidth(true);
 
-        grid.addColumn(Locations::getAddress)
-                .setHeader("Адрес")
+        grid.addColumn(Locations::getStreet)
+                .setHeader("Улица")
                 .setAutoWidth(true);
 
         grid.addColumn(l -> {
@@ -91,9 +91,9 @@ public class LocationsView extends VerticalLayout {
                 .asRequired("Обязательное поле")
                 .bind(Locations::getName, Locations::setName);
 
-        binder.forField(address)
+        binder.forField(street)
                 .asRequired("Обязательное поле")
-                .bind(Locations::getAddress, Locations::setAddress);
+                .bind(Locations::getStreet, Locations::setStreet);
 
         binder.forField(locationType)
                 .asRequired("Выберите тип")
@@ -103,7 +103,7 @@ public class LocationsView extends VerticalLayout {
         HorizontalLayout buttons = new HorizontalLayout(saveButton, deleteButton, cancelButton);
         buttons.setSpacing(true);
 
-        form.add(name, address, locationType, buttons);
+        form.add(name, street, locationType, buttons);
         form.setVisible(false);
 
         // Event handlers

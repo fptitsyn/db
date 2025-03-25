@@ -11,9 +11,15 @@ public class Employees {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employee_id;
 
-    private String first_name;
-    private String last_name;
-    private String middle_name;
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "middle_name")
+    private String middleName;
+
     @Email
     private String email;
     private String phone_number;
@@ -25,19 +31,19 @@ public class Employees {
         this.employee_id = id;
     }
 
-    public String getFirstName() { return first_name; }
-    public void setFirstName(String first_name) { this.first_name = first_name; }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String first_name) { this.firstName = first_name; }
     public String getLastName() {
-        return last_name;
+        return lastName;
     }
     public void setLastName(String last_name) {
-        this.last_name = last_name;
+        this.lastName = last_name;
     }
     public String getMiddleName() {
-        return middle_name;
+        return middleName;
     }
     public void setMiddleName(String middle_name) {
-        this.middle_name = middle_name;
+        this.middleName = middle_name;
     }
     public String getEmail() {
         return email;
@@ -64,6 +70,6 @@ public class Employees {
         this.comment = comment;
     }
     public String getFullName() {
-        return last_name + " " + first_name + " " + (middle_name != null ? middle_name : "");
+        return lastName + " " + firstName + " " + (middleName != null ? middleName : "");
     }
 }

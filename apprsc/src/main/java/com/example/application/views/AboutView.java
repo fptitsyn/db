@@ -19,7 +19,7 @@ import jakarta.annotation.security.RolesAllowed;
 @PageTitle("О программе")
 @Menu(order = 100, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
 
-@RolesAllowed({"HR","WORKS","USER","SALES","GOD"})
+@RolesAllowed({"HR","WORKS","ADMIN","USER","SALES","GOD","ANALYSTS"})
 
 public class AboutView extends VerticalLayout {
 
@@ -30,11 +30,24 @@ public class AboutView extends VerticalLayout {
         img.setWidth("200px");
         add(img);
 
-        H2 header = new H2("Теперь ты видел ВСЁ!!!");
+        H2 header = new H2("Решил(а) поработать?!!");
         header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
         add(header);
+        add(new Paragraph("==================================="));
         add(new Paragraph("Это самая крутая программа в мире"));
         add(new Paragraph("Спасибо Папе и DeepSeek 🤗"));
+        add(new Paragraph("==================================="));
+        add(new Paragraph("Админы - админят!"));
+        add(new Paragraph("Продаваны - продают!"));
+        add(new Paragraph("Работяги - работают!"));
+        add(new Paragraph("Кадровики - кадрят!"));
+        add(new Paragraph("Аналитики - аналичат!"));
+        add(new Paragraph("==================================="));
+        add(new Paragraph("И за всем ними следит GOD!"));
+
+
+
+
 
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.CENTER);

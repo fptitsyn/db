@@ -25,7 +25,7 @@ import java.util.List;
 @PageTitle("Отчет по сотрудникам")
 @Route("employees-info")
 @Menu(order = 45, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
-@RolesAllowed({"HR","GOD"})
+@RolesAllowed({"HR","ANALYSTS", "GOD"})
 
 public class EmployeeInfoView extends VerticalLayout {
     private final transient EmployeeInfoService service;
