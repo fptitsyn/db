@@ -7,6 +7,9 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
+import java.math.BigDecimal;
+import java.time.Duration;
+
 @Entity
 @Table(name = "services")
 public class Services {

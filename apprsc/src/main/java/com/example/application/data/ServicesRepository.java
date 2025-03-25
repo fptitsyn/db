@@ -1,5 +1,4 @@
 package com.example.application.data;
-
 import com.example.application.data.Services;
 import org.springframework.data.jpa.repository.JpaRepository;
 
