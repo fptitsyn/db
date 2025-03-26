@@ -3,7 +3,9 @@ package com.example.application.data;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 @Entity
 @Table(name = "employees")
@@ -11,6 +13,14 @@ public class Employees {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employee_id;
+
+    @ManyToMany(fetch = FetchType.EAGER) // Или LAZY с открытой сессией
+    @JoinTable(
+            name = "employee_service",
+            joinColumns = @JoinColumn(name = "employee_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private Set<Services> services = new HashSet<>();
 
     @Column(name = "first_name")
     private String firstName;
@@ -73,4 +83,7 @@ public class Employees {
     public String getFullName() {
         return lastName + " " + firstName + " " + (middleName != null ? middleName : "");
     }
+
+    public Set<Services> getServices() { return services; }
+    public void setServices(Set<Services> services) { this.services = services; }
 }

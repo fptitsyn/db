@@ -1,10 +1,15 @@
 package com.example.application.views.employees;
 
 import com.example.application.data.Employees;
+import com.example.application.data.Services;
+import com.example.application.data.TypeOfDevice;
 import com.example.application.services.EmployeesService;
+import com.example.application.services.ServicesService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -27,6 +32,7 @@ import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
 import net.datafaker.Faker;
@@ -46,6 +52,7 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
 
     private final Grid<Employees> grid = new Grid<>(Employees.class, false);
 
+    private MultiSelectComboBox<Services> servicesComboBox = new MultiSelectComboBox<>("Services");
 
     private TextField firstName;
     private TextField lastName;
@@ -67,8 +74,11 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
 
     private final EmployeesService employeesService;
 
-    public EmployeesView(EmployeesService employeesService) {
+    private final ServicesService servicesService;
+
+    public EmployeesView(EmployeesService employeesService, ServicesService servicesService) {
         this.employeesService = employeesService;
+        this.servicesService = servicesService;
         addClassNames("employees-view");
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
@@ -78,17 +88,7 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
 
         add(splitLayout);
 
-        // Configure Grid
-        grid.addColumn("firstName").setAutoWidth(true);
-        grid.addColumn("middleName").setAutoWidth(true);
-        grid.addColumn("lastName").setAutoWidth(true);
-        grid.addColumn("email").setAutoWidth(true);
-        grid.addColumn("phone").setAutoWidth(true);
-        grid.addColumn("dateOfBirth").setAutoWidth(true);
-        grid.addColumn("comment").setAutoWidth(true);
-
-        grid.setItems(query -> employeesService.list(VaadinSpringDataHelpers.toSpringPageRequest(query)).stream());
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        configureGrid();
 
         // when a row is selected or deselected, populate form
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -120,18 +120,21 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
                     this.samplePerson = new Employees();
                 }
                 binder.writeBean(this.samplePerson);
+
+                // Обновляем связи с услугами
+                this.samplePerson.getServices().clear();
+                this.samplePerson.getServices().addAll(servicesComboBox.getSelectedItems());
+
                 employeesService.save(this.samplePerson);
                 clearForm();
                 refreshGrid();
-                Notification.show("Data updated");
-                UI.getCurrent().navigate(com.example.application.views.employees.EmployeesView.class);
+                Notification.show("Данные обновлены");
+                UI.getCurrent().navigate(EmployeesView.class);
             } catch (ObjectOptimisticLockingFailureException exception) {
-                Notification n = Notification.show(
-                        "Error updating the data. Somebody else has updated the record while you were making changes.");
-                n.setPosition(Position.MIDDLE);
-                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                Notification.show("Ошибка: данные были изменены другим пользователем", 3000, Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
             } catch (ValidationException validationException) {
-                Notification.show("Failed to update the data. Check again that all values are valid");
+                Notification.show("Ошибка валидации. Проверьте введенные данные", 3000, Position.MIDDLE);
             }
         });
     }
@@ -163,6 +166,9 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
         editorDiv.setClassName("editor");
         editorLayoutDiv.add(editorDiv);
 
+        servicesComboBox.setItems(employeesService.findAllServices());
+        servicesComboBox.setItemLabelGenerator(Services::getServiceName);
+
         FormLayout formLayout = new FormLayout();
         firstName = new TextField("First Name");
         middleName = new TextField("Отчество");
@@ -172,7 +178,8 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
         dateOfBirth = new DatePicker("Date Of Birth");
         comment = new TextField("Комментарий");
 
-        formLayout.add(firstName, middleName, lastName, email, phone, dateOfBirth, comment);
+
+        formLayout.add(firstName, middleName, lastName, email, phone, dateOfBirth, servicesComboBox, comment);
 
         editorDiv.add(formLayout);
         createButtonLayout(editorLayoutDiv);
@@ -230,5 +237,29 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
         this.samplePerson = value;
         binder.readBean(this.samplePerson);
 
+        // Обновляем выбранные услуги в комбобоксе
+        if (value != null) {
+            servicesComboBox.clear();
+            servicesComboBox.select(value.getServices());
+        } else {
+            servicesComboBox.clear();
+        }
+    }
+
+    private void configureGrid(){
+        grid.removeAllColumns();
+        grid.addColumn("firstName").setAutoWidth(true);
+        grid.addColumn("middleName").setAutoWidth(true);
+        grid.addColumn("lastName").setAutoWidth(true);
+        grid.addColumn("email").setAutoWidth(true);
+        grid.addColumn("phone").setAutoWidth(true);
+        grid.addColumn("dateOfBirth").setAutoWidth(true);
+        grid.addColumn(e -> e.getServices().stream()
+                .map(Services::getServiceName)
+                .collect(Collectors.joining(", "))).setHeader("Услуги");
+        grid.addColumn("comment").setAutoWidth(true);
+
+        grid.setItems(query -> employeesService.list(VaadinSpringDataHelpers.toSpringPageRequest(query)).stream());
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
     }
 }

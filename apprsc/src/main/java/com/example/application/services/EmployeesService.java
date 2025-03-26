@@ -2,6 +2,9 @@ package com.example.application.services;
 
 import com.example.application.data.Employees;
 import com.example.application.data.EmployeesRepository;
+import com.example.application.data.Services;
+import com.example.application.data.ServicesRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,57 +20,81 @@ import java.util.Optional;
 @CacheConfig(cacheNames = "employees")
 public class EmployeesService {
 
-    private final EmployeesRepository repository;
+    private final EmployeesRepository employeesRepository;
 
-    public EmployeesService(EmployeesRepository repository) {
-        this.repository = repository;
+    private final ServicesRepository servicesRepository;
+
+    public EmployeesService(EmployeesRepository employeesRepository, ServicesRepository servicesRepository) {
+        this.servicesRepository = servicesRepository;
+        this.employeesRepository = employeesRepository;
     }
 
     @Cacheable
     public Optional<Employees> get(Long id) {
-        return repository.findById(id);
+        return employeesRepository.findById(id);
     }
 
     @CacheEvict(allEntries = true)
-    public Employees save(Employees entity) {
-        return repository.save(entity);
+    public Employees save(Employees employee) {
+        if (employee.getId() != null) {
+            // Для существующего сотрудника загружаем текущую версию из БД
+            Employees existing = employeesRepository.findById(employee.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
+
+            // Копируем изменяемые поля
+            existing.setFirstName(employee.getFirstName());
+            // ... другие поля ...
+
+            // Обновляем связи
+            existing.getServices().clear();
+            existing.getServices().addAll(employee.getServices());
+
+            return employeesRepository.save(existing);
+        } else {
+            // Для нового сотрудника
+            return employeesRepository.save(employee);
+        }
     }
 
     @CacheEvict(allEntries = true)
     public void delete(Long id) {
-        repository.deleteById(id);
+        employeesRepository.deleteById(id);
     }
 
     @Cacheable
     public Page<Employees> list(Pageable pageable) {
-        return repository.findAll(pageable);
+        return employeesRepository.findAll(pageable);
     }
 
     @Cacheable
     public Page<Employees> list(Pageable pageable, Specification<Employees> filter) {
-        return repository.findAll(filter, pageable);
+        return employeesRepository.findAll(filter, pageable);
     }
 
     @Cacheable
     public List<Employees> findAll() {
-        return repository.findAll();
+        return employeesRepository.findAll();
     }
 
     @Cacheable
     public List<Employees> findAll(String filter) {
         if (filter.isEmpty()) {
-            return repository.findAll();
+            return employeesRepository.findAll();
         }
         String searchTerm = "%" + filter + "%";
-        return repository.findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCaseOrMiddleNameContainingIgnoreCase(
+        return employeesRepository.findByLastNameContainingIgnoreCaseOrFirstNameContainingIgnoreCaseOrMiddleNameContainingIgnoreCase(
                 searchTerm,
                 searchTerm,
                 searchTerm
         );
     }
+    public List<Services> findAllServices() {
+        return servicesRepository.findAll();
+    }
+
 
     @Cacheable
     public int count() {
-        return (int) repository.count();
+        return (int) employeesRepository.count();
     }
 }
