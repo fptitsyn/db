@@ -43,7 +43,12 @@ public class EmployeesService {
 
             // Копируем изменяемые поля
             existing.setFirstName(employee.getFirstName());
-            // ... другие поля ...
+            existing.setComment(employee.getComment());
+            existing.setEmail(employee.getEmail());
+            existing.setDateOfBirth(employee.getDateOfBirth());
+            existing.setLastName(employee.getLastName());
+            existing.setMiddleName(employee.getMiddleName());
+            existing.setPhone(employee.getPhone());
 
             // Обновляем связи
             existing.getServices().clear();
