@@ -29,7 +29,7 @@ public class ReleaseNotes extends VerticalLayout {
         add(new Span("Изменена Entity Client"));
         add(new Span("Добавлены формы ReleaseNotes и ToDoView"));
         add(new Span("Добавлена дата в BonusAccount, созданы: BonusAccountRepository и BonusAccountService "));
-        add(new Span("Добавлена дата в BonusAccount, созданы: BonusAccountRepository и BonusAccountService "));
+
         add(new Span("Изменено окно (О программе)"));
         add(new H5("25.03"));
         add(new Span("ServicesView. Новая форма для заведение и редактирования услуг"));
