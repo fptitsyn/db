@@ -25,6 +25,7 @@ public class ReleaseNotes extends VerticalLayout {
 
         add(new H5("26.03"));
         add(new Span("Изменена привязка услуг к сотруднику"));
+        add(new Span("Тестирование гита"));
         add(new Span("Изменен внешний вид справочников компонентов (3шт)"));
         add(new Span("MainView. Добавлена кнока (Бонус). Создана форма BonusView новая форма для информации про бонусный счет"));
         add(new Span("Изменена Entity Client"));
