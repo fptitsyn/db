@@ -1,6 +1,8 @@
 package com.example.application.data;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "bonus_account")
 public class BonusAccount {
@@ -9,6 +11,9 @@ public class BonusAccount {
     private Long bonus_account_id;
 
     private Long bonus_account_number;
+
+    @Column(name = "open_date")
+    private LocalDate openDate;
 
     @OneToOne
     @JoinColumn(name = "client_id")
@@ -21,6 +26,9 @@ public class BonusAccount {
     public Long getBonusAccountNumber() {
         return bonus_account_number;
     }
+    public LocalDate getOpenDate() {
+        return openDate;
+    }
     public Clients getClients() {
         return clients;
     }
@@ -30,6 +38,9 @@ public class BonusAccount {
     }
     public void setBonusAccountNumber(Long bonus_account_number) {
         this.bonus_account_number = bonus_account_number;
+    }
+    public void setOpenDate(LocalDate openDate) {
+        this.openDate = openDate;
     }
     public void setClients(Clients clients) {
         this.clients = clients;

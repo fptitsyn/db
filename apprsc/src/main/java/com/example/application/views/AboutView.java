@@ -17,7 +17,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 @Route(value = "")
 @PageTitle("О программе")
-@Menu(order = 100, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+@Menu(order = 100, icon = LineAwesomeIconUrl.INFO_CIRCLE_SOLID)
 
 @RolesAllowed({"HR","WORKS","ADMIN","USER","SALES","GOD","ANALYSTS"})
 
@@ -35,7 +35,7 @@ public class AboutView extends VerticalLayout {
         add(header);
         add(new Paragraph("==================================="));
         add(new Paragraph("Это самая крутая программа в мире"));
-        add(new Paragraph("Спасибо Папе и DeepSeek 🤗"));
+        add(new Paragraph("Спасибо разработчикам 🤗"));
         add(new Paragraph("==================================="));
         add(new Paragraph("Админы - админят!"));
         add(new Paragraph("Продаваны - продают!"));

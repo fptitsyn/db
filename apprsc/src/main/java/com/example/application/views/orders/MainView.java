@@ -15,7 +15,7 @@ import java.util.Collections;
 
 @Route(value = "all-clients-view")
 @PageTitle("Список клиентов")
-@Menu(order = 11, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+@Menu(order = 11, icon = LineAwesomeIconUrl.ADDRESS_BOOK_SOLID)
 
 @RolesAllowed({"SALES","GOD"})
 public class MainView extends VerticalLayout {
@@ -49,12 +49,13 @@ public class MainView extends VerticalLayout {
     private HorizontalLayout createActions(Clients client) {
         Button editBtn = new Button("Ред.", e -> showClientForm(client));
         Button ordersBtn = new Button("Заказы", e -> showOrders(client));
+        Button bonusBtn = new Button("Бонусы", e -> showBonus(client));
         Button deleteBtn = new Button("Удалить", e -> {
             clientService.delete(client);
             updateGrid();
         });
 
-        return new HorizontalLayout(editBtn, ordersBtn, deleteBtn);
+        return new HorizontalLayout(editBtn, deleteBtn, ordersBtn, bonusBtn);
     }
 
     private void showClientForm(Clients client) {
@@ -72,6 +73,17 @@ public class MainView extends VerticalLayout {
 
             // Переход на OrderView с параметрами
             ui.navigate(OrderView.class, parameters);
+        });
+    }
+    private void showBonus(Clients client) {
+        getUI().ifPresent(ui -> {
+            // Создаем параметры маршрута через Map
+            RouteParameters parameters = new RouteParameters(
+                    Collections.singletonMap("clientID", String.valueOf(client.getId()))
+            );
+
+            // Переход на BonusView с параметрами
+            ui.navigate(BonusView.class, parameters);
         });
     }
 }

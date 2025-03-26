@@ -6,7 +6,9 @@ import com.example.application.data.TypeOfDevice;
 import com.example.application.services.CategoryOfComponentService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
@@ -24,7 +26,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @UIScope
 @Menu(order = 14, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
 @RolesAllowed({"SALES","GOD"})
-public class CategoryOfComponentView extends VerticalLayout {
+public class CategoryOfComponentView extends HorizontalLayout {
 
     private final CategoryOfComponentService service;
 
@@ -41,7 +43,15 @@ public class CategoryOfComponentView extends VerticalLayout {
         configureGrid();
         configureForm();
 
-        add(grid, typeOfDeviceComboBox, typeNameField, saveButton, deleteButton);
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.add(saveButton, deleteButton);
+
+        FormLayout formLayout = new FormLayout();
+        formLayout.setWidth("300px");
+        formLayout.add(typeOfDeviceComboBox, typeNameField, buttonLayout);
+
+        add(grid);
+        add(formLayout);
         updateList();
     }
 

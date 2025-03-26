@@ -19,6 +19,9 @@ public class Clients {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Orders> orders = new ArrayList<>();
 
+    @OneToOne(mappedBy = "clients") // mappedBy указывает на поле в BonusAccount
+    private BonusAccount bonusAccount;
+
     // Геттеры, сеттеры, конструкторы
     // Пустой конструктор (обязателен для JPA)
     public Clients() {
@@ -41,7 +44,9 @@ public class Clients {
     public List<Orders> getOrders() {
         return Collections.unmodifiableList(orders); // Защита от неконтролируемых изменений
     }
-
+    public BonusAccount getBonusAccount() {
+        return bonusAccount;
+    }
     // Сеттеры
     public void setName(String name) {
         this.name = name;
@@ -52,7 +57,6 @@ public class Clients {
         orders.add(order);
         order.setClient(this);
     }
-
     public void removeOrder(Orders order) {
         orders.remove(order);
         order.setClient(null);

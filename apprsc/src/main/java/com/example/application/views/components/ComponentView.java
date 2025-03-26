@@ -6,8 +6,12 @@ import com.example.application.data.TypeOfDevice;
 import com.example.application.services.ComponentService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -24,7 +28,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @UIScope
 @Menu(order = 13, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
 @RolesAllowed({"SALES","GOD"})
-public class ComponentView extends VerticalLayout {
+public class ComponentView extends HorizontalLayout {
 
     private final ComponentService service;
 
@@ -43,7 +47,15 @@ public class ComponentView extends VerticalLayout {
         configureGrid();
         configureForm();
 
-        add(grid, typeOfDeviceComboBox, categoryComboBox, nameOfComponentField, costField, saveButton, deleteButton);
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.add(saveButton, deleteButton);
+
+        FormLayout formLayout = new FormLayout();
+        formLayout.setWidth("300px");
+        formLayout.add(typeOfDeviceComboBox, categoryComboBox, nameOfComponentField, costField, buttonLayout);
+
+        add(grid);
+        add(formLayout);
         updateList();
     }
 
