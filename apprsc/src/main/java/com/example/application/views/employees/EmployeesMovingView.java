@@ -14,16 +14,14 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.transaction.Transactional;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Перемешение сотрудников")
 @Route("EmployeesMoving")
-@SpringComponent
-@Transactional
-@Menu(order = 42, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+@UIScope
+@Menu(order = 42, icon = LineAwesomeIconUrl.FILE_CONTRACT_SOLID)
 @RolesAllowed({"HR","GOD"})
 public class EmployeesMovingView extends VerticalLayout {
     private final StaffingTableRepository staffingTableRepository;
@@ -54,6 +52,11 @@ public class EmployeesMovingView extends VerticalLayout {
         this.staffingTableRepository = staffingTableRepository;
         this.employeesRepository = employeesRepository;
         this.employeesMovingRepository = employeesMovingRepository;
+
+// Инициализация компонентов ДО их использования
+        grid = new Grid<>(StaffingTable.class);
+        historyGrid = new Grid<>(EmployeesMoving.class);
+        bindingForm = new FormLayout();
 
         configureGrid();
         add(grid);
@@ -90,6 +93,7 @@ public class EmployeesMovingView extends VerticalLayout {
             clearForm(); // Очищаем форму
         });
     }
+
     private void configureBindingForm() {
         bindingForm = new FormLayout();
         binderForMoving = new Binder<>(EmployeesMoving.class);
