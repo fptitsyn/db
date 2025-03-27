@@ -10,7 +10,6 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
-//@RolesAllowed({"SALES","GOD"})
 public class OrderForm extends FormLayout {
     private final Orders order;
     private final Clients currentClient;

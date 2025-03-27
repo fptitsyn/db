@@ -22,7 +22,8 @@ public class ReleaseNotes extends VerticalLayout {
         setSpacing(false);
 
 
-
+        add(new H5("27.03"));
+        add(new Span("OrderForm При создание автоматически присваивать employeeId и location_id в зависимости от пользователя"));
         add(new H5("26.03"));
         add(new Span("Изменена привязка услуг к сотруднику"));
         add(new Span("Тестирование гита"));
