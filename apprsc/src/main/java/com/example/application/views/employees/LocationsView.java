@@ -15,16 +15,13 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.transaction.Transactional;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Офисы")
 @Route("locations")
-@SpringComponent
-@Transactional
-@Menu(order = 43, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+
+@Menu(order = 43, icon = LineAwesomeIconUrl.CITY_SOLID)
 @RolesAllowed({"HR","GOD"})
 public class LocationsView extends VerticalLayout {
     private final LocationsRepository locationRepository;
@@ -109,7 +106,7 @@ public class LocationsView extends VerticalLayout {
         // Event handlers
         saveButton.addClickListener(e -> saveLocation());
         deleteButton.addClickListener(e -> deleteLocation());
-        cancelButton.addClickListener(e -> cancelStaffingTable());
+        cancelButton.addClickListener(e -> cancelLocation());
         addButton.addClickListener(e -> addLocation());
     }
 
@@ -159,7 +156,7 @@ public class LocationsView extends VerticalLayout {
             hideForm();
         }
     }
-    private void cancelStaffingTable() {
+    private void cancelLocation() {
         Locations location = binder.getBean();
         if (location != null && location.getId() != null) {
             hideForm();

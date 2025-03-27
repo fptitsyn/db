@@ -2,6 +2,8 @@ package com.example.application.data;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "locations")
 public class Locations {
@@ -59,5 +61,18 @@ public class Locations {
     }
     public String getLocationTypeName() {
         return locationType != null ? locationType.getLocationTypeName() : "";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Locations location = (Locations) o;
+        return Objects.equals(location_id, location.location_id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(location_id);
     }
 }

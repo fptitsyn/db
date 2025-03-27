@@ -24,7 +24,7 @@ public class ToDoView extends VerticalLayout {
         add(new Span("В базе поправить Функцию для заполнения Даты открытия бонусного счета"));
         add(new Span("LocationsView доработать отображение и редактирование недостающих полей"));
         add(new Span("ClientForm Добавить все поля по клиенту (ФИО, пол, телефон, email, статус)"));
-        add(new Span("StaffingTableView Добавить поле (Название подразделения). Такде добавить в EmployeesMovingView"));
+        add(new Span("Добавить поле (Название подразделения) в EmployeesMovingView"));
         add(new Span("Отчетность по WorkOrders"));
         add(new Span("Отчетность по Locations"));
         add(new Span("BonusView Карточка бонусного счета Остаток/все операции (BonusAccountOperation) (вместо заказов)"));

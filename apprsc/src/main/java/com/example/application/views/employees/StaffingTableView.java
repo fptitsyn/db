@@ -24,7 +24,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @Route("StaffingTable")
 @SpringComponent
 @Transactional
-@Menu(order = 41, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+@Menu(order = 41, icon = LineAwesomeIconUrl.FILE_ALT_SOLID)
 @RolesAllowed({"HR","GOD"})
 public class StaffingTableView extends VerticalLayout {
     private final LocationsRepository locationRepository;
@@ -36,6 +36,8 @@ public class StaffingTableView extends VerticalLayout {
 
     // Form fields
     private TextField position = new TextField("Должность");
+    private TextField department = new TextField("Подразделение");
+
     private IntegerField salary = new IntegerField("ФОТ");
     private ComboBox<Locations> location = new ComboBox<>("Офис");
     private Button saveButton = new Button("Сохранить");
@@ -59,6 +61,10 @@ public class StaffingTableView extends VerticalLayout {
     private void configureGrid() {
         grid.removeAllColumns();
 
+        grid.addColumn(StaffingTable::getDepartment)
+                .setHeader("Дложность")
+
+                .setAutoWidth(true);
         grid.addColumn(StaffingTable::getPosition)
                 .setHeader("Дложность")
                 .setAutoWidth(true);
@@ -87,6 +93,10 @@ public class StaffingTableView extends VerticalLayout {
         location.setRequired(true);
 
         // Configure binder
+
+        binder.forField(department)
+                .asRequired("Обязательное поле")
+                .bind(StaffingTable::getDepartment, StaffingTable::setDepartment);
         binder.forField(position)
                 .asRequired("Обязательное поле")
                 .bind(StaffingTable::getPosition, StaffingTable::setPosition);
@@ -103,7 +113,7 @@ public class StaffingTableView extends VerticalLayout {
         HorizontalLayout buttons = new HorizontalLayout(saveButton, deleteButton, cancelButton);
         buttons.setSpacing(true);
 
-        form.add(position, salary, location, buttons);
+        form.add(department, position, salary, location, buttons);
         form.setVisible(false);
         // Event handlers
         saveButton.addClickListener(e -> saveStaffingTable());
@@ -120,12 +130,21 @@ public class StaffingTableView extends VerticalLayout {
         if (staffingTable == null) {
             hideForm();
         } else {
-            binder.setBean(staffingTable);
+            // Получаем свежую версию из базы
+            StaffingTable freshStaffingTable = staffingTableRepository.findById(staffingTable.getId()).orElse(null);
+            binder.setBean(freshStaffingTable);
             showForm();
+
+            // Обновляем список и устанавливаем значение
+            if (freshStaffingTable != null) {
+                location.setItems(locationRepository.findAll());
+                location.setValue(freshStaffingTable.getLocation());
+            }
         }
     }
 
     private void showForm() {
+        location.setItems(locationRepository.findAll()); // Обновляем список каждый раз
         form.setVisible(true);
         addButton.setVisible(false);
         position.focus();

@@ -12,6 +12,7 @@ public class StaffingTable {
 
     private String position;
     private int salary;
+    private String department;
 
     @ManyToOne
     @JoinColumn(name = "location_id")
@@ -27,6 +28,9 @@ public class StaffingTable {
     public int getSalary() {
         return salary;
     }
+    public String getDepartment() {
+        return department;
+    }
     public Locations getLocation() { return location;    }
 
     // Сеттеры
@@ -38,6 +42,9 @@ public class StaffingTable {
     }
     public void setSalary(int salary) {
         this.salary = salary;
+    }
+    public void setDepartment(String department) {
+        this.department = department;
     }
     public void setLocation(Locations location) {
         this.location = location;
