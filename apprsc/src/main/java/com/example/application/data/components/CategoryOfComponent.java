@@ -1,6 +1,8 @@
-package com.example.application.data;
+// CategoryOfComponent.java
+package com.example.application.data.components;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class CategoryOfComponent {
@@ -10,9 +12,11 @@ public class CategoryOfComponent {
     private Long categoryOfComponentId;
 
     @ManyToOne
-    @JoinColumn(name = "type_of_device_id", nullable = false)
+    @JoinColumn(name = "type_of_device_id")
     private TypeOfDevice typeOfDevice;
 
+    @Column(nullable = false)
+    @NotNull
     private String typeOfPartName;
 
     // Геттеры и сеттеры
@@ -32,11 +36,11 @@ public class CategoryOfComponent {
         this.typeOfDevice = typeOfDevice;
     }
 
-    public String getTypeName() {
+    public String getTypeOfPartName() {
         return typeOfPartName;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeOfPartName = typeName;
+    public void setTypeOfPartName(String typeOfPartName) {
+        this.typeOfPartName = typeOfPartName;
     }
 }

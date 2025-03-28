@@ -1,6 +1,9 @@
-package com.example.application.data;
+// Component.java
+package com.example.application.data.components;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 @Entity
 public class Component {
@@ -9,13 +12,16 @@ public class Component {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long componentId;
 
-    private String nameOfComponent;
+    @Column(nullable = false)
+    @NotNull
+    private String name;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private CategoryOfComponent category;
 
-    private Double cost;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal cost;
 
     // Геттеры и сеттеры
     public Long getComponentId() {
@@ -26,12 +32,12 @@ public class Component {
         this.componentId = componentId;
     }
 
-    public String getNameOfComponent() {
-        return nameOfComponent;
+    public String getName() {
+        return name;
     }
 
-    public void setNameOfComponent(String nameOfComponent) {
-        this.nameOfComponent = nameOfComponent;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public CategoryOfComponent getCategory() {
@@ -42,11 +48,11 @@ public class Component {
         this.category = category;
     }
 
-    public Double getCost() {
+    public BigDecimal getCost() {
         return cost;
     }
 
-    public void setCost(Double cost) {
+    public void setCost(BigDecimal cost) {
         this.cost = cost;
     }
 }

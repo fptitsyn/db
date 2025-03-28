@@ -1,14 +1,10 @@
 package com.example.application.data;
 
-import com.example.application.data.Employees;
-import com.example.application.data.TypeOfDevice;
+import com.example.application.data.components.TypeOfDevice;
 import jakarta.persistence.*;
-import java.time.Duration;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import java.math.BigDecimal;
-import java.time.Duration;
 
 @Entity
 @Table(name = "services")

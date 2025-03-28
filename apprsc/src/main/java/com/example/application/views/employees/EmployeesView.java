@@ -2,13 +2,11 @@ package com.example.application.views.employees;
 
 import com.example.application.data.Employees;
 import com.example.application.data.Services;
-import com.example.application.data.TypeOfDevice;
 import com.example.application.services.EmployeesService;
 import com.example.application.services.ServicesService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -31,10 +29,8 @@ import jakarta.annotation.security.RolesAllowed;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
 import net.datafaker.Faker;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;

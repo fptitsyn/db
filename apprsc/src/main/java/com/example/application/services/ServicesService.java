@@ -3,6 +3,8 @@ package com.example.application.services;
 import com.example.application.data.*;
 import com.example.application.data.Services;
 import com.example.application.data.ServicesRepository;
+import com.example.application.data.components.TypeOfDevice;
+import com.example.application.data.components.TypeOfDeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

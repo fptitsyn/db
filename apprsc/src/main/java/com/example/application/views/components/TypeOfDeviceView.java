@@ -1,27 +1,24 @@
 package com.example.application.views.components;
 
-import com.example.application.data.TypeOfDevice;
-import com.example.application.services.TypeOfDeviceService;
+import com.example.application.data.components.TypeOfDevice;
+import com.example.application.data.components.TypeOfDeviceService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Типы устройства компонентов")
 @Route("types-of-devices")
 @SpringComponent
 @UIScope
-@Menu(order = 15, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+//@Menu(order = 15, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
 @RolesAllowed({"SALES","GOD"})
 public class TypeOfDeviceView extends HorizontalLayout {
 
@@ -36,8 +33,8 @@ public class TypeOfDeviceView extends HorizontalLayout {
     public TypeOfDeviceView(TypeOfDeviceService service) {
         this.service = service;
 
-        configureGrid();
-        configureForm();
+        //configureGrid();
+        //configureForm();
 
         HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.add(saveButton, deleteButton);
@@ -48,10 +45,10 @@ public class TypeOfDeviceView extends HorizontalLayout {
 
         add(grid);
         add(formLayout);
-        updateList();
+        //updateList();
 
     }
-
+    /*
     private void configureGrid() {
         // Удаляем все автоматически сгенерированные столбцы
         grid.removeAllColumns();
@@ -61,7 +58,7 @@ public class TypeOfDeviceView extends HorizontalLayout {
                 .setHeader("ID типа устройства");
 
         // Добавляем столбец для typeName с кастомным заголовком
-        grid.addColumn(TypeOfDevice::getTypeName)
+        grid.addColumn(TypeOfDevice::getTypeOfDeviceName)
                 .setHeader("Название типа устройства");
 
         // Настройка слушателя для редактирования
@@ -81,13 +78,13 @@ public class TypeOfDeviceView extends HorizontalLayout {
         if (typeOfDevice == null) {
             clearForm();
         } else {
-            typeNameField.setValue(typeOfDevice.getTypeName());
+            typeNameField.setValue(typeOfDevice.getTypeOfDeviceName());
         }
     }
 
     private void saveTypeOfDevice() {
         TypeOfDevice typeOfDevice = new TypeOfDevice();
-        typeOfDevice.setTypeName(typeNameField.getValue());
+        typeOfDevice.setTypeOfDeviceName(typeNameField.getValue());
         service.save(typeOfDevice);
         updateList();
         clearForm();
@@ -106,4 +103,6 @@ public class TypeOfDeviceView extends HorizontalLayout {
         typeNameField.clear();
         grid.asSingleSelect().clear();
     }
+
+     */
 }

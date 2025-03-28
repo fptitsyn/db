@@ -1,9 +1,7 @@
-package com.example.application.data;
+package com.example.application.data.components;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class TypeOfDevice {
@@ -12,6 +10,8 @@ public class TypeOfDevice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long typeOfDeviceId;
 
+    @Column(unique = true, nullable = false)
+    @NotNull
     private String typeOfDeviceName;
 
     // Геттеры и сеттеры
@@ -23,11 +23,11 @@ public class TypeOfDevice {
         this.typeOfDeviceId = typeOfDeviceId;
     }
 
-    public String getTypeName() {
+    public String getTypeOfDeviceName() {
         return typeOfDeviceName;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeOfDeviceName = typeName;
+    public void setTypeOfDeviceName(String typeOfDeviceName) {
+        this.typeOfDeviceName = typeOfDeviceName;
     }
 }
