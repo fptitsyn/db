@@ -2,7 +2,8 @@ package com.example.application.views.services;
 
 import com.example.application.data.Employees;
 import com.example.application.data.Services;
-import com.example.application.data.TypeOfDevice;
+
+import com.example.application.data.components.TypeOfDevice;
 import com.example.application.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -68,7 +69,7 @@ public class ServicesView extends VerticalLayout {
 
         grid.addColumn(Services::getServiceId).setHeader("ID");
         grid.addColumn(Services::getServiceName).setHeader("Название");
-        grid.addColumn(s -> s.getTypeOfDevice().getTypeName()).setHeader("Тип устройства");
+        grid.addColumn(s -> s.getTypeOfDevice().getTypeOfDeviceName()).setHeader("Тип устройства");
         grid.addColumn(Services::getCost).setHeader("Стоимость");
         grid.addColumn(s -> s.getTimeToCompleteMinutes() + " мин.").setHeader("Время выполнения");
         grid.addColumn(s -> s.getEmployees().stream()
@@ -87,7 +88,7 @@ public class ServicesView extends VerticalLayout {
 
     private void configureForm() {
         typeOfDeviceComboBox.setItems(service.findAllTypesOfDevices());
-        typeOfDeviceComboBox.setItemLabelGenerator(TypeOfDevice::getTypeName);
+        typeOfDeviceComboBox.setItemLabelGenerator(TypeOfDevice::getTypeOfDeviceName);
 
         employeesCheckboxGroup.setItems(service.findAllEmployees());
         employeesCheckboxGroup.setItemLabelGenerator(Employees::getFullName);
