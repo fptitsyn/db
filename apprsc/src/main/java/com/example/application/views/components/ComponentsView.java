@@ -3,9 +3,11 @@ package com.example.application.views.components;
 import com.example.application.data.components.ComponentDTO;
 import com.example.application.data.components.*;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -85,6 +87,14 @@ public class ComponentsView extends VerticalLayout {
         grid.addColumn(ComponentDTO::getComponentName).setHeader("Component Name");
         grid.addColumn(c -> String.format("$%.2f", c.getCost())).setHeader("Cost");
 
+        // Добавляем колонку с кнопкой удаления
+        grid.addComponentColumn(item -> {
+            Button deleteButton = new Button("", VaadinIcon.TRASH.create());
+            deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
+            deleteButton.addClickListener(e -> deleteComponent(item));
+            return deleteButton;
+        }).setWidth("100px").setFlexGrow(0);
+
         grid.asSingleSelect().addValueChangeListener(e -> {
             if (e.getValue() != null) {
                 componentEditor.editComponent(
@@ -94,10 +104,24 @@ public class ComponentsView extends VerticalLayout {
         });
     }
 
+    // Метод для удаления компонента
+    private void deleteComponent(ComponentDTO component) {
+        try {
+            componentService.deleteComponent(component.getComponentId());
+            updateGrid();
+            Notification.show("Component deleted", 3000, Notification.Position.TOP_END)
+                    .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        } catch (Exception ex) {
+            Notification.show("Error deleting component: " + ex.getMessage(), 5000,
+                            Notification.Position.MIDDLE)
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+        }
+    }
+
     private void configureEditors() {
         componentEditor.setWidth("500px");
-        categoryEditor.setWidth("400px");
-        deviceTypeEditor.setWidth("400px");
+        categoryEditor.setWidth("850px");
+        deviceTypeEditor.setWidth("700px");
 
         addButton.addClickListener(e -> componentEditor.editComponent(new ComponentDTO()));
         addCategoryButton.addClickListener(e -> categoryEditor.editCategory(new CategoryDTO()));
@@ -212,24 +236,77 @@ public class ComponentsView extends VerticalLayout {
         private final TextField nameField = new TextField("Category Name");
         private final Button saveButton = new Button("Save");
         private final Button cancelButton = new Button("Cancel");
+        private final Grid<CategoryDTO> grid = new Grid<>(CategoryDTO.class);
         private CategoryDTO currentDto;
         private final Binder<CategoryDTO> binder = new Binder<>(CategoryDTO.class);
 
         public CategoryEditor() {
             configureCombos();
             configureBinder();
+            configureGrid();
 
-            VerticalLayout layout = new VerticalLayout(
+            // Основной layout
+            VerticalLayout formLayout = new VerticalLayout(
                     deviceTypeCombo,
                     nameField,
                     new HorizontalLayout(saveButton, cancelButton)
             );
-            add(layout);
+
+            HorizontalLayout mainLayout = new HorizontalLayout(
+                    formLayout,
+                    grid
+            );
+            mainLayout.setWidthFull();
+            mainLayout.setFlexGrow(1, grid);
+
+            add(mainLayout);
 
             saveButton.addClickListener(e -> save());
             cancelButton.addClickListener(e -> close());
+
+            refreshGrid(); // Загрузка данных при открытии
         }
 
+        private void configureGrid() {
+            grid.removeAllColumns();
+
+            // Колонки
+            grid.addColumn(CategoryDTO::getDeviceType)
+                    .setHeader("Device Type")
+                    .setAutoWidth(true);
+
+            grid.addColumn(CategoryDTO::getName)
+                    .setHeader("Category Name")
+                    .setAutoWidth(true);
+
+            // Колонка с кнопкой удаления
+            grid.addComponentColumn(item -> {
+                Button deleteButton = new Button("", VaadinIcon.TRASH.create());
+                deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
+                deleteButton.addClickListener(e -> deleteCategory(item));
+                return deleteButton;
+            }).setWidth("70px").setFlexGrow(0);
+
+            grid.setWidth("800px");
+            grid.setHeight("300px");
+        }
+
+        private void deleteCategory(CategoryDTO dto) {
+            try {
+                categoryService.deleteCategory(dto.getId());
+                refreshGrid();
+                componentEditor.refreshDeviceTypes();
+                Notification.show("Category deleted", 3000, Notification.Position.TOP_END);
+            } catch (Exception ex) {
+                Notification.show("Error deleting category: " + ex.getMessage(), 5000,
+                                Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+        }
+
+        private void refreshGrid() {
+            grid.setItems(categoryService.getAllCategories());
+        }
         private void configureCombos() {
             refreshDeviceTypes();
             deviceTypeCombo.setAllowCustomValue(true);
@@ -259,7 +336,11 @@ public class ComponentsView extends VerticalLayout {
             try {
                 if (binder.writeBeanIfValid(currentDto)) {
                     categoryService.saveCategory(currentDto);
+                    refreshGrid(); // Обновляем таблицу после сохранения
+                    componentEditor.refreshDeviceTypes();
                     updateGrid();
+                    Notification.show("Category saved successfully", 3000,
+                            Notification.Position.TOP_END);
                     close();
                 }
             } catch (Exception e) {
@@ -274,20 +355,69 @@ public class ComponentsView extends VerticalLayout {
         private final TextField nameField = new TextField("Device Type Name");
         private final Button saveButton = new Button("Save");
         private final Button cancelButton = new Button("Cancel");
+        private final Grid<TypeOfDeviceDTO> grid = new Grid<>(TypeOfDeviceDTO.class);
         private TypeOfDeviceDTO currentDto;
         private final Binder<TypeOfDeviceDTO> binder = new Binder<>(TypeOfDeviceDTO.class);
 
         public DeviceTypeEditor() {
             configureBinder();
+            configureGrid();
 
-            VerticalLayout layout = new VerticalLayout(
+            // Основной layout
+            VerticalLayout formLayout = new VerticalLayout(
                     nameField,
                     new HorizontalLayout(saveButton, cancelButton)
             );
-            add(layout);
+
+            HorizontalLayout mainLayout = new HorizontalLayout(
+                    formLayout,
+                    grid
+            );
+            mainLayout.setWidthFull();
+            mainLayout.setFlexGrow(1, grid);
+
+            add(mainLayout);
 
             saveButton.addClickListener(e -> save());
             cancelButton.addClickListener(e -> close());
+
+            refreshGrid(); // Загрузка данных при открытии
+        }
+
+        private void configureGrid() {
+            grid.removeAllColumns();
+
+            // Колонка с названием
+            grid.addColumn(TypeOfDeviceDTO::getName)
+                    .setHeader("Existing Device Types")
+                    .setAutoWidth(true);
+
+            // Колонка с кнопкой удаления
+            grid.addComponentColumn(item -> {
+                Button deleteButton = new Button("", VaadinIcon.TRASH.create());
+                deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
+                deleteButton.addClickListener(e -> deleteDeviceType(item));
+                return deleteButton;
+            }).setWidth("70px").setFlexGrow(0);
+
+            grid.setWidth("600px");
+            grid.setHeight("200px");
+        }
+        private void deleteDeviceType(TypeOfDeviceDTO dto) {
+            try {
+                typeService.deleteDeviceType(dto.getId());
+                refreshGrid();
+                componentEditor.refreshDeviceTypes();
+                categoryEditor.refreshDeviceTypes();
+                Notification.show("Device type deleted", 3000, Notification.Position.TOP_END);
+            } catch (Exception ex) {
+                Notification.show("Error deleting device type: " + ex.getMessage(), 5000,
+                                Notification.Position.MIDDLE)
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+        }
+        private void refreshGrid() {
+            grid.setItems(typeService.getAllDeviceTypes());
         }
 
         private void configureBinder() {
@@ -306,9 +436,12 @@ public class ComponentsView extends VerticalLayout {
             try {
                 if (binder.writeBeanIfValid(currentDto)) {
                     typeService.saveDeviceType(currentDto);
+                    refreshGrid(); // Обновляем таблицу после сохранения
                     componentEditor.refreshDeviceTypes();
                     categoryEditor.refreshDeviceTypes();
                     updateGrid();
+                    Notification.show("Device type saved successfully", 3000,
+                            Notification.Position.TOP_END);
                     close();
                 }
             } catch (Exception e) {

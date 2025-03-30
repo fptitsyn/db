@@ -4,6 +4,7 @@ public class TypeOfDeviceDTO {
     private Long id;
     private String name;
 
+    // Конструкторы
     public TypeOfDeviceDTO() {}
 
     public TypeOfDeviceDTO(Long id, String name) {
@@ -17,3 +18,5 @@ public class TypeOfDeviceDTO {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 }
+
+

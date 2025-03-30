@@ -47,6 +47,9 @@ public class ComponentService {
         // 4. Сохранить
         componentRepo.save(component);
     }
+    public void deleteComponent(Long componentId) {
+        componentRepo.deleteById(componentId);
+    }
 
     private ComponentDTO convertToDTO(Component component) {
         ComponentDTO dto = new ComponentDTO();
@@ -63,4 +66,5 @@ public class ComponentService {
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new RuntimeException("Component not found"));
     }
+
 }

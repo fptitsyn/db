@@ -52,6 +52,7 @@ public class TypeOfDeviceService {
     }
 
     // Удаление
+    @Transactional
     public void deleteDeviceType(Long id) {
         typeOfDeviceRepository.deleteById(id);
     }

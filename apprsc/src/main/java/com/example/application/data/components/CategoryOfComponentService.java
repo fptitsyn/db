@@ -60,4 +60,22 @@ public class CategoryOfComponentService {
         category.setTypeOfPartName(dto.getName());
         categoryOfComponentRepository.save(category);
     }
+
+    public List<CategoryDTO> getAllCategories() {
+        return categoryOfComponentRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteCategory(Long id) {
+        categoryOfComponentRepository.deleteById(id);
+    }
+
+    private CategoryDTO convertToDTO(CategoryOfComponent entity) {
+        CategoryDTO dto = new CategoryDTO();
+        dto.setId(entity.getCategoryOfComponentId());
+        dto.setName(entity.getTypeOfPartName());
+        dto.setDeviceType(entity.getTypeOfDevice().getTypeOfDeviceName());
+        return dto;
+    }
 }
