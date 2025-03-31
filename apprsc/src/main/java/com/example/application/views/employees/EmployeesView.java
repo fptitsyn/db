@@ -1,5 +1,6 @@
 package com.example.application.views.employees;
 
+import com.example.application.data.Clients;
 import com.example.application.data.Employees;
 import com.example.application.data.Services;
 import com.example.application.services.EmployeesService;
@@ -11,6 +12,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,11 +24,14 @@ import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -244,9 +249,11 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
 
     private void configureGrid(){
         grid.removeAllColumns();
+        Grid.Column<Employees> lastNameCol = grid.addColumn("lastName")
+                .setAutoWidth(true)
+                .setSortable(true);
         grid.addColumn("firstName").setAutoWidth(true);
         grid.addColumn("middleName").setAutoWidth(true);
-        grid.addColumn("lastName").setAutoWidth(true);
         grid.addColumn("email").setAutoWidth(true);
         grid.addColumn("phone").setAutoWidth(true);
         grid.addColumn("dateOfBirth").setAutoWidth(true);
@@ -257,5 +264,10 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
 
         grid.setItems(query -> employeesService.list(VaadinSpringDataHelpers.toSpringPageRequest(query)).stream());
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        // Настройка сортировки по умолчанию
+        List<GridSortOrder<Employees>> sortOrder = Arrays.asList(
+                new GridSortOrder<>(lastNameCol, SortDirection.ASCENDING)
+        );
+        grid.sort(sortOrder);
     }
 }

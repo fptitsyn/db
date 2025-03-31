@@ -3,16 +3,16 @@ package com.example.application.views.employees;
 import com.example.application.data.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -20,6 +20,9 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.transaction.Transactional;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
+
+import java.util.Arrays;
+import java.util.List;
 
 @PageTitle("Штатное расписание")
 @Route("StaffingTable")
@@ -61,27 +64,53 @@ public class StaffingTableView extends VerticalLayout {
 
     private void configureGrid() {
         grid.removeAllColumns();
-
-        grid.addColumn(StaffingTable::getDepartment)
-                .setHeader("Подразделение")
-
-                .setAutoWidth(true);
-        grid.addColumn(StaffingTable::getPosition)
-                .setHeader("Должность")
-                .setAutoWidth(true);
-
-        grid.addColumn(StaffingTable::getSalary)
-                .setHeader("ФОТ")
-                .setAutoWidth(true);
-
+        // Колонка Офис с кастомным компаратором
         grid.addColumn(l -> {
                     Locations type = l.getLocation();
                     return type != null ? type.getName() : "—";
                 })
                 .setHeader("Офис")
+                .setKey("office")
+                .setAutoWidth(true)
+                .setSortable(true)
+                .setComparator(st -> {
+                    Locations loc = st.getLocation();
+                    return loc != null ? loc.getName() : "";
+                });
+        // Колонка Подразделение
+        grid.addColumn(StaffingTable::getDepartment)
+                .setHeader("Подразделение")
+                .setKey("department")
+                .setAutoWidth(true)
+                .setSortable(true);
+
+        // Колонка Должность
+        grid.addColumn(StaffingTable::getPosition)
+                .setHeader("Должность")
+                .setKey("position")
+                .setAutoWidth(true)
+                .setSortable(true);
+
+        // Колонка ФОТ (без сортировки)
+        grid.addColumn(StaffingTable::getSalary)
+                .setHeader("ФОТ")
                 .setAutoWidth(true);
 
+        // Обработчик выбора записи
         grid.asSingleSelect().addValueChangeListener(e -> editStaffingTable(e.getValue()));
+
+        // Установка сортировки по умолчанию
+        Grid.Column<StaffingTable> officeColumn = grid.getColumnByKey("office");
+        Grid.Column<StaffingTable> departmentColumn = grid.getColumnByKey("department");
+        Grid.Column<StaffingTable> positionColumn = grid.getColumnByKey("position");
+
+        List<GridSortOrder<StaffingTable>> sortOrder = Arrays.asList(
+                new GridSortOrder<>(officeColumn, SortDirection.ASCENDING),
+                new GridSortOrder<>(departmentColumn, SortDirection.ASCENDING),
+                new GridSortOrder<>(positionColumn, SortDirection.ASCENDING)
+        );
+
+        grid.sort(sortOrder);
     }
 
     private void configureForm() {

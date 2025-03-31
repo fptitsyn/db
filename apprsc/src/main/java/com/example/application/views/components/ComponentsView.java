@@ -7,6 +7,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -16,6 +17,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.DoubleToBigDecimalConverter;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -25,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 @Route("components-management")
 @Menu(order = 16, icon = LineAwesomeIconUrl.MICROCHIP_SOLID)
@@ -81,19 +85,48 @@ public class ComponentsView extends VerticalLayout {
         grid.setHeight("70vh");
         grid.removeAllColumns();
 
-        grid.addColumn(ComponentDTO::getComponentId).setHeader("ID").setAutoWidth(true);
-        grid.addColumn(ComponentDTO::getTypeOfDeviceName).setHeader("Device Type");
-        grid.addColumn(ComponentDTO::getTypeOfPartName).setHeader("Part Type");
-        grid.addColumn(ComponentDTO::getComponentName).setHeader("Component Name");
-        grid.addColumn(c -> String.format("$%.2f", c.getCost())).setHeader("Cost");
+        // Колонка ID (без сортировки)
+        grid.addColumn(ComponentDTO::getComponentId)
+                .setHeader("ID")
+                .setAutoWidth(true);
 
-        // Добавляем колонку с кнопкой удаления
+        // Колонка Device Type с сортировкой
+        Grid.Column<ComponentDTO> deviceTypeCol = grid.addColumn(ComponentDTO::getTypeOfDeviceName)
+                .setHeader("Device Type")
+                .setKey("deviceType")
+                .setSortable(true);
+
+        // Колонка Part Type с сортировкой
+        Grid.Column<ComponentDTO> partTypeCol = grid.addColumn(ComponentDTO::getTypeOfPartName)
+                .setHeader("Part Type")
+                .setKey("partType")
+                .setSortable(true);
+
+        // Колонка Component Name с сортировкой
+        Grid.Column<ComponentDTO> componentNameCol = grid.addColumn(ComponentDTO::getComponentName)
+                .setHeader("Component Name")
+                .setKey("componentName")
+                .setSortable(true);
+
+        // Колонка Cost (без сортировки)
+        grid.addColumn(c -> String.format("$%.2f", c.getCost()))
+                .setHeader("Cost");
+
+        // Колонка с кнопкой удаления
         grid.addComponentColumn(item -> {
             Button deleteButton = new Button("", VaadinIcon.TRASH.create());
             deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
             deleteButton.addClickListener(e -> deleteComponent(item));
             return deleteButton;
         }).setWidth("100px").setFlexGrow(0);
+
+        // Настройка сортировки по умолчанию
+        List<GridSortOrder<ComponentDTO>> sortOrder = Arrays.asList(
+                new GridSortOrder<>(deviceTypeCol, SortDirection.ASCENDING),
+                new GridSortOrder<>(partTypeCol, SortDirection.ASCENDING),
+                new GridSortOrder<>(componentNameCol, SortDirection.ASCENDING)
+        );
+        grid.sort(sortOrder);
 
         grid.asSingleSelect().addValueChangeListener(e -> {
             if (e.getValue() != null) {

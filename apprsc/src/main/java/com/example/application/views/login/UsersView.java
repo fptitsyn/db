@@ -13,6 +13,7 @@ import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
@@ -24,6 +25,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import jakarta.annotation.security.RolesAllowed;
@@ -80,14 +82,33 @@ public class UsersView extends Div implements BeforeEnterObserver {
     }
 
     private void configureGrid() {
+        grid.removeAllColumns();
+
+        // Колонка "Сотрудник" с сортировкой
+        Grid.Column<Users> employeeColumn = grid.addColumn(user -> user.getEmployee() != null
+                        ? user.getEmployee().getFullName()
+                        : "")
+                .setHeader("Сотрудник")
+                .setKey("employee")
+                .setAutoWidth(true)
+                .setSortable(true)
+                .setComparator(u -> {
+                    Employees e = u.getEmployee();
+                    return e != null ? e.getFullName() : "";
+                });
+
         grid.addColumn("username").setAutoWidth(true).setHeader("Пользователь");
         grid.addColumn("name").setAutoWidth(true).setHeader("Ник");
-        grid.addColumn(user -> user.getEmployee() != null
-                ? user.getEmployee().getFullName()
-                : "").setHeader("Сотрудник").setAutoWidth(true);
+
         grid.addColumn(user -> user.getRoles().stream()
                 .map(Role::name)
                 .collect(Collectors.joining(", "))).setHeader("Роли").setAutoWidth(true);
+
+        // Настройка сортировки по умолчанию
+        List<GridSortOrder<Users>> sortOrder = Collections.singletonList(
+                new GridSortOrder<>(employeeColumn, SortDirection.ASCENDING)
+        );
+        grid.sort(sortOrder);
 
         grid.setItems(query -> usersService.listWithEmployees(
                 VaadinSpringDataHelpers.toSpringPageRequest(query)).stream());
