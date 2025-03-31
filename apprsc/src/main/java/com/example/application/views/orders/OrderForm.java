@@ -5,6 +5,7 @@ import com.example.application.data.Orders;
 import com.example.application.services.OrdersService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -49,8 +50,8 @@ public class OrderForm extends FormLayout {
         binder.readBean(order);
 
         // Кнопки
-        Button saveBtn = new Button("Сохранить", e -> save());
-        Button cancelBtn = new Button("Отмена", e -> this.setVisible(false));
+        Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create(), e -> save());
+        Button cancelBtn = new Button("Отмена", VaadinIcon.CLOSE_CIRCLE_O.create(), e -> this.setVisible(false));
 
         add(new FormLayout(productField, quantityField), new HorizontalLayout(saveBtn, cancelBtn));
     }

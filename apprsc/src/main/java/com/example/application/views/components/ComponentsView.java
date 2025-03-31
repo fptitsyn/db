@@ -38,9 +38,9 @@ public class ComponentsView extends VerticalLayout {
     private final CategoryOfComponentService categoryService;
 
     private final Grid<ComponentDTO> grid = new Grid<>(ComponentDTO.class);
-    private final Button addButton = new Button("Add Component");
-    private final Button addCategoryButton = new Button("Add Category");
-    private final Button addDeviceTypeButton = new Button("Add Device Type");
+    private final Button addButton = new Button("Комлектующая", VaadinIcon.PLUS_SQUARE_O.create());
+    private final Button addCategoryButton = new Button("Категория", VaadinIcon.PLUS_SQUARE_O.create());
+    private final Button addDeviceTypeButton = new Button("Тип устройства", VaadinIcon.PLUS_SQUARE_O.create());
 
     private final ComponentEditor componentEditor;
     private final CategoryEditor categoryEditor;
@@ -137,8 +137,8 @@ public class ComponentsView extends VerticalLayout {
         public final ComboBox<String> categoryCombo = new ComboBox<>("Category");
         private final TextField nameField = new TextField("Component Name");
         private final NumberField costField = new NumberField("Cost");
-        private final Button saveButton = new Button("Save");
-        private final Button cancelButton = new Button("Cancel");
+        private final Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+        private final Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
         private ComponentDTO currentDto;
         private final Binder<ComponentDTO> binder = new Binder<>(ComponentDTO.class);
 
@@ -234,8 +234,8 @@ public class ComponentsView extends VerticalLayout {
     private class CategoryEditor extends Dialog {
         public final ComboBox<String> deviceTypeCombo = new ComboBox<>("Device Type");
         private final TextField nameField = new TextField("Category Name");
-        private final Button saveButton = new Button("Save");
-        private final Button cancelButton = new Button("Cancel");
+        private final Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+        private final Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
         private final Grid<CategoryDTO> grid = new Grid<>(CategoryDTO.class);
         private CategoryDTO currentDto;
         private final Binder<CategoryDTO> binder = new Binder<>(CategoryDTO.class);
@@ -353,8 +353,8 @@ public class ComponentsView extends VerticalLayout {
 
     private class DeviceTypeEditor extends Dialog {
         private final TextField nameField = new TextField("Device Type Name");
-        private final Button saveButton = new Button("Save");
-        private final Button cancelButton = new Button("Cancel");
+        private final Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+        private final Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
         private final Grid<TypeOfDeviceDTO> grid = new Grid<>(TypeOfDeviceDTO.class);
         private TypeOfDeviceDTO currentDto;
         private final Binder<TypeOfDeviceDTO> binder = new Binder<>(TypeOfDeviceDTO.class);

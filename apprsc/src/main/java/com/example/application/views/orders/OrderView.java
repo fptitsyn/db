@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -63,7 +64,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         orderGrid.addColumn(o -> o.getQuantity()).setHeader("Количество");
         orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия");
 
-        Button addOrderBtn = new Button("Добавить заказ", e -> showOrderForm(new Orders()));
+        Button addOrderBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(), e -> showOrderForm(new Orders()));
         add(clientFullname,new H3("Заказы клиента"), addOrderBtn, orderGrid);
     }
 
@@ -93,7 +94,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private HorizontalLayout createOrderActions(Orders order) {
-        Button editBtn = new Button("Ред.", e -> showOrderForm(order));
+        Button editBtn = new Button("Редактировать", e -> showOrderForm(order));
         Button deleteBtn = new Button("Удалить", e -> {
             orderService.delete(order);
             updateGrid();
@@ -127,7 +128,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             StaffingTable staffingTable = activeMoving.get().getStaffingTable();
             Locations location = staffingTable.getLocation();
             if (location == null) {
-                Notification.show("Ошибка: Локация не найдена в штатном расписании", 3000, Notification.Position.TOP_CENTER);
+                Notification.show("Ошибка: Офис не найден в штатном расписании", 3000, Notification.Position.TOP_CENTER);
                 return;
             }
 

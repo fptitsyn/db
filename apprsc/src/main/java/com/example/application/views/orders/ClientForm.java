@@ -4,6 +4,7 @@ import com.example.application.data.Clients;
 import com.example.application.services.ClientsService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -41,8 +42,8 @@ public class ClientForm extends FormLayout {
 
         binder.readBean(client); // Загрузка данных
 
-        Button saveBtn = new Button("Сохранить", e -> save());
-        Button cancelBtn = new Button("Отмена", e -> this.setVisible(false));
+        Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create(), e -> save());
+        Button cancelBtn = new Button("Отмена", VaadinIcon.CLOSE_CIRCLE_O.create(), e -> this.setVisible(false));
 
         add(firstName, lastName, middleName, new HorizontalLayout(saveBtn, cancelBtn));
     }

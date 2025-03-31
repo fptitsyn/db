@@ -35,7 +35,7 @@ public class MainView extends VerticalLayout {
         clientGrid.addComponentColumn(this::createActions).setHeader("Действия");
 
         // Кнопка добавления нового клиента
-        Button addClientBtn = new Button("Добавить клиента", e -> showClientForm(new Clients()));
+        Button addClientBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(), e -> showClientForm(new Clients()));
 
         // Обновление данных
         updateGrid();
@@ -48,7 +48,7 @@ public class MainView extends VerticalLayout {
     }
 
     private HorizontalLayout createActions(Clients client) {
-        Button editBtn = new Button("Ред.", VaadinIcon.EDIT.create(), e -> showClientForm(client));
+        Button editBtn = new Button("Редактировать", VaadinIcon.EDIT.create(), e -> showClientForm(client));
         Button ordersBtn = new Button("Заказы", VaadinIcon.CART.create(), e -> showOrders(client));
         Button bonusBtn = new Button("Бонусы", VaadinIcon.GIFT.create(), e -> showBonus(client));
         Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> {

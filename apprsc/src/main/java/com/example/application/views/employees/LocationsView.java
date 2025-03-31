@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -35,10 +36,10 @@ public class LocationsView extends VerticalLayout {
     private TextField name = new TextField("Название");
     private TextField street = new TextField("Улица");
     private ComboBox<LocationsType> locationType = new ComboBox<>("Тип территории");
-    private Button saveButton = new Button("Сохранить");
-    private Button deleteButton = new Button("Удалить");
-    private Button cancelButton = new Button("Отменить");
-    private Button addButton = new Button("Добавить");
+    private Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+    private Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
+    private Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
+    private Button addButton = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create());
 
     public LocationsView(LocationsRepository locationRepository,
                          LocationTypeRepository locationTypeRepository) {

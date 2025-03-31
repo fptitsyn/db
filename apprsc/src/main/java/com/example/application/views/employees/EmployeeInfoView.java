@@ -5,6 +5,7 @@ import com.example.application.reports.EmployeeInfoService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
@@ -53,7 +54,7 @@ public class EmployeeInfoView extends VerticalLayout {
     }
 
     private Button createExportButton() {
-        return new Button("Export to Excel", event -> exportToExcel());
+        return new Button("Открыть в Excel", VaadinIcon.BAR_CHART.create(), event -> exportToExcel());
     }
 
     private void exportToExcel() {

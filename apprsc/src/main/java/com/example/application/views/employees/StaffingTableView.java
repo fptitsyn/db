@@ -6,6 +6,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -40,10 +41,10 @@ public class StaffingTableView extends VerticalLayout {
 
     private IntegerField salary = new IntegerField("ФОТ");
     private ComboBox<Locations> location = new ComboBox<>("Офис");
-    private Button saveButton = new Button("Сохранить");
-    private Button deleteButton = new Button("Удалить");
-    private Button cancelButton = new Button("Отменить");
-    private Button addButton = new Button("Добавить");
+    private Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+    private Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
+    private Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
+    private Button addButton = new Button("Новая", VaadinIcon.PLUS_SQUARE_O.create());
 
     public StaffingTableView(StaffingTableRepository staffingTableRepository,
                              LocationsRepository locationRepository) {
@@ -62,11 +63,11 @@ public class StaffingTableView extends VerticalLayout {
         grid.removeAllColumns();
 
         grid.addColumn(StaffingTable::getDepartment)
-                .setHeader("Дложность")
+                .setHeader("Подразделение")
 
                 .setAutoWidth(true);
         grid.addColumn(StaffingTable::getPosition)
-                .setHeader("Дложность")
+                .setHeader("Должность")
                 .setAutoWidth(true);
 
         grid.addColumn(StaffingTable::getSalary)
