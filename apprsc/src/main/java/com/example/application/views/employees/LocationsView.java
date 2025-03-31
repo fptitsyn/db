@@ -21,7 +21,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @PageTitle("Офисы")
 @Route("locations")
 
-@Menu(order = 43, icon = LineAwesomeIconUrl.CITY_SOLID)
+@Menu(order = 44, icon = LineAwesomeIconUrl.CITY_SOLID)
 @RolesAllowed({"HR","GOD"})
 public class LocationsView extends VerticalLayout {
     private final LocationsRepository locationRepository;
