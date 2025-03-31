@@ -15,7 +15,10 @@ public class ClientForm extends FormLayout {
     private final Runnable refreshCallback;
 
     // Поля формы должны быть объявлены как instance-переменные
-    private TextField nameField = new TextField("Имя клиента");
+    private TextField firstName = new TextField("Имя клиента");
+    private TextField lastName = new TextField("Фамилия клиента");
+    private TextField middleName = new TextField("Отчество клиента");
+
     private Binder<Clients> binder = new Binder<>(Clients.class);
 
     public ClientForm(Clients client, ClientsService service, Runnable refreshCallback) {
@@ -27,18 +30,21 @@ public class ClientForm extends FormLayout {
 
     private void initForm() {
         // Ручная привязка вместо bindInstanceFields()
-        binder.forField(nameField)
+        binder.forField(firstName)
                 .asRequired("Имя обязательно")
-                .bind(Clients::getName, Clients::setName);
-
-        // Если есть другие поля, добавьте их здесь
+                .bind(Clients::getFirstName, Clients::setFirstName);
+        binder.forField(lastName)
+                .asRequired("Фамилия обязательно")
+                .bind(Clients::getLastName, Clients::setLastName);
+        binder.forField(lastName)
+                .bind(Clients::getMiddleName, Clients::setMiddleName);
 
         binder.readBean(client); // Загрузка данных
 
         Button saveBtn = new Button("Сохранить", e -> save());
         Button cancelBtn = new Button("Отмена", e -> this.setVisible(false));
 
-        add(nameField, new HorizontalLayout(saveBtn, cancelBtn));
+        add(firstName, lastName, middleName, new HorizontalLayout(saveBtn, cancelBtn));
     }
 
     private void save() {

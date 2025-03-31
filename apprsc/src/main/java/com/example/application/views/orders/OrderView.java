@@ -9,6 +9,7 @@ import com.example.application.services.OrdersService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -27,6 +28,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final EmployeesMovingService employeesMovingService;
     private Clients currentClient;
     private Grid<Orders> orderGrid = new Grid<>(Orders.class);
+    private Span clientFullname = new Span();
 
     public OrderView(OrdersService orderService,
                      ClientsService clientService,
@@ -62,7 +64,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия");
 
         Button addOrderBtn = new Button("Добавить заказ", e -> showOrderForm(new Orders()));
-        add(new H3("Заказы клиента"), addOrderBtn, orderGrid);
+        add(clientFullname,new H3("Заказы клиента"), addOrderBtn, orderGrid);
     }
 
 
@@ -75,6 +77,10 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             Long id = Long.parseLong(clientID);
             currentClient = clientService.findById(id)
                     .orElseThrow(() -> new NotFoundException("Client not found"));
+            // Устанавливаем имя клиента
+            clientFullname.setText("Клиент: " + currentClient.getFullName());
+            clientFullname.addClassName("client-name");
+
             updateGrid();
         } catch (NumberFormatException e) {
             Notification.show("Invalid client ID", 3000, Notification.Position.TOP_CENTER);

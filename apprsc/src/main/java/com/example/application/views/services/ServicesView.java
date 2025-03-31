@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @SpringComponent
 @UIScope
 @PageTitle("Услуги")
-@Menu(order = 55, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+@Menu(order = 55, icon = LineAwesomeIconUrl.LAPTOP_CODE_SOLID)
 @RolesAllowed({"SALES","GOD"})
 public class ServicesView extends VerticalLayout {
     private final ServicesService service;

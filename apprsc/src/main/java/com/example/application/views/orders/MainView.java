@@ -4,6 +4,7 @@ import com.example.application.data.Clients;
 import com.example.application.services.ClientsService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
@@ -30,7 +31,7 @@ public class MainView extends VerticalLayout {
     private void initView() {
         // Настройка таблицы клиентов
         clientGrid.removeAllColumns();
-        clientGrid.addColumn(Clients::getName).setHeader("Имя клиента");
+        clientGrid.addColumn(Clients::getFullName).setHeader("Имя");
         clientGrid.addComponentColumn(this::createActions).setHeader("Действия");
 
         // Кнопка добавления нового клиента
@@ -47,10 +48,10 @@ public class MainView extends VerticalLayout {
     }
 
     private HorizontalLayout createActions(Clients client) {
-        Button editBtn = new Button("Ред.", e -> showClientForm(client));
-        Button ordersBtn = new Button("Заказы", e -> showOrders(client));
-        Button bonusBtn = new Button("Бонусы", e -> showBonus(client));
-        Button deleteBtn = new Button("Удалить", e -> {
+        Button editBtn = new Button("Ред.", VaadinIcon.EDIT.create(), e -> showClientForm(client));
+        Button ordersBtn = new Button("Заказы", VaadinIcon.CART.create(), e -> showOrders(client));
+        Button bonusBtn = new Button("Бонусы", VaadinIcon.GIFT.create(), e -> showBonus(client));
+        Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> {
             clientService.delete(client);
             updateGrid();
         });

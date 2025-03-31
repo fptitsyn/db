@@ -65,7 +65,7 @@ public class BonusView extends VerticalLayout implements BeforeEnterObserver {
                     .orElseThrow(() -> new NotFoundException("Client not found"));
 
             // Устанавливаем имя клиента
-            clientFullname.setText("Клиент: " + currentClient.getName());
+            clientFullname.setText("Клиент: " + currentClient.getFullName());
             clientFullname.addClassName("client-name");
 
             // Получаем BonusAccount для текущего клиента

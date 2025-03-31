@@ -38,7 +38,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @PageTitle("Сотрудники")
 @Route("employees-detail/:samplePersonID?/:action?(edit)")
 
-@Menu(order = 40, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+@Menu(order = 40, icon = LineAwesomeIconUrl.USER_FRIENDS_SOLID)
 @RolesAllowed({"HR","GOD"})
 
 public class EmployeesView extends Div implements BeforeEnterObserver {

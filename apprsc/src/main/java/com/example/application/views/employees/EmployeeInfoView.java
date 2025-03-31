@@ -24,7 +24,7 @@ import java.util.List;
 
 @PageTitle("Отчет по сотрудникам")
 @Route("employees-info")
-@Menu(order = 45, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+@Menu(order = 45, icon = LineAwesomeIconUrl.CHART_BAR_SOLID)
 @RolesAllowed({"HR","ANALYSTS", "GOD"})
 
 public class EmployeeInfoView extends VerticalLayout {

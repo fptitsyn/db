@@ -1,7 +1,9 @@
 package com.example.application.data;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,8 +15,20 @@ public class Clients {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long client_id;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "middle_name")
+    private String middleName;
+
+    @Email
+    private String email;
+    private String phone_number;
+    private String comment;
+    private LocalDate date_of_birth;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Orders> orders = new ArrayList<>();
@@ -28,28 +42,59 @@ public class Clients {
     }
 
     // Конструктор с параметром имени (опционально)
-    public Clients(String name) {
-        this.name = name;
+    public Clients(String firstName) {
+        this.firstName = firstName;
     }
 
     // Геттеры
     public Long getId() {
         return client_id;
     }
-
-    public String getName() {
-        return name;
+    public String getFirstName() { return firstName; }
+    public String getLastName() {
+        return lastName;
+    }
+    public String getMiddleName() {
+        return middleName;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getPhone() {
+        return phone_number;
+    }
+    public LocalDate getDateOfBirth() {
+        return date_of_birth;
+    }
+    public String getComment() {
+        return comment;
+    }
+    public String getFullName() {
+        return lastName + " " + firstName + " " + (middleName != null ? middleName : "");
     }
 
-    public List<Orders> getOrders() {
-        return Collections.unmodifiableList(orders); // Защита от неконтролируемых изменений
-    }
-    public BonusAccount getBonusAccount() {
-        return bonusAccount;
-    }
+    public List<Orders> getOrders() {return Collections.unmodifiableList(orders);}// Защита от неконтролируемых изменений
+    public BonusAccount getBonusAccount() {return bonusAccount;}
+
     // Сеттеры
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String first_name) { this.firstName = first_name; }
+    public void setLastName(String last_name) {
+        this.lastName = last_name;
+    }
+    public void setMiddleName(String middle_name) {
+        this.middleName = middle_name;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public void setPhone(String phone_number) {
+        this.phone_number = phone_number;
+    }
+    public void setDateOfBirth(LocalDate date_of_birth) {
+        this.date_of_birth = date_of_birth;
+    }
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     // Методы для управления связью с Order

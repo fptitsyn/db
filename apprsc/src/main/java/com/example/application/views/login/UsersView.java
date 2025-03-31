@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 @PageTitle("Пользователи")
 @Route("users-detail/:entityID?/:action?(edit)")
-@Menu(order = 50, icon = LineAwesomeIconUrl.COLUMNS_SOLID)
+@Menu(order = 50, icon = LineAwesomeIconUrl.USER_COG_SOLID)
 @RolesAllowed({"ADMIN","GOD"})
 public class UsersView extends Div implements BeforeEnterObserver {
 
