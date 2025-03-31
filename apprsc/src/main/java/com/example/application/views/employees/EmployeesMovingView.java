@@ -7,10 +7,15 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -18,7 +23,10 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
-@PageTitle("Перемешение сотрудников")
+import java.util.Arrays;
+import java.util.List;
+
+@PageTitle("Приём/Увольнение")
 @Route("EmployeesMoving")
 @UIScope
 @Menu(order = 42, icon = LineAwesomeIconUrl.FILE_CONTRACT_SOLID)
@@ -39,11 +47,11 @@ public class EmployeesMovingView extends VerticalLayout {
     private ComboBox<Employees> employeeCombo = new ComboBox<>("Сотрудник");
     private DatePicker employmentDate = new DatePicker("Дата приема");
     private DatePicker dismissalDate = new DatePicker("Дата увольнения");
-    private Button bindButton = new Button("Привязать");
+    private Button bindButton = new Button("Привязать", VaadinIcon.LINK.create());
 
     // Добавляем кнопки для редактирования и удаления
-    private Button editButton = new Button("Изменить");
-    private Button deleteButton = new Button("Удалить");
+    private Button editButton = new Button("Изменить", VaadinIcon.CHECK_SQUARE_O.create());
+    private Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
 
     public EmployeesMovingView(StaffingTableRepository staffingTableRepository,
                              EmployeesRepository employeesRepository,
@@ -63,7 +71,7 @@ public class EmployeesMovingView extends VerticalLayout {
 
         configureBindingForm();
         configureHistoryGrid(); // Добавляем настройку грида истории
-        add(new HorizontalLayout(bindingForm), historyGrid);
+        add(new H4("Привязанные сотрудники:"), historyGrid, new HorizontalLayout(bindingForm));
 
         updateGrid();
         updateHistory(); // Первоначальная загрузка всей истории
@@ -72,17 +80,26 @@ public class EmployeesMovingView extends VerticalLayout {
 
     private void configureGrid() {
         grid.removeAllColumns();
-        grid.addColumn(StaffingTable::getPosition)
-                .setHeader("Должность")
-                .setAutoWidth(true);
-        grid.addColumn(StaffingTable::getSalary)
-                .setHeader("ФОТ")
-                .setAutoWidth(true);
         grid.addColumn(l -> {
                     Locations type = l.getLocation();
                     return type != null ? type.getName() : "—";
                 })
                 .setHeader("Офис")
+                .setKey("office")
+                .setAutoWidth(true)
+                .setSortable(true);
+        grid.addColumn(StaffingTable::getDepartment)
+                .setHeader("Подразделение")
+                .setKey("department")
+                .setAutoWidth(true)
+                .setSortable(true);
+        grid.addColumn(StaffingTable::getPosition)
+                .setHeader("Должность")
+                .setKey("position")
+                .setAutoWidth(true)
+                .setSortable(true);
+        grid.addColumn(StaffingTable::getSalary)
+                .setHeader("ФОТ")
                 .setAutoWidth(true);
 
         // Обработчик выбора должности
@@ -92,6 +109,18 @@ public class EmployeesMovingView extends VerticalLayout {
             updateHistory(); // Обновляем историю при выборе должности
             clearForm(); // Очищаем форму
         });
+        // Установка сортировки по умолчанию
+        Grid.Column<StaffingTable> officeColumn = grid.getColumnByKey("office");
+        Grid.Column<StaffingTable> departmentColumn = grid.getColumnByKey("department");
+        Grid.Column<StaffingTable> positionColumn = grid.getColumnByKey("position");
+
+        List<GridSortOrder<StaffingTable>> sortOrder = Arrays.asList(
+                new GridSortOrder<>(officeColumn, SortDirection.ASCENDING),
+                new GridSortOrder<>(departmentColumn, SortDirection.ASCENDING),
+                new GridSortOrder<>(positionColumn, SortDirection.ASCENDING)
+        );
+
+        grid.sort(sortOrder);
     }
 
     private void configureBindingForm() {
@@ -110,11 +139,14 @@ public class EmployeesMovingView extends VerticalLayout {
             clearFormOnlyDate(); // Очищаем форму
         });
 
+        HorizontalLayout employeesMovingEditor = new HorizontalLayout(employeeCombo, employmentDate, dismissalDate);
         // Кнопки
         HorizontalLayout buttons = new HorizontalLayout(bindButton, editButton, deleteButton);
-        bindingForm.add(employeeCombo, employmentDate, dismissalDate, buttons);
+        bindingForm.add(employeesMovingEditor);
+        bindingForm.add(buttons);
         bindingForm.setVisible(false);
 
+        bindingForm.setWidth("1400px");
         // Обработчик кнопки "Привязать"
         bindButton.addClickListener(e -> {
             if (selectedStaffingTable != null && employeeCombo.getValue() != null) {
@@ -140,6 +172,7 @@ public class EmployeesMovingView extends VerticalLayout {
                 employeesMovingRepository.save(selected); // Сохраняем объект в БД
                 Notification.show("Изменения сохранены");
                 updateHistory();
+                clearForm();
             } else {
                 Notification.show("Выберите перемещение для редактирования", 3000, Notification.Position.BOTTOM_START);
             }
@@ -184,6 +217,9 @@ public class EmployeesMovingView extends VerticalLayout {
         employmentDate.clear();
         dismissalDate.clear();
         historyGrid.asSingleSelect().clear(); // Снимаем выделение в гриде истории
+        bindButton.setVisible(true);
+        editButton.setVisible(false);
+        deleteButton.setVisible(false);
     }
     private void clearFormOnlyDate() {
         employmentDate.clear();
@@ -226,6 +262,9 @@ public class EmployeesMovingView extends VerticalLayout {
 
             // Устанавливаем даты через Binder
             binderForMoving.readBean(moving); // Заполняем форму данными из выбранного перемещения
+            bindButton.setVisible(false);
+            editButton.setVisible(true);
+            deleteButton.setVisible(true);
         }
     }
 
