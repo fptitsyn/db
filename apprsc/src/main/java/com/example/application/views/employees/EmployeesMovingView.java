@@ -217,9 +217,9 @@ public class EmployeesMovingView extends VerticalLayout {
         employmentDate.clear();
         dismissalDate.clear();
         historyGrid.asSingleSelect().clear(); // Снимаем выделение в гриде истории
-        bindButton.setVisible(true);
-        editButton.setVisible(false);
-        deleteButton.setVisible(false);
+        bindButton.setEnabled(true);
+        editButton.setEnabled(false);
+        deleteButton.setEnabled(false);
     }
     private void clearFormOnlyDate() {
         employmentDate.clear();
@@ -262,9 +262,9 @@ public class EmployeesMovingView extends VerticalLayout {
 
             // Устанавливаем даты через Binder
             binderForMoving.readBean(moving); // Заполняем форму данными из выбранного перемещения
-            bindButton.setVisible(false);
-            editButton.setVisible(true);
-            deleteButton.setVisible(true);
+            bindButton.setEnabled(false);
+            editButton.setEnabled(true);
+            deleteButton.setEnabled(true);
         }
     }
 

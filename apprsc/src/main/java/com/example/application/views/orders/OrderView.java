@@ -7,6 +7,7 @@ import com.example.application.services.ClientsService;
 import com.example.application.services.EmployeesMovingService;
 import com.example.application.services.OrdersService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -19,6 +20,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 import java.util.Optional;
 
+@PageTitle("Заказы")
 @RolesAllowed({"SALES","GOD"})
 @Route(value = "orders/:clientID") // Убрали layout
 
@@ -30,6 +32,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private Clients currentClient;
     private Grid<Orders> orderGrid = new Grid<>(Orders.class);
     private Span clientFullname = new Span();
+    private Button backButton = new Button("Вернуться к списку клиентов");
 
     public OrderView(OrdersService orderService,
                      ClientsService clientService,
@@ -43,6 +46,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void initView() {
+        configureBackButton(); // Настройка кнопки
         orderGrid.removeAllColumns();
 
         orderGrid.addColumn(order -> {
@@ -62,12 +66,27 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
 
         orderGrid.addColumn(o -> o.getProduct()).setHeader("Товар");
         orderGrid.addColumn(o -> o.getQuantity()).setHeader("Количество");
-        orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия");
+        orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия").setWidth("250px");
 
         Button addOrderBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(), e -> showOrderForm(new Orders()));
-        add(clientFullname,new H3("Заказы клиента"), addOrderBtn, orderGrid);
-    }
 
+        //add(backButton, clientFullname);
+
+        add(clientFullname, addOrderBtn, orderGrid, backButton);
+
+
+    }
+    private void configureBackButton() {
+        backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
+
+        backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        backButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        backButton.addClickListener(e ->
+                getUI().ifPresent(ui -> ui.navigate(ClientsView.class))
+        );
+    }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
@@ -94,7 +113,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private HorizontalLayout createOrderActions(Orders order) {
-        Button editBtn = new Button("Редактировать", e -> showOrderForm(order));
+        Button editBtn = new Button("Изменить", e -> showOrderForm(order));
         Button deleteBtn = new Button("Удалить", e -> {
             orderService.delete(order);
             updateGrid();

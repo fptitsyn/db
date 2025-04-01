@@ -28,8 +28,11 @@ public class Clients {
     private String email;
     private String phone_number;
     private String comment;
-    private LocalDate date_of_birth;
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
     private String gender;
+    @Column(name = "city_of_residence")
+    private String cityOfResidence;
 
     @OneToOne
     @JoinColumn(name = "client_status_id")
@@ -69,7 +72,7 @@ public class Clients {
         return phone_number;
     }
     public LocalDate getDateOfBirth() {
-        return date_of_birth;
+        return dateOfBirth;
     }
     public String getComment() {
         return comment;
@@ -77,6 +80,10 @@ public class Clients {
     public String getGender() {
         return gender;
     }
+    public String getCityOfResidence() {
+        return cityOfResidence;
+    }
+
     public ClientStatus getClientStatus() { return clientStatus;    }
 
     public String getFullName() {
@@ -100,10 +107,13 @@ public class Clients {
     public void setPhone(String phone_number) {
         this.phone_number = phone_number;
     }
-    public void setDateOfBirth(LocalDate date_of_birth) {this.date_of_birth = date_of_birth; }
+    public void setDateOfBirth(LocalDate date_of_birth) {this.dateOfBirth = date_of_birth; }
     public void setComment(String comment) { this.comment = comment;    }
     public void setGender(String gender) {
         this.gender = gender;
+    }
+    public void setCityOfResidence(String cityOfResidence) {
+        this.cityOfResidence = cityOfResidence;
     }
     public void setClientStatus(ClientStatus clientStatus) {
         this.clientStatus = clientStatus;

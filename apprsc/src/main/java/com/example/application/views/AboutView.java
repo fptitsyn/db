@@ -38,6 +38,8 @@ public class AboutView extends VerticalLayout {
         add(new H5("01.04"));
         add(new Span("Созданы OrderStatus, WorkOrderStatus, ClientStatus, BonusAccountOperation.  Добавлен пол в Clients и Employees"));
         add(new Span("В data.sql добавлены скрипты для заполнения  OrderStatus, WorkOrderStatus, ClientStatus."));
+        add(new Span("Добавлены фильтры для поиска клиента"));
+        add(new Span("В OrderForm, BonusForm добавлена кнопку (Вернуться к списку клиентов)"));
         add(new H5("27.03"));
         add(new Span("StaffingTableView Добавлено поле (Название подразделения)"));
         add(new Span("OrderForm При создание автоматически присваивать employeeId и location_id в зависимости от пользователя"));

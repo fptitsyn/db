@@ -6,9 +6,12 @@ import com.example.application.data.Orders;
 import com.example.application.services.BonusAccountService;
 import com.example.application.services.ClientsService;
 import com.example.application.services.OrdersService;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
@@ -19,7 +22,7 @@ import java.util.Optional;
 @PageTitle("Бонусный счет")
 @RolesAllowed({"SALES","GOD"})
 @Route(value = "bonus/:clientID")
-public class BonusView extends VerticalLayout implements BeforeEnterObserver {
+public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
     private final OrdersService orderService;
     private final ClientsService clientService;
     private final BonusAccountService bonusAccountService; // Добавили сервис для BonusAccount
@@ -28,9 +31,10 @@ public class BonusView extends VerticalLayout implements BeforeEnterObserver {
     private Span clientFullname = new Span();
     private Span accountNumberSpan = new Span();
     private Span openDateSpan = new Span();
+    private Button backButton = new Button("Вернуться к списку клиентов");
 
     // Внедряем BonusAccountService через конструктор
-    public BonusView(OrdersService orderService, ClientsService clientService, BonusAccountService bonusAccountService) {
+    public BonusForm(OrdersService orderService, ClientsService clientService, BonusAccountService bonusAccountService) {
         this.orderService = orderService;
         this.clientService = clientService;
         this.bonusAccountService = bonusAccountService;
@@ -38,6 +42,7 @@ public class BonusView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void initView() {
+        configureBackButton(); // Настройка кнопки
         accountNumberSpan.addClassName("bonus-info");
         openDateSpan.addClassName("bonus-info");
 
@@ -50,7 +55,18 @@ public class BonusView extends VerticalLayout implements BeforeEnterObserver {
                 new H3("Информация о бонусном счете"),
                 accountNumberSpan, openDateSpan,
                 new H3("Начисления и списания"),
-                orderGrid
+                orderGrid,
+                backButton
+        );
+    }
+    private void configureBackButton() {
+        backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
+        backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        backButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        backButton.addClickListener(e ->
+                getUI().ifPresent(ui -> ui.navigate(ClientsView.class))
         );
     }
 
