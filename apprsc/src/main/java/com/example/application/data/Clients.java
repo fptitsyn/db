@@ -29,6 +29,11 @@ public class Clients {
     private String phone_number;
     private String comment;
     private LocalDate date_of_birth;
+    private String gender;
+
+    @OneToOne
+    @JoinColumn(name = "client_status_id")
+    private ClientStatus clientStatus;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Orders> orders = new ArrayList<>();
@@ -69,6 +74,11 @@ public class Clients {
     public String getComment() {
         return comment;
     }
+    public String getGender() {
+        return gender;
+    }
+    public ClientStatus getClientStatus() { return clientStatus;    }
+
     public String getFullName() {
         return lastName + " " + firstName + " " + (middleName != null ? middleName : "");
     }
@@ -90,11 +100,13 @@ public class Clients {
     public void setPhone(String phone_number) {
         this.phone_number = phone_number;
     }
-    public void setDateOfBirth(LocalDate date_of_birth) {
-        this.date_of_birth = date_of_birth;
+    public void setDateOfBirth(LocalDate date_of_birth) {this.date_of_birth = date_of_birth; }
+    public void setComment(String comment) { this.comment = comment;    }
+    public void setGender(String gender) {
+        this.gender = gender;
     }
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setClientStatus(ClientStatus clientStatus) {
+        this.clientStatus = clientStatus;
     }
 
     // Методы для управления связью с Order

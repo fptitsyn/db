@@ -1,8 +1,6 @@
 package com.example.application.views;
 
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
@@ -25,34 +23,62 @@ public class AboutView extends VerticalLayout {
 
     public AboutView() {
         setSpacing(false);
+        add(new Paragraph("=============================================================================="));
+        add(new H2("Решили поработать?!!"));
+        add(new Paragraph("=============================================================================="));
+        add(new Span("Вам повезло - это самая крутая программа в мире! Спасибо разработчикам 🤗"));
+        add(new Span("Админы - админят! Продаваны - продают! Работяги - работают! Кадровики - кадрят! Аналитики - аналичат!"));
+        add(new Span("И за всем ними следит GOD!"));
+        add(new Paragraph(""));
 
-        Image img = new Image("images/empty-plant.png", "placeholder plant");
-        img.setWidth("200px");
-        add(img);
+        add(new Paragraph("=============================================================================="));
+        add(new H2("Список изменений"));
+        add(new Paragraph("=============================================================================="));
 
-        H2 header = new H2("Решил(а) поработать?!!");
-        header.addClassNames(Margin.Top.XLARGE, Margin.Bottom.MEDIUM);
-        add(header);
-        add(new Paragraph("==================================="));
-        add(new Paragraph("Это самая крутая программа в мире"));
-        add(new Paragraph("Спасибо разработчикам 🤗"));
-        add(new Paragraph("==================================="));
-        add(new Paragraph("Админы - админят!"));
-        add(new Paragraph("Продаваны - продают!"));
-        add(new Paragraph("Работяги - работают!"));
-        add(new Paragraph("Кадровики - кадрят!"));
-        add(new Paragraph("Аналитики - аналичат!"));
-        add(new Paragraph("==================================="));
-        add(new Paragraph("И за всем ними следит GOD!"));
+        add(new H5("01.04"));
+        add(new Span("Созданы OrderStatus, WorkOrderStatus, ClientStatus, BonusAccountOperation.  Добавлен пол в Clients и Employees"));
+        add(new Span("В data.sql добавлены скрипты для заполнения  OrderStatus, WorkOrderStatus, ClientStatus."));
+        add(new H5("27.03"));
+        add(new Span("StaffingTableView Добавлено поле (Название подразделения)"));
+        add(new Span("OrderForm При создание автоматически присваивать employeeId и location_id в зависимости от пользователя"));
+        add(new H5("26.03"));
+        add(new Span("Изменена привязка услуг к сотруднику"));
+        add(new Span("Тестирование гита"));
+        add(new Span("Изменен внешний вид справочников компонентов (3шт)"));
+        add(new Span("MainView. Добавлена кнока (Бонус). Создана форма BonusView новая форма для информации про бонусный счет"));
+        add(new Span("Изменена Entity Client"));
+        add(new Span("Добавлены формы ReleaseNotes и ToDoView"));
+        add(new Span("Добавлена дата в BonusAccount, созданы: BonusAccountRepository и BonusAccountService "));
 
-
-
-
-
+        add(new Span("Изменено окно (О программе)"));
+        add(new H5("25.03"));
+        add(new Span("ServicesView. Новая форма для заведение и редактирования услуг"));
+        add(new Span("EmployeesView. Генерация случайных сотрудников"));
+        add(new Span("UsersView. Добавлена возможность привязать сотрудника. Исправлен Users (убран Абстрактный класс)"));
+        add(new Span("Добавлена сущность BonusAccount. Создана Функция и триггер для присвоения номера бонусного счета"));
+        add(new Span("Создана функция и триггер создающие Бонусный счет после создания клиента"));
+        add(new Span("Добавлена роль Analysts"));
+        add(new H5("21.03"));
+        add(new Span("Справочники: Компоненты, Комлектующие, Типы устройств"));
+        add(new H5("21.03"));
+        add(new Span("Базовые формы для создания Клиентов и Заказов"));
+        add(new H5("19.03"));
+        add(new Span("Отчет по сотрудникам. Выгрузка в Excell"));
+        add(new H5("18.03"));
+        add(new Span("Перемещения сотрудников"));
+        add(new H5("17.03"));
+        add(new Span("Штатное расписание"));
+        add(new H5("13.03"));
+        add(new Span("LocationsView. Справочник Офисов"));
+        add(new Span("EmployeesView. Справочник Сотрудников"));
+        add(new H5("13.03"));
+        add(new Span("UsersView. Сохранение пароля(шифрованого)"));
+        add(new H5("12.03"));
+        add(new Span("UsersView. Справочник пользователей"));
+        add(new H5("10.03"));
+        add(new Span("Создан проект"));
+        add(new Paragraph("=============================================================================="));
         setSizeFull();
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        getStyle().set("text-align", "center");
     }
 
 }

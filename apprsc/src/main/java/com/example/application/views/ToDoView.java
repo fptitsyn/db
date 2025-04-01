@@ -24,37 +24,33 @@ public class ToDoView extends VerticalLayout {
         add(new Span("В базе поправить Функцию для заполнения Даты открытия бонусного счета"));
         add(new Span("LocationsView доработать отображение и редактирование недостающих полей"));
         add(new Span("ClientForm Добавить все поля по клиенту (ФИО, пол, телефон, email, статус)"));
-        add(new Span("Добавить поле (Название подразделения) в EmployeesMovingView"));
         add(new Span("Отчетность по WorkOrders"));
         add(new Span("Отчетность по Locations"));
         add(new Span("BonusView Карточка бонусного счета Остаток/все операции (BonusAccountOperation) (вместо заказов)"));
-        add(new Span("BonusAccountOperation создать. Добавить все поля  (id, тип опереации (начисление/списание), дата операции, сумма, order_id в рамках которого начисляются и списываются баллы)"));
 
         add(new H4("Нужное. Сложное"));
         add(new Span("Привязка услуг к Рабочему"));
-        add(new Span("ClientStatus логика изменения"));
+        add(new Span("ClientStatus логика изменения: Первое присвоение, механизм изменения"));
         add(new Span("OrderForm Формирование Заказа доработать. Добавить все поля  (номер заказа, дата заказа)"));
-        add(new Span("Orders Статусы"));
+        add(new Span("Orders Статус логика изменения"));
         add(new Span("Заполнения графика работы"));
         add(new Span("WorkOrders новое Представление"));
         add(new Span("WorkOrders права:рабочий видит свои, GOD - все"));
-        add(new Span("WorkOrders Статусы"));
+        add(new Span("WorkOrders Статус логика изменения"));
         add(new Span("Склад"));
         add(new Span("Выдача. Оплата  услуг и комлектующих. Начисление бонус и списание"));
-        add(new Span("Статус клиента: Первое присвоение, механизм изменения"));
         add(new Span("Сгорание бонусов???"));
         add(new Span("Поиск клиента???"));
 
         add(new H4("Бантики"));
-        add(new Span("Employees добавить пол. Переделать генерацию"));
+        add(new Span("Employees добавить в Форму пол. Переделать генерацию"));
         add(new Span("В перемещениях добавить ограничения на привязку к должности в другом городе "));
         add(new Span("OrderForm Добавить кнопку (Вернуться в клиента)"));
         add(new Span("BonusView Добавить кнопку (Вернуться в клиента)"));
         add(new Span("OrderView исправит кнопка (Ред.) Сейчас можно нажать несколько раз"));
         add(new Span("MainView исправит кнопка (Ред.) Сейчас можно нажать несколько раз"));
-        add(new Span("Иконки https://icons8.com/line-awesome"));
 
         setSizeFull();
     }
-
 }
+//Иконки https://icons8.com/line-awesome

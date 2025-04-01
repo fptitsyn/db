@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 @Entity
@@ -36,6 +35,7 @@ public class Employees {
     private String phone_number;
     private String comment;
     private LocalDate date_of_birth;
+    private String gender;
 
     public Long getId() { return employee_id;  }
     public void setId(Long id) {
@@ -80,6 +80,13 @@ public class Employees {
     public void setComment(String comment) {
         this.comment = comment;
     }
+    public String getGender() {
+        return gender;
+    }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
     public String getFullName() {
         return lastName + " " + firstName + " " + (middleName != null ? middleName : "");
     }
