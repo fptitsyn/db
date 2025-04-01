@@ -15,12 +15,12 @@ public class Locations {
 
 
     private String name;
-    private String phone_number;
-    private String postal_code;
+    private String phoneNumber;
+    private String postalCode;
     private String country;
     private String city;
     private String street;
-    private String building_number;
+    private String buildingNumber;
 
     @ManyToOne
     @JoinColumn(name = "location_type_id")
@@ -35,8 +35,28 @@ public class Locations {
         return name;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
     public String getStreet() {
         return street;
+    }
+
+    public String getBuildingNumber() {
+        return buildingNumber;
     }
 
     public LocationsType getLocationType() {
@@ -52,13 +72,34 @@ public class Locations {
         this.name = name;
     }
 
+    public void setPhoneNumber(String phone_number) {
+        this.phoneNumber = phone_number;
+    }
+
+    public void setPostalCode(String postal_code) {
+        this.postalCode = postal_code;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
     public void setStreet(String street) {
         this.street = street;
+    }
+
+    public void setBuildingNumber(String building_number) {
+        this.buildingNumber = building_number;
     }
 
     public void setLocationType(LocationsType locationType) {
         this.locationType = locationType;
     }
+
     public String getLocationTypeName() {
         return locationType != null ? locationType.getLocationTypeName() : "";
     }

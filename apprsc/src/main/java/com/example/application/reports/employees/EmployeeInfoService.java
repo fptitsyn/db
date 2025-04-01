@@ -1,4 +1,4 @@
-package com.example.application.reports;
+package com.example.application.reports.employees;
 
 import org.springframework.stereotype.Service;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.application.reports;
+package com.example.application.reports.employees;
 
 import jakarta.persistence.*;
 
@@ -25,7 +25,7 @@ import java.time.LocalDate;
         )
 )
 @Entity
-public class MappingConfig { // Фиктивный класс для маппинга
+public class EmployeeMappingConfig { // Фиктивный класс для маппинга
     @Id
     private Long id;
 }

@@ -1,15 +1,19 @@
-package com.example.application.views.employees;
+package com.example.application.views.locations;
 
 import com.example.application.data.Locations;
 import com.example.application.data.LocationsRepository;
 import com.example.application.data.LocationsType;
 import com.example.application.data.LocationTypeRepository;
+import com.example.application.reports.locations.LocationsInfoDTO;
+import com.example.application.reports.locations.LocationsInfoService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -17,8 +21,20 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamRegistration;
+import com.vaadin.flow.server.StreamResource;
 import jakarta.annotation.security.RolesAllowed;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 @PageTitle("Офисы")
 @Route("locations")
@@ -35,6 +51,11 @@ public class LocationsView extends VerticalLayout {
 
     // Form fields
     private TextField name = new TextField("Название");
+    private TextField phoneNumber = new TextField("Номер телефона");
+    private TextField postalCode = new TextField("Почтовый индекс");
+    private TextField country = new TextField("Страна");
+    private TextField city = new TextField("Город");
+    private TextField buildingNumber = new TextField("Номер строения");
     private TextField street = new TextField("Улица");
     private ComboBox<LocationsType> locationType = new ComboBox<>("Тип территории");
     private Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
@@ -62,8 +83,28 @@ public class LocationsView extends VerticalLayout {
                 .setHeader("Название")
                 .setAutoWidth(true);
 
+        grid.addColumn(Locations::getPhoneNumber)
+                .setHeader("Телефон")
+                .setAutoWidth(true);
+
+        grid.addColumn(Locations::getCountry)
+                .setHeader("Страна")
+                .setAutoWidth(true);
+
+        grid.addColumn(Locations::getCity)
+                .setHeader("Город")
+                .setAutoWidth(true);
+
         grid.addColumn(Locations::getStreet)
                 .setHeader("Улица")
+                .setAutoWidth(true);
+
+        grid.addColumn(Locations::getBuildingNumber)
+                .setHeader("Номер строения")
+                .setAutoWidth(true);
+
+        grid.addColumn(Locations::getPostalCode)
+                .setHeader("Почтовый индекс")
                 .setAutoWidth(true);
 
         grid.addColumn(l -> {
@@ -98,11 +139,30 @@ public class LocationsView extends VerticalLayout {
                 .asRequired("Выберите тип")
                 .bind(Locations::getLocationType, Locations::setLocationType);
 
+        binder.forField(phoneNumber)
+                .asRequired("Обязательное поле")
+                .bind(Locations::getPhoneNumber, Locations::setPhoneNumber);
+
+        binder.forField(city)
+                .asRequired("Обязательное поле")
+                .bind(Locations::getCity, Locations::setCity);
+
+        binder.forField(postalCode)
+                .asRequired("Обязательное поле")
+                .bind(Locations::getPostalCode, Locations::setPostalCode);
+
+        binder.forField(country)
+                .asRequired("Обязательное поле")
+                .bind(Locations::getCountry, Locations::setCountry);
+
+        binder.forField(buildingNumber)
+                .bind(Locations::getBuildingNumber, Locations::setBuildingNumber);
+
         // Buttons layout
         HorizontalLayout buttons = new HorizontalLayout(saveButton, deleteButton, cancelButton);
         buttons.setSpacing(true);
 
-        form.add(name, street, locationType, buttons);
+        form.add(name, phoneNumber, country, city, street, buildingNumber, postalCode, locationType, buttons);
         form.setVisible(false);
 
         // Event handlers

@@ -1,4 +1,4 @@
-package com.example.application.reports;
+package com.example.application.reports.employees;
 
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;

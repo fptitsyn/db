@@ -1,7 +1,9 @@
-package com.example.application.views.employees;
+package com.example.application.views.locations;
 
 import com.example.application.reports.employees.EmployeeInfoDTO;
 import com.example.application.reports.employees.EmployeeInfoService;
+import com.example.application.reports.locations.LocationsInfoDTO;
+import com.example.application.reports.locations.LocationsInfoService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -23,16 +25,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-@PageTitle("Отчет по сотрудникам")
-@Route("employees-info")
-@Menu(order = 45, icon = LineAwesomeIconUrl.CHART_BAR_SOLID)
+@PageTitle("Отчет по офисам")
+@Route("locations-info")
+@Menu(order = 49, icon = LineAwesomeIconUrl.CHART_BAR_SOLID)
 @RolesAllowed({"HR","ANALYSTS", "GOD"})
 
-public class EmployeeInfoView extends VerticalLayout {
-    private final transient EmployeeInfoService service;
-    private final Grid<EmployeeInfoDTO> grid = new Grid<>(EmployeeInfoDTO.class, false);
+public class LocationsInfoView extends VerticalLayout {
+    private final transient LocationsInfoService service;
+    private final Grid<LocationsInfoDTO> grid = new Grid<>(LocationsInfoDTO.class, false);
 
-    public EmployeeInfoView(EmployeeInfoService service) {
+    public LocationsInfoView(LocationsInfoService service) {
         this.service = service;
         configureGrid();
         add(grid, createExportButton());
@@ -40,17 +42,14 @@ public class EmployeeInfoView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addColumn(EmployeeInfoDTO::lastName).setHeader("Last Name");
-        grid.addColumn(EmployeeInfoDTO::firstName).setHeader("First Name");
-        grid.addColumn(EmployeeInfoDTO::middleName).setHeader("Middle Name");
-        grid.addColumn(EmployeeInfoDTO::dateOfBirth).setHeader("Birth Date");
-        grid.addColumn(EmployeeInfoDTO::phoneNumber).setHeader("Phone");
-        grid.addColumn(EmployeeInfoDTO::email).setHeader("Email");
-        grid.addColumn(EmployeeInfoDTO::age).setHeader("Age");
-        grid.addColumn(EmployeeInfoDTO::position).setHeader("Position");
-        grid.addColumn(EmployeeInfoDTO::salary).setHeader("Salary");
-        grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Workplace");
-        grid.addColumn(EmployeeInfoDTO::experience).setHeader("Experience (years)");
+        grid.addColumn(LocationsInfoDTO::location_name).setHeader("Название");
+        grid.addColumn(LocationsInfoDTO::phone_number).setHeader("Телефон");
+        grid.addColumn(LocationsInfoDTO::country).setHeader("Страна");
+        grid.addColumn(LocationsInfoDTO::city).setHeader("Город");
+        grid.addColumn(LocationsInfoDTO::street).setHeader("Улица");
+        grid.addColumn(LocationsInfoDTO::building_number).setHeader("Номер строения");
+        grid.addColumn(LocationsInfoDTO::postal_code).setHeader("Почтовый индекс");
+        grid.addColumn(LocationsInfoDTO::location_type_name).setHeader("Специализация офиса");
     }
 
     private Button createExportButton() {
@@ -59,12 +58,12 @@ public class EmployeeInfoView extends VerticalLayout {
 
     private void exportToExcel() {
         try {
-            StreamResource resource = new StreamResource("employees.xlsx", () -> {
+            StreamResource resource = new StreamResource("locations.xlsx", () -> {
                 // Создаем Workbook внутри лямбды
                 try (Workbook workbook = new XSSFWorkbook();
                      ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
-                    Sheet sheet = workbook.createSheet("Employees");
+                    Sheet sheet = workbook.createSheet("Locations");
                     createHeaderRow(sheet);
                     fillDataRows(sheet, workbook);
                     autoSizeColumns(sheet);
@@ -90,7 +89,7 @@ public class EmployeeInfoView extends VerticalLayout {
                             "link.click();" +
                             "document.body.removeChild(link);",
                     registration.getResourceUri().toString(),
-                    "employees.xlsx"
+                    "locations.xlsx"
             );
 
         } catch (Exception e) {
@@ -102,8 +101,8 @@ public class EmployeeInfoView extends VerticalLayout {
     private void createHeaderRow(Sheet sheet) {
         Row headerRow = sheet.createRow(0);
         String[] headers = {
-                "Last Name", "First Name", "Middle Name", "Birth Date", "Phone",
-                "Email", "Age", "Position", "Salary", "Workplace", "Experience"
+                "Название", "Телефон", "Страна", "Город", "Улица",
+                "Номер строения", "Почтовый индекс", "Специализация офиса"
         };
 
         for (int i = 0; i < headers.length; i++) {
@@ -113,28 +112,25 @@ public class EmployeeInfoView extends VerticalLayout {
     }
     private void fillDataRows(Sheet sheet, Workbook workbook) {
         // Используем переданный workbook
-        List<EmployeeInfoDTO> employees = service.getAllEmployeeInfo();
+        List<LocationsInfoDTO> locations = service.getAllLocationInfo();
         int rowNum = 1;
 
-        for (EmployeeInfoDTO employee : employees) {
+        for (LocationsInfoDTO location : locations) {
             Row row = sheet.createRow(rowNum++);
             // ... заполнение данных
-            row.createCell(0).setCellValue(employee.lastName());
-            row.createCell(1).setCellValue(employee.firstName());
-            row.createCell(2).setCellValue(employee.middleName());
-            row.createCell(3).setCellValue(employee.dateOfBirth().toString());
-            row.createCell(4).setCellValue(employee.phoneNumber());
-            row.createCell(5).setCellValue(employee.email());
-            row.createCell(6).setCellValue(employee.age());
-            row.createCell(7).setCellValue(employee.position());
-            row.createCell(8).setCellValue(employee.salary());
-            row.createCell(9).setCellValue(employee.workplace());
-            row.createCell(10).setCellValue(employee.experience());
+            row.createCell(0).setCellValue(location.location_name());
+            row.createCell(1).setCellValue(location.phone_number());
+            row.createCell(2).setCellValue(location.country());
+            row.createCell(3).setCellValue(location.city());
+            row.createCell(4).setCellValue(location.street());
+            row.createCell(5).setCellValue(location.building_number());
+            row.createCell(6).setCellValue(location.postal_code());
+            row.createCell(7).setCellValue(location.location_type_name());
         }
     }
 
     private void autoSizeColumns(Sheet sheet) {
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i < 8; i++) {
             sheet.autoSizeColumn(i);
         }
     }
@@ -149,7 +145,7 @@ public class EmployeeInfoView extends VerticalLayout {
     }
 
     private void refreshGrid() {
-        grid.setItems(service.getAllEmployeeInfo());
+        grid.setItems(service.getAllLocationInfo());
     }
 
     private static class FileDownloadHelper {
