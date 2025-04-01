@@ -2,6 +2,7 @@ package com.example.application.views.employees;
 
 import com.example.application.data.*;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -147,9 +148,25 @@ public class StaffingTableView extends VerticalLayout {
         form.setVisible(false);
         // Event handlers
         saveButton.addClickListener(e -> saveStaffingTable());
+        saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        saveButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         deleteButton.addClickListener(e -> deleteStaffingTable());
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        deleteButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         cancelButton.addClickListener(e -> cancelStaffingTable());
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         addButton.addClickListener(e -> addStaffingTable());
+        addButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        addButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
     }
 
     private void updateGrid() {

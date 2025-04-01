@@ -2,6 +2,7 @@ package com.example.application.views.employees;
 
 import com.example.application.data.*;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -162,6 +163,10 @@ public class EmployeesMovingView extends VerticalLayout {
                 clearForm();
             }
         });
+        bindButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        bindButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
 
         // Обработчик кнопки "Изменить"
         editButton.addClickListener(e -> {
@@ -177,6 +182,10 @@ public class EmployeesMovingView extends VerticalLayout {
                 Notification.show("Выберите перемещение для редактирования", 3000, Notification.Position.BOTTOM_START);
             }
         });
+        editButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        editButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
 
         // Обработчик кнопки "Удалить"
         deleteButton.addClickListener(e -> {
@@ -198,6 +207,10 @@ public class EmployeesMovingView extends VerticalLayout {
                 Notification.show("Выберите перемещение для удаления", 3000, Notification.Position.BOTTOM_START);
             }
         });
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        deleteButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
     }
 
     private void updateHistory() {

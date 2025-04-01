@@ -71,6 +71,22 @@ public class ComponentsView extends VerticalLayout {
         configureGrid();
         configureEditors();
 
+        addButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        addButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
+        addCategoryButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        addCategoryButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
+        addDeviceTypeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        addDeviceTypeButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
+
         HorizontalLayout buttonLayout = new HorizontalLayout(
                 addButton,
                 addCategoryButton,
@@ -115,8 +131,11 @@ public class ComponentsView extends VerticalLayout {
         // Колонка с кнопкой удаления
         grid.addComponentColumn(item -> {
             Button deleteButton = new Button("", VaadinIcon.TRASH.create());
-            deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
             deleteButton.addClickListener(e -> deleteComponent(item));
+            deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+            deleteButton.getStyle()
+                    .set("margin-right", "1em")
+                    .set("color", "var(--lumo-primary-text-color)");
             return deleteButton;
         }).setWidth("100px").setFlexGrow(0);
 
@@ -189,7 +208,15 @@ public class ComponentsView extends VerticalLayout {
             add(layout);
 
             saveButton.addClickListener(e -> save());
+            saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            saveButton.getStyle()
+                    .set("margin-right", "1em")
+                    .set("color", "var(--lumo-primary-text-color)");
             cancelButton.addClickListener(e -> close());
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            cancelButton.getStyle()
+                    .set("margin-right", "1em")
+                    .set("color", "var(--lumo-primary-text-color)");
         }
 
         private void configureCombos() {
@@ -295,7 +322,15 @@ public class ComponentsView extends VerticalLayout {
             add(mainLayout);
 
             saveButton.addClickListener(e -> save());
+            saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            saveButton.getStyle()
+                    .set("margin-right", "1em")
+                    .set("color", "var(--lumo-primary-text-color)");
             cancelButton.addClickListener(e -> close());
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            cancelButton.getStyle()
+                    .set("margin-right", "1em")
+                    .set("color", "var(--lumo-primary-text-color)");
 
             refreshGrid(); // Загрузка данных при открытии
         }
@@ -315,7 +350,10 @@ public class ComponentsView extends VerticalLayout {
             // Колонка с кнопкой удаления
             grid.addComponentColumn(item -> {
                 Button deleteButton = new Button("", VaadinIcon.TRASH.create());
-                deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
+                deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+                deleteButton.getStyle()
+                        .set("margin-right", "1em")
+                        .set("color", "var(--lumo-primary-text-color)");
                 deleteButton.addClickListener(e -> deleteCategory(item));
                 return deleteButton;
             }).setWidth("70px").setFlexGrow(0);
@@ -412,7 +450,15 @@ public class ComponentsView extends VerticalLayout {
             add(mainLayout);
 
             saveButton.addClickListener(e -> save());
+            saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            saveButton.getStyle()
+                    .set("margin-right", "1em")
+                    .set("color", "var(--lumo-primary-text-color)");
             cancelButton.addClickListener(e -> close());
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            cancelButton.getStyle()
+                    .set("margin-right", "1em")
+                    .set("color", "var(--lumo-primary-text-color)");
 
             refreshGrid(); // Загрузка данных при открытии
         }
@@ -428,7 +474,10 @@ public class ComponentsView extends VerticalLayout {
             // Колонка с кнопкой удаления
             grid.addComponentColumn(item -> {
                 Button deleteButton = new Button("", VaadinIcon.TRASH.create());
-                deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
+                deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+                deleteButton.getStyle()
+                        .set("margin-right", "1em")
+                        .set("color", "var(--lumo-primary-text-color)");
                 deleteButton.addClickListener(e -> deleteDeviceType(item));
                 return deleteButton;
             }).setWidth("70px").setFlexGrow(0);

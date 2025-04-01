@@ -3,6 +3,7 @@ package com.example.application.views.orders;
 import com.example.application.data.Clients;
 import com.example.application.services.ClientsService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -43,7 +44,16 @@ public class ClientForm extends FormLayout {
         binder.readBean(client); // Загрузка данных
 
         Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create(), e -> save());
+        saveBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        saveBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
         Button cancelBtn = new Button("Отмена", VaadinIcon.CLOSE_CIRCLE_O.create(), e -> this.setVisible(false));
+        cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
 
         add(firstName, lastName, middleName, new HorizontalLayout(saveBtn, cancelBtn));
     }

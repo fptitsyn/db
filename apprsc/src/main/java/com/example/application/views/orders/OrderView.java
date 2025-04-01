@@ -69,8 +69,10 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия").setWidth("250px");
 
         Button addOrderBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(), e -> showOrderForm(new Orders()));
-
-        //add(backButton, clientFullname);
+        addOrderBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        addOrderBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
 
         add(clientFullname, addOrderBtn, orderGrid, backButton);
 
@@ -113,11 +115,21 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private HorizontalLayout createOrderActions(Orders order) {
-        Button editBtn = new Button("Изменить", e -> showOrderForm(order));
-        Button deleteBtn = new Button("Удалить", e -> {
+        Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> showOrderForm(order));
+        editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        editBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
+        Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> {
             orderService.delete(order);
             updateGrid();
         });
+        deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        deleteBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
         return new HorizontalLayout(editBtn, deleteBtn);
     }
 

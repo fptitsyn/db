@@ -16,7 +16,7 @@
 .user-view .editor-layout {
   display: flex;
   flex-direction: column;
-  width: 400px;
+  width: 450px;
 }
 
 .user-view .editor {

@@ -63,9 +63,9 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
     private DatePicker dateOfBirth;
     private TextField comment;
 
-    private final Button cancel = new Button("Cancel");
+    private final Button cancel = new Button("Cancel", VaadinIcon.CLOSE_CIRCLE_O.create());
 
-    private final Button save = new Button("Save");
+    private final Button save = new Button("Save", VaadinIcon.CHECK_SQUARE_O.create());
 
     private final Button autoFillButton = new Button("Автозаполнить", VaadinIcon.MAGIC.create());
 
@@ -212,8 +212,16 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
         HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setClassName("button-layout");
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        autoFillButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        cancel.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        save.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        save.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        autoFillButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         buttonLayout.add(save, cancel, autoFillButton);
         editorLayoutDiv.add(buttonLayout);
     }

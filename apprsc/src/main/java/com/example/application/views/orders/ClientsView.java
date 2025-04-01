@@ -4,6 +4,7 @@ import com.example.application.data.Clients;
 import com.example.application.services.ClientsService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
@@ -50,6 +51,10 @@ public class ClientsView extends VerticalLayout {
 
         Button addClientBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(),
                 e -> showClientForm(new Clients()));
+        addClientBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        addClientBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
 
         add(addClientBtn, clientGrid);
     }
@@ -217,13 +222,31 @@ public class ClientsView extends VerticalLayout {
 
     private HorizontalLayout createActions(Clients client) {
         Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> showClientForm(client));
+        editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        editBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
         Button ordersBtn = new Button("Заказы", VaadinIcon.CART.create(), e -> showOrders(client));
+        ordersBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        ordersBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
         Button bonusBtn = new Button("Бонусы", VaadinIcon.GIFT.create(), e -> showBonus(client));
+        bonusBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        bonusBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
         Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> {
             clientService.delete(client);
             updateGrid();
         });
-
+        deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        deleteBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         return new HorizontalLayout(editBtn, deleteBtn, ordersBtn, bonusBtn);
     }
 

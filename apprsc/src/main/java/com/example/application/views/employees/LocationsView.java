@@ -5,6 +5,7 @@ import com.example.application.data.LocationsRepository;
 import com.example.application.data.LocationsType;
 import com.example.application.data.LocationTypeRepository;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -106,9 +107,25 @@ public class LocationsView extends VerticalLayout {
 
         // Event handlers
         saveButton.addClickListener(e -> saveLocation());
+        saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        saveButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         deleteButton.addClickListener(e -> deleteLocation());
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        deleteButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         cancelButton.addClickListener(e -> cancelLocation());
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         addButton.addClickListener(e -> addLocation());
+        addButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        addButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
     }
 
     private void updateGrid() {

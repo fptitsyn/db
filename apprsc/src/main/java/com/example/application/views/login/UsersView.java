@@ -16,6 +16,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -53,8 +54,8 @@ public class UsersView extends Div implements BeforeEnterObserver {
     private TextField name;
     private ComboBox<Employees> employeeComboBox;
 
-    private final Button cancel = new Button("Cancel");
-    private final Button save = new Button("Save");
+    private final Button cancel = new Button("Очистить", VaadinIcon.CLOSE_CIRCLE_O.create());
+    private final Button save = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
 
     private BeanValidationBinder<Users> binder;
     private Users DBEntity;
@@ -228,8 +229,13 @@ public class UsersView extends Div implements BeforeEnterObserver {
         HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setClassName("button-layout");
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
+        cancel.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        save.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        save.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         cancel.addClickListener(e -> {
             clearForm();
             refreshGrid();

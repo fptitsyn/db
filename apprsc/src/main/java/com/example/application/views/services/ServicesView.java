@@ -6,8 +6,10 @@ import com.example.application.data.Services;
 import com.example.application.data.components.TypeOfDevice;
 import com.example.application.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -43,8 +45,8 @@ public class ServicesView extends VerticalLayout {
     private final NumberField timeToCompleteField = new NumberField("Время выполнения (мин.)");
     private final ComboBox<TypeOfDevice> typeOfDeviceComboBox = new ComboBox<>("Тип устройства");
     private final CheckboxGroup<Employees> employeesCheckboxGroup = new CheckboxGroup<>("Сотрудники");
-    private final Button saveButton = new Button("Сохранить");
-    private final Button deleteButton = new Button("Удалить");
+    private final Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+    private final Button deleteButton = new Button("Удалить", VaadinIcon.CLOSE_CIRCLE_O.create());
 
     @Autowired
     public ServicesView(ServicesService service) {
@@ -94,7 +96,15 @@ public class ServicesView extends VerticalLayout {
         employeesCheckboxGroup.setItemLabelGenerator(Employees::getFullName);
 
         saveButton.addClickListener(event -> saveService());
+        saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        saveButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         deleteButton.addClickListener(event -> deleteService());
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        deleteButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
     }
 
     private void updateList() {

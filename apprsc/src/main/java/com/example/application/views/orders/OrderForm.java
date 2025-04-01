@@ -4,6 +4,7 @@ import com.example.application.data.Clients;
 import com.example.application.data.Orders;
 import com.example.application.services.OrdersService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -51,7 +52,16 @@ public class OrderForm extends FormLayout {
 
         // Кнопки
         Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create(), e -> save());
+        saveBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        saveBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
         Button cancelBtn = new Button("Отмена", VaadinIcon.CLOSE_CIRCLE_O.create(), e -> this.setVisible(false));
+        cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
 
         add(new FormLayout(productField, quantityField), new HorizontalLayout(saveBtn, cancelBtn));
     }
