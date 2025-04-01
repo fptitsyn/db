@@ -21,7 +21,6 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
-        add(new Span("В базе поправить Функцию для заполнения Даты открытия бонусного счета"));
         add(new Span("LocationsView доработать отображение и редактирование недостающих полей"));
         add(new Span("ClientForm Добавить все поля по клиенту (ФИО, пол, телефон, email, статус)"));
         add(new Span("Отчетность по WorkOrders"));
@@ -42,7 +41,6 @@ public class ToDoView extends VerticalLayout {
         add(new Span("Сгорание бонусов???"));
 
         add(new H4("Бантики"));
-        add(new Span("Employees добавить в Форму пол. Переделать генерацию"));
         add(new Span("В перемещениях добавить ограничения на привязку к должности в другом городе "));
         add(new Span("OrderView исправит кнопка (Изменить.) Сейчас можно нажать несколько раз"));
         add(new Span("MainView исправит кнопка (Изменить.) Сейчас можно нажать несколько раз"));

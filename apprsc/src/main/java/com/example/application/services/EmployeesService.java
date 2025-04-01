@@ -49,6 +49,7 @@ public class EmployeesService {
             existing.setLastName(employee.getLastName());
             existing.setMiddleName(employee.getMiddleName());
             existing.setPhone(employee.getPhone());
+            existing.setGender(employee.getGender());
 
             // Обновляем связи
             existing.getServices().clear();
