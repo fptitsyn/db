@@ -1,7 +1,8 @@
 package com.example.application.views.employees;
 
-import com.example.application.reports.EmployeeInfoDTO;
-import com.example.application.reports.EmployeeInfoService;
+import com.example.application.reports.employees.EmployeeInfoDTO;
+import com.example.application.reports.employees.EmployeeInfoService;
+import com.example.application.views.locations.LocationsForm;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;

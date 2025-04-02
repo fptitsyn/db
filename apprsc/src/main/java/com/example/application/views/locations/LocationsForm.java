@@ -1,9 +1,10 @@
-package com.example.application.views.employees;
+package com.example.application.views.locations;
 
 import com.example.application.data.employees.Locations;
 import com.example.application.data.employees.LocationsRepository;
 import com.example.application.data.employees.LocationsType;
 import com.example.application.data.employees.LocationTypeRepository;
+import com.example.application.views.employees.HRView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -16,12 +17,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
 import jakarta.annotation.security.RolesAllowed;
+
 
 @PageTitle("Офисы")
 @Route("locations")
 
-//@Menu(order = 44, icon = LineAwesomeIconUrl.CITY_SOLID)
 @RolesAllowed({"HR","GOD"})
 public class LocationsForm extends VerticalLayout {
     private final LocationsRepository locationRepository;
@@ -33,6 +35,11 @@ public class LocationsForm extends VerticalLayout {
 
     // Form fields
     private TextField name = new TextField("Название");
+    private TextField phoneNumber = new TextField("Номер телефона");
+    private TextField postalCode = new TextField("Почтовый индекс");
+    private TextField country = new TextField("Страна");
+    private TextField city = new TextField("Город");
+    private TextField buildingNumber = new TextField("Номер строения");
     private TextField street = new TextField("Улица");
     private ComboBox<LocationsType> locationType = new ComboBox<>("Тип территории");
     private Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
@@ -65,8 +72,28 @@ public class LocationsForm extends VerticalLayout {
                 .setHeader("Название")
                 .setAutoWidth(true);
 
+        grid.addColumn(Locations::getPhoneNumber)
+                .setHeader("Телефон")
+                .setAutoWidth(true);
+
+        grid.addColumn(Locations::getCountry)
+                .setHeader("Страна")
+                .setAutoWidth(true);
+
+        grid.addColumn(Locations::getCity)
+                .setHeader("Город")
+                .setAutoWidth(true);
+
         grid.addColumn(Locations::getStreet)
                 .setHeader("Улица")
+                .setAutoWidth(true);
+
+        grid.addColumn(Locations::getBuildingNumber)
+                .setHeader("Номер строения")
+                .setAutoWidth(true);
+
+        grid.addColumn(Locations::getPostalCode)
+                .setHeader("Почтовый индекс")
                 .setAutoWidth(true);
 
         grid.addColumn(l -> {
@@ -101,11 +128,30 @@ public class LocationsForm extends VerticalLayout {
                 .asRequired("Выберите тип")
                 .bind(Locations::getLocationType, Locations::setLocationType);
 
+        binder.forField(phoneNumber)
+                .asRequired("Обязательное поле")
+                .bind(Locations::getPhoneNumber, Locations::setPhoneNumber);
+
+        binder.forField(city)
+                .asRequired("Обязательное поле")
+                .bind(Locations::getCity, Locations::setCity);
+
+        binder.forField(postalCode)
+                .asRequired("Обязательное поле")
+                .bind(Locations::getPostalCode, Locations::setPostalCode);
+
+        binder.forField(country)
+                .asRequired("Обязательное поле")
+                .bind(Locations::getCountry, Locations::setCountry);
+
+        binder.forField(buildingNumber)
+                .bind(Locations::getBuildingNumber, Locations::setBuildingNumber);
+
         // Buttons layout
         HorizontalLayout buttons = new HorizontalLayout(saveButton, deleteButton, cancelButton);
         buttons.setSpacing(true);
 
-        form.add(name, street, locationType, buttons);
+        form.add(name, phoneNumber, country, city, street, buildingNumber, postalCode, locationType, buttons);
         form.setVisible(false);
 
         // Event handlers

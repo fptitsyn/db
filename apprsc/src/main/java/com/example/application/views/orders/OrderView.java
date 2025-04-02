@@ -34,6 +34,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final OrdersService orderService;
     private final ClientsService clientService;
     private final EmployeesMovingService employeesMovingService;
+    private OrderForm currentForm; // Добавляем поле для хранения текущей формы
     private Clients currentClient;
     private Grid<Orders> orderGrid = new Grid<>(Orders.class);
     private Span clientFullname = new Span();
@@ -139,6 +140,11 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void showOrderForm(Orders order) {
+        // Удаляем предыдущую форму, если она существует
+        if (currentForm != null) {
+            remove(currentForm);
+        }
+
         if (order.getId() == null) { // Только для новых заказов
             Optional<Users> maybeUser = authenticatedUser.get();
             if (maybeUser.isEmpty()) {
@@ -149,14 +155,16 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             Users user = maybeUser.get();
             Employees employee = user.getEmployee();
             if (employee == null) {
-                Notification.show("Ошибка: У пользователя нет привязанного сотрудника. Обратитесь к администратору", 3000, Notification.Position.TOP_CENTER);
+                Notification.show("Ошибка: У пользователя нет привязанного сотрудника. Обратитесь к администратору",
+                        3000, Notification.Position.TOP_CENTER);
                 return;
             }
 
             // Поиск активного назначения
             Optional<EmployeesMoving> activeMoving = employeesMovingService.findActiveByEmployee(employee);
             if (activeMoving.isEmpty()) {
-                Notification.show("Ошибка: Сотрудник не принят на работу. Не может оформлять заказы", 3000, Notification.Position.TOP_CENTER);
+                Notification.show("Ошибка: Сотрудник не принят на работу. Не может оформлять заказы",
+                        3000, Notification.Position.TOP_CENTER);
                 return;
             }
 
@@ -164,7 +172,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             StaffingTable staffingTable = activeMoving.get().getStaffingTable();
             Locations location = staffingTable.getLocation();
             if (location == null) {
-                Notification.show("Ошибка: Офис не найден в штатном расписании", 3000, Notification.Position.TOP_CENTER);
+                Notification.show("Ошибка: Офис не найден в штатном расписании",
+                        3000, Notification.Position.TOP_CENTER);
                 return;
             }
 
@@ -173,13 +182,20 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             order.setLocation(location);
         }
 
-        OrderForm form = new OrderForm(
+        // Создаем новую форму и сохраняем ссылку на нее
+        currentForm = new OrderForm(
                 order,
                 currentClient,
                 orderService,
-                this::updateGrid
+                () -> {
+                    updateGrid();
+                    if (currentForm != null) {
+                        remove(currentForm);
+                        currentForm = null;
+                    }
+                }
         );
-        add(form);
+        add(currentForm);
     }
 }
 

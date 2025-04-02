@@ -29,13 +29,11 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import net.datafaker.Faker;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 @PageTitle("Сотрудники")
@@ -56,6 +54,7 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
     private TextField middleName;
     private TextField email;
     private TextField phone;
+    private TextField gender;
     private DatePicker dateOfBirth;
     private TextField comment;
 
@@ -175,10 +174,11 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
         email = new TextField("Email");
         phone = new TextField("Phone");
         dateOfBirth = new DatePicker("Date Of Birth");
+        gender = new TextField("Пол");
         comment = new TextField("Комментарий");
 
 
-        formLayout.add(firstName, middleName, lastName, email, phone, dateOfBirth, servicesComboBox, comment);
+        formLayout.add(firstName, middleName, lastName, email, phone, dateOfBirth, gender, comment, servicesComboBox);
 
         editorDiv.add(formLayout);
         createButtonLayout(editorLayoutDiv);
@@ -189,10 +189,23 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
     private void autoFillWithCustomData() {
         try {
             Faker faker = new Faker(new Locale("ru"));
+            if (faker.random().nextInt(0, 1) == 0) gender.setValue("М");
+            else gender.setValue("Ж");
 
-            firstName.setValue(faker.name().firstName());
-            lastName.setValue(faker.name().lastName());
-            middleName.setValue(faker.name().firstName() + "ович");
+            if (gender.getValue().equals("М")) firstName.setValue(faker.name().malefirstName());
+            else firstName.setValue(faker.name().femaleFirstName());
+            String tempLastName = faker.name().lastName();
+            if (gender.getValue().equals("М"))
+            {
+                if (tempLastName.endsWith("а")) lastName.setValue(StringUtils.chop(tempLastName));
+            }
+            else if (tempLastName.endsWith("а"))
+            {
+                lastName.setValue(tempLastName);
+            }
+            else lastName.setValue(tempLastName + "а");
+            if (gender.getValue().equals("М")) middleName.setValue(faker.name().malefirstName() + "ович");
+            else middleName.setValue(faker.name().malefirstName() + "овна");
             email.setValue(faker.internet().emailAddress());
             phone.setValue("+7" + faker.phoneNumber().subscriberNumber(10));
             comment.setValue(faker.lorem().sentence(3));
