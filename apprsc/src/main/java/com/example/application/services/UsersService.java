@@ -1,8 +1,8 @@
 package com.example.application.services;
 
-import com.example.application.data.Employees;
-import com.example.application.data.Users;
-import com.example.application.data.UsersRepository;
+import com.example.application.data.employees.Employees;
+import com.example.application.data.login.Users;
+import com.example.application.data.login.UsersRepository;
 
 import java.util.Optional;
 import org.springframework.data.domain.Page;

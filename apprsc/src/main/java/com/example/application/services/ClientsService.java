@@ -1,7 +1,7 @@
 package com.example.application.services;
 
-import com.example.application.data.Clients;
-import com.example.application.data.ClientsRepository;
+import com.example.application.data.orders.Clients;
+import com.example.application.data.orders.ClientsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

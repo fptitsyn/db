@@ -1,7 +1,7 @@
 package com.example.application.views.orders;
 
-import com.example.application.data.Clients;
-import com.example.application.data.Orders;
+import com.example.application.data.orders.Clients;
+import com.example.application.data.orders.Orders;
 import com.example.application.services.OrdersService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

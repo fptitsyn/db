@@ -1,9 +1,9 @@
 package com.example.application.views.employees;
 
-import com.example.application.data.Locations;
-import com.example.application.data.LocationsRepository;
-import com.example.application.data.LocationsType;
-import com.example.application.data.LocationTypeRepository;
+import com.example.application.data.employees.Locations;
+import com.example.application.data.employees.LocationsRepository;
+import com.example.application.data.employees.LocationsType;
+import com.example.application.data.employees.LocationTypeRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -14,18 +14,16 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Офисы")
 @Route("locations")
 
-@Menu(order = 44, icon = LineAwesomeIconUrl.CITY_SOLID)
+//@Menu(order = 44, icon = LineAwesomeIconUrl.CITY_SOLID)
 @RolesAllowed({"HR","GOD"})
-public class LocationsView extends VerticalLayout {
+public class LocationsForm extends VerticalLayout {
     private final LocationsRepository locationRepository;
     private final LocationTypeRepository locationTypeRepository;
 
@@ -41,8 +39,9 @@ public class LocationsView extends VerticalLayout {
     private Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
     private Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
     private Button addButton = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create());
+    private Button backButton = new Button("Вернуться назад");
 
-    public LocationsView(LocationsRepository locationRepository,
+    public LocationsForm(LocationsRepository locationRepository,
                          LocationTypeRepository locationTypeRepository) {
         this.locationRepository = locationRepository;
         this.locationTypeRepository = locationTypeRepository;
@@ -51,6 +50,10 @@ public class LocationsView extends VerticalLayout {
         configureForm();
 
         add(addButton, grid, form);
+
+        add(backButton);
+        configureBackButton();
+
         updateGrid();
         setSizeFull();
     }
@@ -179,5 +182,15 @@ public class LocationsView extends VerticalLayout {
         if (location != null && location.getId() != null) {
             hideForm();
         }
+    }
+    private void configureBackButton() {
+        backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
+        backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        backButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        backButton.addClickListener(e ->
+                getUI().ifPresent(ui -> ui.navigate(HRView.class))
+        );
     }
 }

@@ -1,7 +1,5 @@
-package com.example.application.services;
+package com.example.application.data.employees;
 
-import com.example.application.data.Employees;
-import com.example.application.data.EmployeesRepository;
 import com.example.application.data.Services;
 import com.example.application.data.ServicesRepository;
 import jakarta.persistence.EntityNotFoundException;

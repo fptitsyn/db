@@ -1,8 +1,8 @@
 package com.example.application.views.orders;
 
-import com.example.application.data.BonusAccount;
-import com.example.application.data.Clients;
-import com.example.application.data.Orders;
+import com.example.application.data.orders.BonusAccount;
+import com.example.application.data.orders.Clients;
+import com.example.application.data.orders.Orders;
 import com.example.application.services.BonusAccountService;
 import com.example.application.services.ClientsService;
 import com.example.application.services.OrdersService;

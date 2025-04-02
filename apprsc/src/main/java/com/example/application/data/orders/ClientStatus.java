@@ -1,21 +1,21 @@
-package com.example.application.data;
+package com.example.application.data.orders;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "work_order_status")
-public class WorkOrderStatus {
+@Table(name = "client_status")
+public class ClientStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long work_order_status_id;
+    private Long client_status_id;
     private String status;
 
     public Long getId() {
-        return work_order_status_id;
+        return client_status_id;
     }
 
-    public void setId(Long order_status_id) {
-        this.work_order_status_id = order_status_id;
+    public void setId(Long client_status_id) {
+        this.client_status_id = client_status_id;
     }
 
     public String getStatus() {

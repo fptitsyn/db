@@ -1,6 +1,7 @@
 package com.example.application.data;
 
 import com.example.application.data.components.TypeOfDevice;
+import com.example.application.data.employees.Employees;
 import jakarta.persistence.*;
 
 import java.util.HashSet;

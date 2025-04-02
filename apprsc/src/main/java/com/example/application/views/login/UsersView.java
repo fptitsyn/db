@@ -1,9 +1,9 @@
 package com.example.application.views.login;
 
-import com.example.application.data.Employees;
-import com.example.application.data.Users;
-import com.example.application.data.Role;
-import com.example.application.services.EmployeesService;
+import com.example.application.data.employees.Employees;
+import com.example.application.data.login.Users;
+import com.example.application.data.login.Role;
+import com.example.application.data.employees.EmployeesService;
 import com.example.application.services.UsersService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;

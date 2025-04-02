@@ -1,7 +1,7 @@
 package com.example.application.services;
 
-import com.example.application.data.BonusAccount;
-import com.example.application.data.BonusAccountRepository;
+import com.example.application.data.orders.BonusAccount;
+import com.example.application.data.orders.BonusAccountRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

@@ -11,6 +11,7 @@ public record EmployeeInfoDTO(
         String email,
         String comment,
         Integer age,
+        String department,
         String position,
         Integer salary,
         String workplace,
@@ -26,6 +27,7 @@ public record EmployeeInfoDTO(
             String email,
             String comment,
             Integer age,
+            String department,
             String position,
             Integer salary,
             String workplace,
@@ -39,6 +41,7 @@ public record EmployeeInfoDTO(
         this.email = email;
         this.comment = comment;
         this.age = age;
+        this.department = department;
         this.position = position;
         this.salary = salary;
         this.workplace = workplace;

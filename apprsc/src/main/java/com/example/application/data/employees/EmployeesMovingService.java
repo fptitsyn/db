@@ -1,8 +1,5 @@
-package com.example.application.services;
+package com.example.application.data.employees;
 
-import com.example.application.data.Employees;
-import com.example.application.data.EmployeesMoving;
-import com.example.application.data.EmployeesMovingRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

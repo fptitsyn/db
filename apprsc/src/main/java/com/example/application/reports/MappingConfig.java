@@ -17,6 +17,7 @@ import java.time.LocalDate;
                         @ColumnResult(name = "email", type = String.class),
                         @ColumnResult(name = "comment", type = String.class),
                         @ColumnResult(name = "age", type = Integer.class),
+                        @ColumnResult(name = "department", type = String.class),
                         @ColumnResult(name = "position", type = String.class),
                         @ColumnResult(name = "salary", type = Integer.class),
                         @ColumnResult(name = "workplace", type = String.class),

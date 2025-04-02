@@ -1,6 +1,6 @@
 package com.example.application.views.employees;
 
-import com.example.application.data.*;
+import com.example.application.data.employees.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -10,19 +10,16 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.RolesAllowed;
-import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,9 +27,9 @@ import java.util.List;
 @PageTitle("Приём/Увольнение")
 @Route("EmployeesMoving")
 @UIScope
-@Menu(order = 42, icon = LineAwesomeIconUrl.FILE_CONTRACT_SOLID)
+//@Menu(order = 42, icon = LineAwesomeIconUrl.FILE_CONTRACT_SOLID)
 @RolesAllowed({"HR","GOD"})
-public class EmployeesMovingView extends VerticalLayout {
+public class EmployeesMovingForm extends VerticalLayout {
     private final StaffingTableRepository staffingTableRepository;
     private final EmployeesRepository employeesRepository;
     private final EmployeesMovingRepository employeesMovingRepository;
@@ -53,10 +50,11 @@ public class EmployeesMovingView extends VerticalLayout {
     // Добавляем кнопки для редактирования и удаления
     private Button editButton = new Button("Изменить", VaadinIcon.CHECK_SQUARE_O.create());
     private Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
+    private Button backButton = new Button("Вернуться назад");
 
-    public EmployeesMovingView(StaffingTableRepository staffingTableRepository,
-                             EmployeesRepository employeesRepository,
-                             EmployeesMovingRepository employeesMovingRepository) {
+    public EmployeesMovingForm(StaffingTableRepository staffingTableRepository,
+                               EmployeesRepository employeesRepository,
+                               EmployeesMovingRepository employeesMovingRepository) {
 
         this.staffingTableRepository = staffingTableRepository;
         this.employeesRepository = employeesRepository;
@@ -73,6 +71,9 @@ public class EmployeesMovingView extends VerticalLayout {
         configureBindingForm();
         configureHistoryGrid(); // Добавляем настройку грида истории
         add(new H4("Привязанные сотрудники:"), historyGrid, new HorizontalLayout(bindingForm));
+
+        add(backButton);
+        configureBackButton();
 
         updateGrid();
         updateHistory(); // Первоначальная загрузка всей истории
@@ -283,5 +284,16 @@ public class EmployeesMovingView extends VerticalLayout {
 
     private void updateGrid() {
         grid.setItems(staffingTableRepository.findAll());
+    }
+
+    private void configureBackButton() {
+        backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
+        backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        backButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        backButton.addClickListener(e ->
+                getUI().ifPresent(ui -> ui.navigate(HRView.class))
+        );
     }
 }

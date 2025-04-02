@@ -47,6 +47,7 @@ public class EmployeeInfoView extends VerticalLayout {
         grid.addColumn(EmployeeInfoDTO::phoneNumber).setHeader("Phone");
         grid.addColumn(EmployeeInfoDTO::email).setHeader("Email");
         grid.addColumn(EmployeeInfoDTO::age).setHeader("Age");
+        grid.addColumn(EmployeeInfoDTO::department).setHeader("Department");
         grid.addColumn(EmployeeInfoDTO::position).setHeader("Position");
         grid.addColumn(EmployeeInfoDTO::salary).setHeader("Salary");
         grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Workplace");
@@ -103,7 +104,7 @@ public class EmployeeInfoView extends VerticalLayout {
         Row headerRow = sheet.createRow(0);
         String[] headers = {
                 "Last Name", "First Name", "Middle Name", "Birth Date", "Phone",
-                "Email", "Age", "Position", "Salary", "Workplace", "Experience"
+                "Email", "Age", "Department", "Position", "Salary", "Workplace", "Experience"
         };
 
         for (int i = 0; i < headers.length; i++) {
@@ -126,15 +127,16 @@ public class EmployeeInfoView extends VerticalLayout {
             row.createCell(4).setCellValue(employee.phoneNumber());
             row.createCell(5).setCellValue(employee.email());
             row.createCell(6).setCellValue(employee.age());
-            row.createCell(7).setCellValue(employee.position());
-            row.createCell(8).setCellValue(employee.salary());
-            row.createCell(9).setCellValue(employee.workplace());
-            row.createCell(10).setCellValue(employee.experience());
+            row.createCell(7).setCellValue(employee.department());
+            row.createCell(8).setCellValue(employee.position());
+            row.createCell(9).setCellValue(employee.salary());
+            row.createCell(10).setCellValue(employee.workplace());
+            row.createCell(11).setCellValue(employee.experience());
         }
     }
 
     private void autoSizeColumns(Sheet sheet) {
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i < 12; i++) {
             sheet.autoSizeColumn(i);
         }
     }
@@ -161,7 +163,6 @@ public class EmployeeInfoView extends VerticalLayout {
                             "document.body.appendChild(link);" +
                             "link.click();" +
                             "document.body.removeChild(link);",
-                    //resource.getUrl(),
                     resource.getName()
             );
         }

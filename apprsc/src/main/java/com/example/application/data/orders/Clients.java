@@ -1,4 +1,4 @@
-package com.example.application.data;
+package com.example.application.data.orders;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

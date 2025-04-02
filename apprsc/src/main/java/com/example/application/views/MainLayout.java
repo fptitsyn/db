@@ -1,6 +1,6 @@
 package com.example.application.views;
 
-import com.example.application.data.Users;
+import com.example.application.data.login.Users;
 import com.example.application.security.AuthenticatedUser;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;

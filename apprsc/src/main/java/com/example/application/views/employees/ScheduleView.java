@@ -15,7 +15,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @Menu(order = 43, icon = LineAwesomeIconUrl.BUSINESS_TIME_SOLID)
 
 @RolesAllowed({"HR","WORKS","GOD"})
-public class ScheduleView  extends VerticalLayout {
+public class ScheduleView extends VerticalLayout {
     public ScheduleView() {
         H2 header = new H2("Не разработано...");
         header.addClassNames(LumoUtility.Margin.Top.XLARGE, LumoUtility.Margin.Bottom.MEDIUM);

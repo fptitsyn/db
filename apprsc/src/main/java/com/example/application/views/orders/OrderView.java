@@ -1,15 +1,20 @@
 
 package com.example.application.views.orders;
 
-import com.example.application.data.*;
+import com.example.application.data.employees.Employees;
+import com.example.application.data.employees.EmployeesMoving;
+import com.example.application.data.employees.Locations;
+import com.example.application.data.employees.StaffingTable;
+import com.example.application.data.login.Users;
+import com.example.application.data.orders.Clients;
+import com.example.application.data.orders.Orders;
 import com.example.application.security.AuthenticatedUser;
 import com.example.application.services.ClientsService;
-import com.example.application.services.EmployeesMovingService;
+import com.example.application.data.employees.EmployeesMovingService;
 import com.example.application.services.OrdersService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;

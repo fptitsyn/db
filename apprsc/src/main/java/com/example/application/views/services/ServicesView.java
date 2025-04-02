@@ -1,6 +1,6 @@
 package com.example.application.views.services;
 
-import com.example.application.data.Employees;
+import com.example.application.data.employees.Employees;
 import com.example.application.data.Services;
 
 import com.example.application.data.components.TypeOfDevice;
@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.time.Duration;
-import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 

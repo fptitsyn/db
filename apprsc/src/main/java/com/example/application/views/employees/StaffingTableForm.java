@@ -1,6 +1,9 @@
 package com.example.application.views.employees;
 
-import com.example.application.data.*;
+import com.example.application.data.employees.Locations;
+import com.example.application.data.employees.LocationsRepository;
+import com.example.application.data.employees.StaffingTable;
+import com.example.application.data.employees.StaffingTableRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -14,13 +17,11 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.transaction.Transactional;
-import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,9 +30,9 @@ import java.util.List;
 @Route("StaffingTable")
 @SpringComponent
 @Transactional
-@Menu(order = 41, icon = LineAwesomeIconUrl.FILE_ALT_SOLID)
+//@Menu(order = 41, icon = LineAwesomeIconUrl.FILE_ALT_SOLID)
 @RolesAllowed({"HR","GOD"})
-public class StaffingTableView extends VerticalLayout {
+public class StaffingTableForm extends VerticalLayout {
     private final LocationsRepository locationRepository;
     private final StaffingTableRepository staffingTableRepository;
 
@@ -49,8 +50,9 @@ public class StaffingTableView extends VerticalLayout {
     private Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
     private Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
     private Button addButton = new Button("Новая", VaadinIcon.PLUS_SQUARE_O.create());
+    private Button backButton = new Button("Вернуться назад");
 
-    public StaffingTableView(StaffingTableRepository staffingTableRepository,
+    public StaffingTableForm(StaffingTableRepository staffingTableRepository,
                              LocationsRepository locationRepository) {
         this.staffingTableRepository = staffingTableRepository;
         this.locationRepository = locationRepository;
@@ -59,6 +61,10 @@ public class StaffingTableView extends VerticalLayout {
         configureForm();
 
         add(addButton, grid, form);
+
+        add(backButton);
+        configureBackButton();
+
         updateGrid();
         setSizeFull();
     }
@@ -231,7 +237,16 @@ public class StaffingTableView extends VerticalLayout {
             hideForm();
         }
     }
-
+    private void configureBackButton() {
+        backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
+        backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        backButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        backButton.addClickListener(e ->
+                getUI().ifPresent(ui -> ui.navigate(HRView.class))
+        );
+    }
 
 }
 

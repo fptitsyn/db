@@ -1,5 +1,6 @@
-package com.example.application.data;
+package com.example.application.data.login;
 
+import com.example.application.data.employees.Employees;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 

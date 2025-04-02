@@ -1,9 +1,8 @@
 package com.example.application.views.employees;
 
-import com.example.application.data.Clients;
-import com.example.application.data.Employees;
+import com.example.application.data.employees.Employees;
 import com.example.application.data.Services;
-import com.example.application.services.EmployeesService;
+import com.example.application.data.employees.EmployeesService;
 import com.example.application.services.ServicesService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -38,15 +37,11 @@ import java.util.stream.Collectors;
 
 import net.datafaker.Faker;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Сотрудники")
 @Route("employees-detail/:samplePersonID?/:action?(edit)")
-
-@Menu(order = 40, icon = LineAwesomeIconUrl.USER_FRIENDS_SOLID)
 @RolesAllowed({"HR","GOD"})
-
-public class EmployeesView extends Div implements BeforeEnterObserver {
+public class EmployeesForm extends Div implements BeforeEnterObserver {
 
     private final String SAMPLEPERSON_ID = "samplePersonID";
     private final String SAMPLEPERSON_EDIT_ROUTE_TEMPLATE = "employees-detail/%s/edit";
@@ -54,6 +49,7 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
     private final Grid<Employees> grid = new Grid<>(Employees.class, false);
 
     private MultiSelectComboBox<Services> servicesComboBox = new MultiSelectComboBox<>("Services");
+    private Button backButton = new Button("Вернуться назад");
 
     private TextField firstName;
     private TextField lastName;
@@ -77,7 +73,7 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
 
     private final ServicesService servicesService;
 
-    public EmployeesView(EmployeesService employeesService, ServicesService servicesService) {
+    public EmployeesForm(EmployeesService employeesService, ServicesService servicesService) {
         this.employeesService = employeesService;
         this.servicesService = servicesService;
         addClassNames("employees-view");
@@ -89,6 +85,8 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
 
         add(splitLayout);
 
+        add(backButton);
+        configureBackButton();
         configureGrid();
 
         // when a row is selected or deselected, populate form
@@ -97,7 +95,7 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
                 UI.getCurrent().navigate(String.format(SAMPLEPERSON_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
             } else {
                 clearForm();
-                UI.getCurrent().navigate(com.example.application.views.employees.EmployeesView.class);
+                UI.getCurrent().navigate(EmployeesForm.class);
             }
         });
 
@@ -130,7 +128,7 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
                 clearForm();
                 refreshGrid();
                 Notification.show("Данные обновлены");
-                UI.getCurrent().navigate(EmployeesView.class);
+                UI.getCurrent().navigate(EmployeesForm.class);
             } catch (ObjectOptimisticLockingFailureException exception) {
                 Notification.show("Ошибка: данные были изменены другим пользователем", 3000, Position.MIDDLE)
                         .addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -154,7 +152,7 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
                 // when a row is selected but the data is no longer available,
                 // refresh grid
                 refreshGrid();
-                event.forwardTo(com.example.application.views.employees.EmployeesView.class);
+                event.forwardTo(EmployeesForm.class);
             }
         }
     }
@@ -277,5 +275,15 @@ public class EmployeesView extends Div implements BeforeEnterObserver {
                 new GridSortOrder<>(lastNameCol, SortDirection.ASCENDING)
         );
         grid.sort(sortOrder);
+    }
+    private void configureBackButton() {
+        backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
+        backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        backButton.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        backButton.addClickListener(e ->
+                getUI().ifPresent(ui -> ui.navigate(HRView.class))
+        );
     }
 }
