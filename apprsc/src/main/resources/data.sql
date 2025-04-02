@@ -34,7 +34,7 @@ INSERT INTO public.work_order_status(status) VALUES ('Назначен');
 INSERT INTO public.work_order_status(status) VALUES ('В работе');
 INSERT INTO public.work_order_status(status) VALUES ('Выполнен');
 //------------------------------------------------------------------------------------------------------------
--- FUNCTION: public.get_employee_info()
+//Отчет по сотрудникам
 DROP FUNCTION IF EXISTS public.get_employee_info();
 
 CREATE OR REPLACE FUNCTION public.get_employee_info(
@@ -75,5 +75,155 @@ END;
 $BODY$;
 
 ALTER FUNCTION public.get_employee_info()
+    OWNER TO postgres;
+//------------------------------------------------------------------------------------------------------------
+//Триггер и функция для создания бонусного счета.
+-- FUNCTION: public.create_bonus_account_for_client()
+
+-- DROP FUNCTION IF EXISTS public.create_bonus_account_for_client();
+
+CREATE OR REPLACE FUNCTION public.create_bonus_account_for_client()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+    -- Вставляем запись только если client_id отсутствует в bonus_account
+    INSERT INTO public.bonus_account (client_id)
+    SELECT NEW.client_id
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM public.bonus_account
+        WHERE client_id = NEW.client_id
+    );
+
+    RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.create_bonus_account_for_client()
+    OWNER TO postgres;
+
+-- Trigger: trigger_create_bonus_account
+
+-- DROP TRIGGER IF EXISTS trigger_create_bonus_account ON public.clients;
+
+CREATE OR REPLACE TRIGGER trigger_create_bonus_account
+    AFTER INSERT
+    ON public.clients
+    FOR EACH ROW
+    EXECUTE FUNCTION public.create_bonus_account_for_client();
+//------------------------------------------------------------------------------------------------------------
+//Триггер и функция для создания даты открытия бонусного счета.
+-- FUNCTION: public.set_open_date_of_bonus_account()
+
+-- DROP FUNCTION IF EXISTS public.set_open_date_of_bonus_account();
+
+CREATE OR REPLACE FUNCTION public.set_open_date_of_bonus_account()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 50
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+    IF NEW.open_date IS NULL THEN
+        NEW.open_date := CURRENT_DATE;
+    END IF;
+    RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.set_open_date_of_bonus_account()
+    OWNER TO postgres;
+
+
+-- Trigger: trigger_set_open_date_of_bonus_account
+CREATE OR REPLACE TRIGGER set_open_date_of_bonus_account
+    BEFORE INSERT
+    ON public.bonus_account
+    FOR EACH ROW
+    EXECUTE FUNCTION public.set_open_date_of_bonus_account();
+//------------------------------------------------------------------------------------------------------------
+//Триггер, последовательность и функция для создания номера бонусного счета.
+-- SEQUENCE: public.bonus_account_number_seq
+
+-- DROP SEQUENCE IF EXISTS public.bonus_account_number_seq;
+
+CREATE SEQUENCE IF NOT EXISTS public.bonus_account_number_seq
+    INCREMENT 1
+    START 1000000000
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+
+ALTER SEQUENCE public.bonus_account_number_seq
+    OWNER TO postgres;
+
+-- FUNCTION: public.set_bonus_account_number()
+
+-- DROP FUNCTION IF EXISTS public.set_bonus_account_number();
+
+CREATE OR REPLACE FUNCTION public.set_bonus_account_number()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+    IF NEW.bonus_account_number IS NULL THEN
+        NEW.bonus_account_number := nextval('public.bonus_account_number_seq');
+    END IF;
+    RETURN NEW;
+END;
+$BODY$;
+
+ALTER FUNCTION public.set_bonus_account_number()
+    OWNER TO postgres;
+
+-- Trigger: trigger_set_bonus_account_number
+
+-- DROP TRIGGER IF EXISTS trigger_set_bonus_account_number ON public.bonus_account;
+
+CREATE OR REPLACE TRIGGER trigger_set_bonus_account_number
+    BEFORE INSERT
+    ON public.bonus_account
+    FOR EACH ROW
+    EXECUTE FUNCTION public.set_bonus_account_number();
+//------------------------------------------------------------------------------------------------------------
+//Отчет по офисам
+CREATE OR REPLACE FUNCTION public.get_location_info()
+    RETURNS TABLE (
+    location_name VARCHAR(255),
+    phone_number VARCHAR(255),
+    country VARCHAR(255),
+    city VARCHAR(255),
+    street VARCHAR(255),
+    building_number VARCHAR(255),
+    postal_code VARCHAR(255),
+    location_type_name VARCHAR(255)
+)
+    LANGUAGE 'plpgsql'
+    COST 50
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    SELECT
+        l.name::VARCHAR(255) AS location_name,
+        l.phone_number::varchar(255),
+        l.country,
+        l.city,
+        l.street,
+        l.building_number,
+        l.postal_code,
+        lt.location_type_name
+    FROM
+        locations l
+  LEFT JOIN locations_type lt ON l.location_id = lt.location_type_id;
+END;
+$BODY$;
+
+ALTER FUNCTION public.set_open_date_of_bonus_account()
     OWNER TO postgres;
 //------------------------------------------------------------------------------------------------------------
