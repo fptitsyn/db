@@ -1,7 +1,7 @@
 package com.example.application.data.orders;
 
 import com.example.application.data.employees.Employees;
-import com.example.application.data.employees.Locations;
+import com.example.application.data.locations.Locations;
 import jakarta.persistence.*;
 
 @Entity

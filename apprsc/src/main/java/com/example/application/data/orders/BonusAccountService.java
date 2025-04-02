@@ -1,7 +1,5 @@
-package com.example.application.services;
+package com.example.application.data.orders;
 
-import com.example.application.data.orders.BonusAccount;
-import com.example.application.data.orders.BonusAccountRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
