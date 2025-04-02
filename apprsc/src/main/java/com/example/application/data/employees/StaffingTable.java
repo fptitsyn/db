@@ -1,5 +1,6 @@
 package com.example.application.data.employees;
 
+import com.example.application.data.locations.Locations;
 import jakarta.persistence.*;
 
 @Entity

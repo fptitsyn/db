@@ -1,4 +1,4 @@
-package com.example.application.data.employees;
+package com.example.application.data.locations;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

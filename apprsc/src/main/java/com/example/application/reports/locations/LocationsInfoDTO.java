@@ -1,9 +1,5 @@
 package com.example.application.reports.locations;
 
-import com.example.application.data.employees.LocationsType;
-
-import java.time.LocalDate;
-
 public record LocationsInfoDTO (
     String location_name,
     String phone_number,

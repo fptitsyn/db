@@ -17,7 +17,6 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Персонал")
 @Route("HRView")
-
 @Menu(order = 40, icon = LineAwesomeIconUrl.USER_FRIENDS_SOLID)
 @RolesAllowed({"HR","GOD"})
 public class HRView extends VerticalLayout {
@@ -32,8 +31,19 @@ public class HRView extends VerticalLayout {
         this.service = service;
         configureGrid();
         configureBackButton();
+
         HorizontalLayout buttonLayout = new HorizontalLayout(button1, button2, button3, button4);
-        add(buttonLayout, grid);
+        buttonLayout.setWidthFull();
+
+        // Основной контейнер
+        VerticalLayout mainLayout = new VerticalLayout(buttonLayout, grid);
+        mainLayout.setSizeFull();
+        mainLayout.setFlexGrow(1, grid); // Grid будет занимать все доступное пространство
+        mainLayout.setPadding(false);
+        mainLayout.setSpacing(false);
+
+        add(mainLayout);
+        setSizeFull();
         refreshGrid();
     }
 
@@ -46,6 +56,9 @@ public class HRView extends VerticalLayout {
         grid.addColumn(EmployeeInfoDTO::firstName).setHeader("Имя");
         grid.addColumn(EmployeeInfoDTO::middleName).setHeader("Отчество");
         grid.addColumn(EmployeeInfoDTO::age).setHeader("Возраст");
+
+        grid.setSizeFull();
+        grid.getStyle().set("flex-grow", "1");
     }
 
     private void refreshGrid() {

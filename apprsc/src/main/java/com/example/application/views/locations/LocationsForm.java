@@ -1,9 +1,9 @@
 package com.example.application.views.locations;
 
-import com.example.application.data.employees.Locations;
-import com.example.application.data.employees.LocationsRepository;
-import com.example.application.data.employees.LocationsType;
-import com.example.application.data.employees.LocationTypeRepository;
+import com.example.application.data.locations.Locations;
+import com.example.application.data.locations.LocationsRepository;
+import com.example.application.data.locations.LocationsType;
+import com.example.application.data.locations.LocationTypeRepository;
 import com.example.application.views.employees.HRView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

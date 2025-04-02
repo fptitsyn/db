@@ -1,4 +1,4 @@
-package com.example.application.data.employees;
+package com.example.application.data.locations;
 
 import jakarta.persistence.*;
 

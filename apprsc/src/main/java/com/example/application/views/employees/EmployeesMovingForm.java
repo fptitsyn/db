@@ -1,6 +1,7 @@
 package com.example.application.views.employees;
 
 import com.example.application.data.employees.*;
+import com.example.application.data.locations.Locations;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;

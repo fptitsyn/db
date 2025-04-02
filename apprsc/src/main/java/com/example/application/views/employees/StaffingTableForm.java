@@ -1,7 +1,7 @@
 package com.example.application.views.employees;
 
-import com.example.application.data.employees.Locations;
-import com.example.application.data.employees.LocationsRepository;
+import com.example.application.data.locations.Locations;
+import com.example.application.data.locations.LocationsRepository;
 import com.example.application.data.employees.StaffingTable;
 import com.example.application.data.employees.StaffingTableRepository;
 import com.vaadin.flow.component.button.Button;
