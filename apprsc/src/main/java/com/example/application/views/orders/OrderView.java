@@ -207,7 +207,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 },
                 dialog::close
         );
-        dialog.setWidth("800px");
+        dialog.setWidth("1500px");
         dialog.add(form);
         dialog.open();
     }

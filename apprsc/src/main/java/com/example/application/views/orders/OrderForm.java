@@ -69,27 +69,34 @@ public class OrderForm extends FormLayout {
         configureServicesGrid();
         configureComponentsGrid();
 
-        // Кнопки управления
-        Button saveBtn = createSaveButton();
-        Button cancelBtn = createCancelButton();
-        Button addServiceBtn = createAddServiceButton();
-        Button addComponentBtn = createAddComponentButton();
+        // Создаем форму с полями
+        FormLayout formLayout = new FormLayout(productField, quantityField);
+        formLayout.setWidthFull();
+        formLayout.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("500px", 2)
+        );
 
-        if (order.getId() == null) {
-            order.setClient(currentClient);
-        }
-
-        add(new VerticalLayout(
-                new FormLayout(productField, quantityField),
-                new HorizontalLayout(saveBtn, cancelBtn),
-                addServiceBtn,
+        // Создаем контейнер
+        VerticalLayout container = new VerticalLayout(
+                formLayout,
+                new HorizontalLayout(createSaveButton(), createCancelButton()),
+                createAddServiceButton(),
                 servicesGrid,
-                addComponentBtn,
+                createAddComponentButton(),
                 componentsGrid
-        ));
+        );
 
-        refreshGrids();
-        setSizeFull();
+        // Настройки контейнера
+        container.setWidthFull();
+        container.setPadding(false);
+        container.setSpacing(true);
+
+        container.setWidth("1200px");
+        //container.getStyle().set("margin", "0 auto");
+
+        add(container);
+        setSizeFull(); // Для всей формы OrderForm
     }
 
     private void configureBinder() {
@@ -107,6 +114,7 @@ public class OrderForm extends FormLayout {
 
     private void configureServicesGrid() {
         servicesGrid.removeAllColumns();
+        servicesGrid.setWidthFull();
 
         servicesGrid.addColumn(os -> os.getServices().getServiceName())
                 .setHeader("Услуга");
@@ -126,6 +134,7 @@ public class OrderForm extends FormLayout {
 
     private void configureComponentsGrid() {
         componentsGrid.removeAllColumns();
+        componentsGrid.setWidthFull();
 
         componentsGrid.addColumn(oc -> oc.getComponent().getCategory().getTypeOfDevice().getTypeOfDeviceName())
                 .setHeader("Тип устройства");
@@ -204,7 +213,7 @@ public class OrderForm extends FormLayout {
         }
 
         Dialog dialog = new Dialog();
-        dialog.setWidth("900px"); // Установка ширины
+        //dialog.setWidth("900px"); // Установка ширины
 
         dialog.setHeaderTitle("Добавление услуги"); // Добавляем заголовок
 
@@ -247,7 +256,7 @@ public class OrderForm extends FormLayout {
         }
 
         Dialog dialog = new Dialog();
-        dialog.setWidth("900px"); // Установка ширины
+        //dialog.setWidth("900px"); // Установка ширины
         dialog.setHeaderTitle("Добавление компонента"); // Добавляем заголовок
 
         ComboBox<Component> combo = new ComboBox<>("Выберите компонент");
