@@ -35,6 +35,14 @@ public class AboutView extends VerticalLayout {
         add(new H2("Список изменений"));
         add(new Paragraph("=============================================================================="));
 
+        add(new H5("03.04"));
+        add(new Span("Созданы Entity: OrderServices, OrderComponents, WorkOrders"));
+        add(new H5("02.04"));
+        add(new Span("Добавлена новая функция для заполнения даты открытия бонусного счета"));
+        add(new Span("Employees, добавлено в Форму - пол. Переделана генерация"));
+        add(new Span("OrderView исправлена кнопка (Изменить). Можно было нажать несколько раз. (На проверке)"));
+        add(new Span("Добавлена отчетность по Locations"));
+        add(new Span("LocationsView доработано отображение и редактирование недостающих полей"));
         add(new H5("01.04"));
         add(new Span("Созданы OrderStatus, WorkOrderStatus, ClientStatus, BonusAccountOperation.  Добавлен пол в Clients и Employees"));
         add(new Span("В data.sql добавлены скрипты для заполнения  OrderStatus, WorkOrderStatus, ClientStatus."));

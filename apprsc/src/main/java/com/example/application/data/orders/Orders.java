@@ -9,7 +9,7 @@ import jakarta.persistence.*;
 public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long orders_id;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
@@ -40,7 +40,7 @@ public class Orders {
 
     // Геттеры
     public Long getId() {
-        return id;
+        return orders_id;
     }
     public Clients getClient() {
         return client;

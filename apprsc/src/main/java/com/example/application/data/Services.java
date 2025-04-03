@@ -12,7 +12,7 @@ import java.util.Set;
 public class Services {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long serviceId;
+    private Long service_id;
 
     private String serviceName;
     private Double cost;
@@ -31,8 +31,8 @@ public class Services {
     private Set<Employees> employees = new HashSet<>();
 
     // Геттеры и сеттеры
-    public Long getServiceId() { return serviceId; }
-    public void setServiceId(Long serviceId) { this.serviceId = serviceId; }
+    public Long getServiceId() { return service_id; }
+    public void setServiceId(Long service_id) { this.service_id = service_id; }
     public String getServiceName() { return serviceName; }
     public void setServiceName(String serviceName) { this.serviceName = serviceName; }
     public Double getCost() { return cost; }
@@ -46,6 +46,6 @@ public class Services {
 
     @Override
     public String toString() {
-        return "Service{" + "id=" + serviceId + ", name='" + serviceName + '\'' + '}';
+        return "Service{" + "id=" + service_id + ", name='" + serviceName + '\'' + '}';
     }
 }
