@@ -23,6 +23,10 @@ public class ComponentService {
         this.categoryService = categoryService;
     }
 
+    public List<Component> findAll() {
+        return componentRepo.findAll();
+    }
+
     public List<ComponentDTO> findAllComponents() {
         return componentRepo.findAll().stream()
                 .map(this::convertToDTO)

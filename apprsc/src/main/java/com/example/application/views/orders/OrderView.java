@@ -1,19 +1,19 @@
 
 package com.example.application.views.orders;
 
+import com.example.application.data.components.ComponentService;
 import com.example.application.data.employees.Employees;
 import com.example.application.data.employees.EmployeesMoving;
 import com.example.application.data.locations.Locations;
 import com.example.application.data.employees.StaffingTable;
 import com.example.application.data.login.Users;
-import com.example.application.data.orders.Clients;
-import com.example.application.data.orders.Orders;
+import com.example.application.data.orders.*;
 import com.example.application.security.AuthenticatedUser;
-import com.example.application.data.orders.ClientsService;
 import com.example.application.data.employees.EmployeesMovingService;
-import com.example.application.data.orders.OrdersService;
+import com.example.application.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -27,14 +27,18 @@ import java.util.Optional;
 
 @PageTitle("Заказы")
 @RolesAllowed({"SALES","GOD"})
-@Route(value = "orders/:clientID") // Убрали layout
+@Route(value = "orders/:clientID")
 
 public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final AuthenticatedUser authenticatedUser;
     private final OrdersService orderService;
     private final ClientsService clientService;
     private final EmployeesMovingService employeesMovingService;
-    private OrderForm currentForm; // Добавляем поле для хранения текущей формы
+    private final OrderServicesService orderServicesService; // Добавлено
+    private final ServicesService servicesService;
+    private final OrderComponentsService orderComponentsService; // Добавлено
+    private final ComponentService componentService;
+
     private Clients currentClient;
     private Grid<Orders> orderGrid = new Grid<>(Orders.class);
     private Span clientFullname = new Span();
@@ -43,11 +47,20 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     public OrderView(OrdersService orderService,
                      ClientsService clientService,
                      AuthenticatedUser authenticatedUser,
-                     EmployeesMovingService employeesMovingService) { // Модифицированный конструктор
+                     EmployeesMovingService employeesMovingService,
+                     OrderServicesService orderServicesService,
+                     ServicesService servicesService,
+                     OrderComponentsService orderComponentsService,
+                     ComponentService componentService)  { // Модифицированный конструктор
         this.orderService = orderService;
         this.clientService = clientService;
         this.authenticatedUser = authenticatedUser;
-        this.employeesMovingService = employeesMovingService; // Инициализация
+        this.employeesMovingService = employeesMovingService;
+        this.orderServicesService = orderServicesService;
+        this.servicesService = servicesService;
+        this.orderComponentsService = orderComponentsService;
+        this.componentService = componentService;
+
         initView();
     }
 
@@ -140,12 +153,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void showOrderForm(Orders order) {
-        // Удаляем предыдущую форму, если она существует
-        if (currentForm != null) {
-            remove(currentForm);
-        }
-
-        if (order.getId() == null) { // Только для новых заказов
+        // Проверки сотрудника и локации для новых заказов
+        if (order.getId() == null) {
             Optional<Users> maybeUser = authenticatedUser.get();
             if (maybeUser.isEmpty()) {
                 Notification.show("Ошибка: Пользователь не найден", 3000, Notification.Position.TOP_CENTER);
@@ -155,47 +164,52 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             Users user = maybeUser.get();
             Employees employee = user.getEmployee();
             if (employee == null) {
-                Notification.show("Ошибка: У пользователя нет привязанного сотрудника. Обратитесь к администратору",
-                        3000, Notification.Position.TOP_CENTER);
+                Notification.show("Ошибка: У пользователя нет привязанного сотрудника", 3000, Notification.Position.TOP_CENTER);
                 return;
             }
 
-            // Поиск активного назначения
             Optional<EmployeesMoving> activeMoving = employeesMovingService.findActiveByEmployee(employee);
             if (activeMoving.isEmpty()) {
-                Notification.show("Ошибка: Сотрудник не принят на работу. Не может оформлять заказы",
-                        3000, Notification.Position.TOP_CENTER);
+                Notification.show("Ошибка: Сотрудник не принят на работу", 3000, Notification.Position.TOP_CENTER);
                 return;
             }
 
-            // Получаем локацию из штатного расписания
             StaffingTable staffingTable = activeMoving.get().getStaffingTable();
             Locations location = staffingTable.getLocation();
             if (location == null) {
-                Notification.show("Ошибка: Офис не найден в штатном расписании",
-                        3000, Notification.Position.TOP_CENTER);
+                Notification.show("Ошибка: Офис не найден", 3000, Notification.Position.TOP_CENTER);
                 return;
             }
 
-            // Устанавливаем данные в заказ
+            // Устанавливаем значения
             order.setEmployee(employee);
             order.setLocation(location);
         }
 
-        // Создаем новую форму и сохраняем ссылку на нее
-        currentForm = new OrderForm(
+        // Создание диалога
+        Dialog dialog = new Dialog();
+        dialog.setModal(true);
+        dialog.setCloseOnEsc(true);
+        dialog.setCloseOnOutsideClick(false);
+        dialog.setHeaderTitle(order.getId() == null ? "Новый заказ" : "Редактирование заказа");
+
+        OrderForm form = new OrderForm(
                 order,
                 currentClient,
                 orderService,
+                orderServicesService,
+                servicesService,
+                orderComponentsService,
+                componentService,
                 () -> {
                     updateGrid();
-                    if (currentForm != null) {
-                        remove(currentForm);
-                        currentForm = null;
-                    }
-                }
+                    dialog.close();
+                },
+                dialog::close
         );
-        add(currentForm);
+        dialog.setWidth("800px");
+        dialog.add(form);
+        dialog.open();
     }
 }
 
