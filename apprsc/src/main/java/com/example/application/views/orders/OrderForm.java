@@ -76,7 +76,9 @@ public class OrderForm extends FormLayout {
                 new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("500px", 2)
         );
-
+        if (order.getId() == null) {
+            order.setClient(currentClient);
+        }
         // Создаем контейнер
         VerticalLayout container = new VerticalLayout(
                 formLayout,
@@ -87,15 +89,19 @@ public class OrderForm extends FormLayout {
                 componentsGrid
         );
 
+        refreshGrids();
+
         // Настройки контейнера
         container.setWidthFull();
         container.setPadding(false);
         container.setSpacing(true);
-
-        container.setWidth("1200px");
+//Нужно решить что делать, нужен контейнер или нет (как нормально растянуть Gtid)
+        //container.setWidth("1200px");
         //container.getStyle().set("margin", "0 auto");
 
-        add(container);
+        add(formLayout,new HorizontalLayout(createSaveButton(), createCancelButton()),
+                createAddServiceButton(),servicesGrid,createAddComponentButton(),componentsGrid);
+        //add(container);
         setSizeFull(); // Для всей формы OrderForm
     }
 
