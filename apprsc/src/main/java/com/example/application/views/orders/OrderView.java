@@ -68,6 +68,10 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         configureBackButton(); // Настройка кнопки
         orderGrid.removeAllColumns();
 
+        orderGrid.addColumn(o -> o.getDateOfOrder()).setHeader("Дата");
+        orderGrid.addColumn(o -> o.getNumberOfOrder()).setHeader("Номер");
+        orderGrid.addColumn(o -> o.getTotalCost()).setHeader("Сумма");
+        orderGrid.addColumn(o -> o.getOrderStatus()).setHeader("Статус");
         orderGrid.addColumn(order -> {
             if (order.getLocation() != null) {
                 return order.getLocation().getName();
@@ -83,8 +87,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             return "Не указан";
         }).setHeader("Менеджер").setAutoWidth(true);
 
-        orderGrid.addColumn(o -> o.getProduct()).setHeader("Товар");
-        orderGrid.addColumn(o -> o.getQuantity()).setHeader("Количество");
+
         orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия").setWidth("250px");
 
         Button addOrderBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(), e -> showOrderForm(new Orders()));

@@ -4,6 +4,7 @@ import com.example.application.data.employees.Employees;
 import com.example.application.data.locations.Locations;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -18,6 +19,9 @@ public class Orders {
 
     @Column(name = "date_of_order")
     private LocalDate dateOfOrder;
+
+    @Column(name = "total_cost", precision = 10, scale = 2)
+    private BigDecimal totalCost;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
@@ -72,6 +76,7 @@ public class Orders {
     public Long getNumberOfOrder() {return numberOfOrder;    }
     public LocalDate getDateOfOrder() {return dateOfOrder;    }
     public OrderStatus getOrderStatus() {return orderStatus;    }
+    public BigDecimal getTotalCost() {        return totalCost;    }
 
     // Сеттеры
     public void setClient(Clients client) {
@@ -88,4 +93,5 @@ public class Orders {
     public void setNumberOfOrder(Long numberOfOrder) {        this.numberOfOrder = numberOfOrder;    }
     public void setDateOfOrder(LocalDate dateOfOrder) {        this.dateOfOrder = dateOfOrder;    }
     public void setOrderStatus(OrderStatus orderStatus) {        this.orderStatus = orderStatus;    }
+    public void setTotalCost(BigDecimal totalCost) {        this.totalCost = totalCost;    }
 }

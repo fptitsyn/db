@@ -14,17 +14,13 @@ public class OrderComponents {
     @JoinColumn(name = "orders_id")
     private Orders orders;
 
-    @OneToOne
-    @JoinColumn(name = "service_id")
+    @ManyToOne
+    @JoinColumn(name = "component_id")
     private Component component;
 
-    public Long getOrder_components_id() {
-        return order_components_id;
-    }
+    public Long getId() {        return order_components_id;    }
 
-    public void setOrder_components_id(Long order_components_id) {
-        this.order_components_id = order_components_id;
-    }
+    public void setId(Long order_components_id) {        this.order_components_id = order_components_id;    }
 
     public Orders getOrders() {
         return orders;

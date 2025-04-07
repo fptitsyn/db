@@ -5,7 +5,6 @@ import com.example.application.data.components.Component;
 import com.example.application.data.components.ComponentService;
 import com.example.application.data.orders.*;
 import com.example.application.services.ServicesService;
-import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -77,39 +76,15 @@ public class OrderForm extends FormLayout {
         configureServicesGrid();
         configureComponentsGrid();
 
-        // Создаем форму с полями
-        FormLayout formLayout = new FormLayout(productField, quantityField);
-        formLayout.setWidthFull();
-        formLayout.setResponsiveSteps(
-                new FormLayout.ResponsiveStep("0", 1),
-                new FormLayout.ResponsiveStep("500px", 2)
-        );
         if (order.getId() == null) {
             order.setClient(currentClient);
         }
-        // Создаем контейнер
-        VerticalLayout container = new VerticalLayout(
-                formLayout,
-                new HorizontalLayout(createSaveButton(), createCancelButton()),
-                createAddServiceButton(),
-                servicesGrid,
-                createAddComponentButton(),
-                componentsGrid
-        );
-
         refreshGrids();
 
-        // Настройки контейнера
-        container.setWidthFull();
-        container.setPadding(false);
-        container.setSpacing(true);
-//Нужно решить что делать, нужен контейнер или нет (как нормально растянуть Gtid)
-        //container.setWidth("1200px");
-        //container.getStyle().set("margin", "0 auto");
-
-        add(formLayout,new HorizontalLayout(createSaveButton(), createCancelButton()),
-                createAddServiceButton(),servicesGrid,createAddComponentButton(),componentsGrid);
-        //add(container);
+        add(productField, quantityField,
+                servicesGrid, createAddServiceButton(),
+                 componentsGrid,createAddComponentButton(),
+                new HorizontalLayout(createSaveButton(), createCancelButton()));
         setSizeFull(); // Для всей формы OrderForm
     }
 
