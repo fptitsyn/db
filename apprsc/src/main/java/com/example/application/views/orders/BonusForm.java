@@ -47,8 +47,8 @@ public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
         openDateSpan.addClassName("bonus-info");
 
         orderGrid.removeAllColumns();
-        orderGrid.addColumn(Orders::getProduct).setHeader("Товар");
-        orderGrid.addColumn(Orders::getQuantity).setHeader("Количество");
+        orderGrid.addColumn(Orders::getNumberOfOrder).setHeader("Товар");
+        orderGrid.addColumn(Orders::getDateOfOrder).setHeader("Количество");
 
         add(
                 clientFullname,

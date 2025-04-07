@@ -9,21 +9,22 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.Query;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 
-public class OrderForm extends FormLayout {
+public class OrderForm extends VerticalLayout {
     private final Orders order;
     private final Clients currentClient;
     private final OrdersService orderService;
@@ -35,8 +36,11 @@ public class OrderForm extends FormLayout {
     private final Runnable onCancel;
 
     // Основные поля формы
-    private TextField productField = new TextField("Товар");
-    private IntegerField quantityField = new IntegerField("Количество");
+    private Span orderNumber = new Span();
+    private Span orderDate = new Span();
+    private Span orderStatus = new Span();
+
+    private TextArea commentField = new TextArea ("Комментарий к заказу");
     private Binder<Orders> binder = new Binder<>(Orders.class);
     // Добавляем переменные для колонок (суммы итого)
     private Grid.Column<OrderServices> costColumn;
@@ -79,24 +83,39 @@ public class OrderForm extends FormLayout {
         if (order.getId() == null) {
             order.setClient(currentClient);
         }
+
+        //Как всегда временно
+        orderNumber.setText("Номер заказа: " + order.getNumberOfOrder());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        String formattedDate = order.getDateOfOrder().format(formatter);
+        orderDate.setText("Дата создания: " + formattedDate);
+
+        orderStatus.setText("Статус заказа: " + order.getOrderStatus());
+
+        commentField.setWidthFull();
+
         refreshGrids();
 
-        add(productField, quantityField,
-                servicesGrid, createAddServiceButton(),
-                 componentsGrid,createAddComponentButton(),
-                new HorizontalLayout(createSaveButton(), createCancelButton()));
+        add(new HorizontalLayout(orderNumber, orderDate, orderStatus),
+                commentField,
+                servicesGrid,
+                componentsGrid,
+        new HorizontalLayout(createSaveButton(), createCancelButton(),
+                createAddServiceButton(),createAddComponentButton(),
+                createSetWorkOrderButton(), createSelectLocationButton())
+        );
+
+
+
         setSizeFull(); // Для всей формы OrderForm
     }
 
     private void configureBinder() {
-        binder.forField(productField)
-                .asRequired("Введите название товара")
-                .bind(Orders::getProduct, Orders::setProduct);
+        binder.forField(commentField)
+                .asRequired("Введите комментарий к заказу")
+                .bind(Orders::getComment, Orders::setComment);
 
-        binder.forField(quantityField)
-                .asRequired("Введите количество")
-                .withValidator(q -> q > 0, "Количество должно быть положительным")
-                .bind(Orders::getQuantity, Orders::setQuantity);
 
         binder.readBean(order);
     }
@@ -121,8 +140,11 @@ public class OrderForm extends FormLayout {
 
         servicesGrid.addComponentColumn(os -> {
             Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> deleteService(os));
-            Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> openEditDialog(os));
-            return new HorizontalLayout(editBtn, deleteBtn);
+            deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            deleteBtn.getStyle()
+                    .set("margin-right", "1em")
+                    .set("color", "var(--lumo-primary-text-color)");
+            return deleteBtn;
         }).setHeader("Действия");
         // Обновляем футеры при изменении данных
         servicesGrid.getDataProvider().addDataProviderListener(event -> updateFooters());
@@ -170,8 +192,11 @@ public class OrderForm extends FormLayout {
 
         componentsGrid.addComponentColumn(oc -> {
             Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> deleteComponent(oc));
-            Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> openComponentEditDialog(oc));
-            return new HorizontalLayout(editBtn, deleteBtn);
+            deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            deleteBtn.getStyle()
+                    .set("margin-right", "1em")
+                    .set("color", "var(--lumo-primary-text-color)");
+            return deleteBtn;
         }).setHeader("Действия");
 
         // Обновляем футеры при изменении данных
@@ -196,26 +221,55 @@ public class OrderForm extends FormLayout {
 
     private Button createSaveButton() {
         Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK.create(), e -> save());
-        saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        saveBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        saveBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         return saveBtn;
     }
 
     private Button createCancelButton() {
         Button cancelBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), e -> onCancel.run());
         cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancelBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         return cancelBtn;
     }
 
     private Button createAddServiceButton() {
         Button btn = new Button("Добавить услугу", VaadinIcon.PLUS.create(), e -> openAddServiceDialog());
-        btn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        btn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         return btn;
     }
 
     private Button createAddComponentButton() {
         Button btn = new Button("Добавить компонент", VaadinIcon.PLUS.create(), e -> openAddComponentDialog());
-        btn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        btn.getStyle().set("margin-top", "1em");
+        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        btn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        return btn;
+    }
+
+    private Button createSetWorkOrderButton() {
+        Button btn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), e -> openAddComponentDialog());
+        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        btn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        return btn;
+    }
+
+    private Button createSelectLocationButton() {
+        Button btn = new Button("Где починить?", VaadinIcon.TOOLS.create(), e -> openAddComponentDialog());
+        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        btn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
         return btn;
     }
 
@@ -232,8 +286,6 @@ public class OrderForm extends FormLayout {
         refreshComponentsGrid();
     }
 
-
-
     // Методы для работы с услугами
     private void openAddServiceDialog() {
         if (order.getId() == null) {
@@ -242,10 +294,8 @@ public class OrderForm extends FormLayout {
         }
 
         Dialog dialog = new Dialog();
-        //dialog.setWidth("900px"); // Установка ширины
-
         dialog.setHeaderTitle("Добавление услуги"); // Добавляем заголовок
-
+        dialog.setWidth("500px");
         ComboBox<Services> combo = new ComboBox<>("Выберите услугу");
         combo.setWidthFull(); // Растягиваем на всю ширину диалога
         combo.setItems(servicesService.findAll());
@@ -285,9 +335,8 @@ public class OrderForm extends FormLayout {
         }
 
         Dialog dialog = new Dialog();
-        //dialog.setWidth("900px"); // Установка ширины
         dialog.setHeaderTitle("Добавление компонента"); // Добавляем заголовок
-
+        dialog.setWidth("500px");
         ComboBox<Component> combo = new ComboBox<>("Выберите компонент");
         combo.setWidthFull(); // Растягиваем на всю ширину диалога
         combo.setItems(componentService.findAll());
@@ -321,12 +370,4 @@ public class OrderForm extends FormLayout {
         refreshComponentsGrid();
     }
 
-    // Заглушки для редактирования (реализуйте по аналогии с добавлением)
-    private void openEditDialog(OrderServices os) {
-        // Реализация редактирования услуги
-    }
-
-    private void openComponentEditDialog(OrderComponents oc) {
-        // Реализация редактирования компонента
-    }
 }

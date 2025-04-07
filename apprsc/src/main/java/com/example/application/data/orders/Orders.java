@@ -23,6 +23,8 @@ public class Orders {
     @Column(name = "total_cost", precision = 10, scale = 2)
     private BigDecimal totalCost;
 
+    private String comment;
+
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Clients client;
@@ -39,12 +41,10 @@ public class Orders {
     @JoinColumn(name = "order_status_id")
     private OrderStatus orderStatus;
 
-    private String product;
-    private int quantity;
 
     // Пустой конструктор (обязателен для JPA)
     public Orders() { }
-
+    /*
     // Конструктор с основными параметрами (опционально)
     public Orders(Clients client, Employees employee, Locations location, String product, int quantity) {
         this.client = client;
@@ -53,6 +53,8 @@ public class Orders {
         this.product = product;
         this.quantity = quantity;
     }
+
+     */
 
     // Геттеры
     public Long getId() {
@@ -67,12 +69,10 @@ public class Orders {
     public Locations getLocation() {
         return location;
     }
-    public String getProduct() {
-        return product;
+    public String getComment() {
+        return comment;
     }
-    public int getQuantity() {
-        return quantity;
-    }
+
     public Long getNumberOfOrder() {return numberOfOrder;    }
     public LocalDate getDateOfOrder() {return dateOfOrder;    }
     public OrderStatus getOrderStatus() {return orderStatus;    }
@@ -84,12 +84,8 @@ public class Orders {
     }
     public void setEmployee(Employees employee) { this.employee = employee; }
     public void setLocation(Locations location) { this.location = location; }
-    public void setProduct(String product) {
-        this.product = product;
-    }
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
+    public void setComment(String comment) { this.comment = comment; }
+
     public void setNumberOfOrder(Long numberOfOrder) {        this.numberOfOrder = numberOfOrder;    }
     public void setDateOfOrder(LocalDate dateOfOrder) {        this.dateOfOrder = dateOfOrder;    }
     public void setOrderStatus(OrderStatus orderStatus) {        this.orderStatus = orderStatus;    }
