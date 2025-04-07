@@ -21,7 +21,7 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
-        add(new Span("ClientForm Добавить все поля по клиенту (ФИО, пол, телефон, email, статус)"));
+        add(new Span("ClientForm Добавить поля по клиенту (статус)"));
         add(new Span("Отчетность по WorkOrders"));
         add(new Span("BonusView Карточка бонусного счета Остаток/все операции (BonusAccountOperation) (вместо заказов)"));
         add(new Span("Отчетность по Locations - добавить количество человек в офисе"));
