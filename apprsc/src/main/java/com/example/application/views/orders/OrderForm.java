@@ -80,18 +80,19 @@ public class OrderForm extends VerticalLayout {
         configureServicesGrid();
         configureComponentsGrid();
 
-        if (order.getId() == null) {
+        if (order.getId() == null)
+        {
             order.setClient(currentClient);
         }
+        else {
+            orderNumber.setText("Номер заказа: " + order.getNumberOfOrder());
 
-        //Как всегда временно
-        orderNumber.setText("Номер заказа: " + order.getNumberOfOrder());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            String formattedDate = order.getDateOfOrder().format(formatter);
+            orderDate.setText("Дата создания: " + formattedDate);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        String formattedDate = order.getDateOfOrder().format(formatter);
-        orderDate.setText("Дата создания: " + formattedDate);
-
-        orderStatus.setText("Статус заказа: " + order.getOrderStatus());
+            orderStatus.setText("Статус заказа: " + order.getOrderStatus());
+        }
 
         commentField.setWidthFull();
 
