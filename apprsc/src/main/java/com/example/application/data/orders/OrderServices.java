@@ -14,7 +14,7 @@ public class OrderServices {
     @JoinColumn(name = "orders_id")
     private Orders orders;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "service_id")
     private Services services;
 

@@ -81,7 +81,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 return order.getEmployee().getFullName();
             }
             return "Не указан";
-        }).setHeader("Сотрудник").setAutoWidth(true);
+        }).setHeader("Менеджер").setAutoWidth(true);
 
         orderGrid.addColumn(o -> o.getProduct()).setHeader("Товар");
         orderGrid.addColumn(o -> o.getQuantity()).setHeader("Количество");

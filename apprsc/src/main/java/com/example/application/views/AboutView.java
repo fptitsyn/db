@@ -35,6 +35,9 @@ public class AboutView extends VerticalLayout {
         add(new H2("Список изменений"));
         add(new Paragraph("=============================================================================="));
 
+        add(new H5("07.04"));
+        add(new Span("Добавлены поля в форму Clients"));
+        add(new Span("Добавлены поля в форму Orders. Добавлено суммирование в Grid"));
         add(new H5("03.04"));
         add(new Span("Созданы Entity: OrderServices, OrderComponents, WorkOrders"));
         add(new Span("Создан прототип заказа который позволяет сохранять OrderServices, OrderComponents"));

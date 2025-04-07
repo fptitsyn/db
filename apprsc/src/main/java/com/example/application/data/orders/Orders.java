@@ -4,12 +4,20 @@ import com.example.application.data.employees.Employees;
 import com.example.application.data.locations.Locations;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "orders")
 public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orders_id;
+
+    @Column(name = "number_of_order")
+    private Long numberOfOrder;
+
+    @Column(name = "date_of_order")
+    private LocalDate dateOfOrder;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
@@ -22,6 +30,10 @@ public class Orders {
     @ManyToOne
     @JoinColumn(name = "location_id")
     private Locations location;
+
+    @OneToOne
+    @JoinColumn(name = "order_status_id")
+    private OrderStatus orderStatus;
 
     private String product;
     private int quantity;
@@ -57,6 +69,9 @@ public class Orders {
     public int getQuantity() {
         return quantity;
     }
+    public Long getNumberOfOrder() {return numberOfOrder;    }
+    public LocalDate getDateOfOrder() {return dateOfOrder;    }
+    public OrderStatus getOrderStatus() {return orderStatus;    }
 
     // Сеттеры
     public void setClient(Clients client) {
@@ -70,5 +85,7 @@ public class Orders {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-
+    public void setNumberOfOrder(Long numberOfOrder) {        this.numberOfOrder = numberOfOrder;    }
+    public void setDateOfOrder(LocalDate dateOfOrder) {        this.dateOfOrder = dateOfOrder;    }
+    public void setOrderStatus(OrderStatus orderStatus) {        this.orderStatus = orderStatus;    }
 }

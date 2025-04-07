@@ -25,6 +25,7 @@ public class ToDoView extends VerticalLayout {
         add(new Span("Отчетность по WorkOrders"));
         add(new Span("BonusView Карточка бонусного счета Остаток/все операции (BonusAccountOperation) (вместо заказов)"));
         add(new Span("Отчетность по Locations - добавить количество человек в офисе"));
+        add(new Span("Orders. Создать триггер и функцию по первичному присвоения Даты, номера, Статуса при создании"));
 
         add(new H4("Нужное. Сложное"));
         add(new Span("Привязка услуг к Рабочему"));

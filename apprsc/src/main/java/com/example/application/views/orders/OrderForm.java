@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -19,6 +20,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.Query;
+
+import java.math.BigDecimal;
 
 public class OrderForm extends FormLayout {
     private final Orders order;
@@ -35,6 +39,10 @@ public class OrderForm extends FormLayout {
     private TextField productField = new TextField("Товар");
     private IntegerField quantityField = new IntegerField("Количество");
     private Binder<Orders> binder = new Binder<>(Orders.class);
+    // Добавляем переменные для колонок (суммы итого)
+    private Grid.Column<OrderServices> costColumn;
+    private Grid.Column<OrderServices> timeColumn;
+    private Grid.Column<OrderComponents> costComponentsColumn;
 
     // Grid для услуг
     private Grid<OrderServices> servicesGrid = new Grid<>(OrderServices.class);
@@ -125,17 +133,44 @@ public class OrderForm extends FormLayout {
         servicesGrid.addColumn(os -> os.getServices().getServiceName())
                 .setHeader("Услуга");
 
-        servicesGrid.addColumn(os -> os.getServices().getCost())
-                .setHeader("Стоимость");
+        // Колонка стоимости с футером
+        costColumn = servicesGrid.addColumn(os -> os.getServices().getCost())
+                .setHeader("Стоимость").setTextAlign(ColumnTextAlign.END);
+        costColumn.setFooter("Итого: 0.00 ₽");
 
-        servicesGrid.addColumn(os -> os.getServices().getTimeToCompleteMinutes())
-                .setHeader("Время выполнения (минуты)");
+        // Колонка времени с футером
+        timeColumn = servicesGrid.addColumn(os -> os.getServices().getTimeToCompleteMinutes())
+                .setHeader("Время выполнения (минуты)").setTextAlign(ColumnTextAlign.END);
+        timeColumn.setFooter("Итого: 0 мин");
+
 
         servicesGrid.addComponentColumn(os -> {
             Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> deleteService(os));
             Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> openEditDialog(os));
             return new HorizontalLayout(editBtn, deleteBtn);
         }).setHeader("Действия");
+        // Обновляем футеры при изменении данных
+        servicesGrid.getDataProvider().addDataProviderListener(event -> updateFooters());
+    }
+
+    private void updateFooters() {
+        double totalCost = servicesGrid.getDataProvider().fetch(new Query<>())
+                .mapToDouble(os -> os.getServices().getCost())
+                .sum();
+
+        int totalTime = servicesGrid.getDataProvider().fetch(new Query<>())
+                .mapToInt(os -> os.getServices().getTimeToCompleteMinutes())
+                .sum();
+
+        costColumn.setFooter(String.format("Итого: %,.2f ₽", totalCost));
+        timeColumn.setFooter(String.format("Итого: %,d мин", totalTime));
+    }
+
+    private void refreshServicesGrid() {
+        if (order.getId() != null) {
+            servicesGrid.setItems(orderServicesService.findByOrderId(order.getId()));
+            updateFooters(); // Добавляем вызов обновления
+        }
     }
 
     private void configureComponentsGrid() {
@@ -151,14 +186,37 @@ public class OrderForm extends FormLayout {
         componentsGrid.addColumn(oc -> oc.getComponent().getName())
                 .setHeader("Название");
 
-        componentsGrid.addColumn(oc -> oc.getComponent().getCost())
-                .setHeader("Стоимость");
+        // Сохраняем ссылку на колонку
+        costComponentsColumn = componentsGrid.addColumn(oc -> oc.getComponent().getCost())
+                .setHeader("Стоимость")
+                .setTextAlign(ColumnTextAlign.END);
+
+        costComponentsColumn.setFooter("Итого: 0.00 ₽");
 
         componentsGrid.addComponentColumn(oc -> {
             Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> deleteComponent(oc));
             Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> openComponentEditDialog(oc));
             return new HorizontalLayout(editBtn, deleteBtn);
         }).setHeader("Действия");
+
+        // Обновляем футеры при изменении данных
+        componentsGrid.getDataProvider().addDataProviderListener(event -> updateComponentsFooters());
+    }
+
+    private void updateComponentsFooters() {
+        // Для BigDecimal используем правильное суммирование
+        BigDecimal totalComponentsCost = componentsGrid.getDataProvider().fetch(new Query<>())
+                .map(os -> os.getComponent().getCost())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        costComponentsColumn.setFooter(String.format("Итого: %,.2f ₽", totalComponentsCost));
+    }
+
+    private void refreshComponentsGrid() {
+        if (order.getId() != null) {
+            componentsGrid.setItems(orderComponentsService.findByOrderId(order.getId()));
+            updateComponentsFooters(); // Добавляем вызов обновления
+        }
     }
 
     private Button createSaveButton() {
@@ -199,17 +257,7 @@ public class OrderForm extends FormLayout {
         refreshComponentsGrid();
     }
 
-    private void refreshServicesGrid() {
-        if (order.getId() != null) {
-            servicesGrid.setItems(orderServicesService.findByOrderId(order.getId()));
-        }
-    }
 
-    private void refreshComponentsGrid() {
-        if (order.getId() != null) {
-            componentsGrid.setItems(orderComponentsService.findByOrderId(order.getId()));
-        }
-    }
 
     // Методы для работы с услугами
     private void openAddServiceDialog() {
