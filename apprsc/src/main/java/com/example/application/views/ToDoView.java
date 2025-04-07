@@ -44,8 +44,6 @@ public class ToDoView extends VerticalLayout {
 
         add(new H4("Бантики"));
         add(new Span("В перемещениях добавить ограничения на привязку к должности в другом городе "));
-        //add(new Span("OrderView исправит кнопка (Изменить.) Сейчас можно нажать несколько раз")); - НА ПРОВЕРКЕ
-        add(new Span("MainView исправит кнопка (Изменить.) Сейчас можно нажать несколько раз"));
 
         setSizeFull();
     }

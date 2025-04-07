@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 @RolesAllowed({"SALES","GOD"})
 public class ClientsView extends VerticalLayout {
     private final ClientsService clientService;
+    private ClientForm form;
     private final Grid<Clients> clientGrid = new Grid<>(Clients.class, false);
     private GridListDataView<Clients> dataView;
     private ClientFilter clientFilter;
@@ -251,7 +252,18 @@ public class ClientsView extends VerticalLayout {
     }
 
     private void showClientForm(Clients client) {
-        ClientForm form = new ClientForm(client, clientService, this::updateGrid);
+
+        if (form != null) {
+            remove(form);
+        }
+
+        form = new ClientForm(client, clientService, () -> {
+            updateGrid();
+            if (form != null) {
+                remove(form);
+                form = null;
+            }
+        });
         add(form);
         form.setVisible(true);
     }
