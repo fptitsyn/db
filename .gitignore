@@ -25,5 +25,5 @@ webpack.generated.js
 .idea/.copilot-plugin
 
 /apprsc/src/main/frontend/generated
-
+/apprsc/src/main/resources/application.properties
 
