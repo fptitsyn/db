@@ -103,7 +103,7 @@ public class OrderForm extends VerticalLayout {
                 componentsGrid,
         new HorizontalLayout(createSaveButton(), createCancelButton(),
                 createAddServiceButton(),createAddComponentButton(),
-                createSetWorkOrderButton(), createPayButton(), createSelectLocationButton())
+                createSetWorkOrderButton(), createPayButton(), createCancelOrderButton(), createSelectLocationButton())
         );
 
 
@@ -265,6 +265,14 @@ public class OrderForm extends VerticalLayout {
     }
     private Button createPayButton() {
         Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), e -> openAddComponentDialog());
+        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        btn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        return btn;
+    }
+    private Button createCancelOrderButton() {
+        Button btn = new Button("Отменить заказ", VaadinIcon.FILE_REMOVE.create(), e -> openAddComponentDialog());
         btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         btn.getStyle()
                 .set("margin-right", "1em")

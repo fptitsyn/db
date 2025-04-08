@@ -227,3 +227,127 @@ $BODY$;
 ALTER FUNCTION public.set_open_date_of_bonus_account()
     OWNER TO postgres;
 //------------------------------------------------------------------------------------------------------------
+--Защита от дубликатов в расписание - уникальный индекс:
+CREATE UNIQUE INDEX idx_schedule_unique_entry
+ON public.schedule (work_day, employee_id, location_id, time_interval);
+
+
+--Процедура для создания расписания для сотрудник в конкретном офисе на день(с проверкой существующих записей).
+CREATE OR REPLACE PROCEDURE public.insert_schedule_entries(
+    p_work_day date,
+    p_employee_id bigint,
+    p_location_id bigint
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Проверяем, существуют ли записи для данного дня, сотрудника и локации
+    IF NOT EXISTS (
+        SELECT 1
+        FROM public.schedule
+        WHERE
+            work_day = p_work_day
+            AND employee_id = p_employee_id
+            AND location_id = p_location_id
+        LIMIT 1
+    ) THEN
+        -- Вставляем интервалы, если записей нет
+        INSERT INTO public.schedule (time_interval, work_day, employee_id, location_id)
+        SELECT
+            ti,
+            p_work_day,
+            p_employee_id,
+            p_location_id
+        FROM unnest(ARRAY[
+            '09:00 - 10:00',
+            '10:00 - 11:00',
+            '11:00 - 12:00',
+            '12:00 - 13:00',
+            '14:00 - 15:00',
+            '15:00 - 16:00',
+            '16:00 - 17:00',
+            '17:00 - 18:00'
+        ]) AS ti;
+    ELSE
+        RAISE NOTICE 'Записи уже существуют для сотрудника %, локации % и дня %',
+            p_employee_id,
+            p_location_id,
+            p_work_day;
+    END IF;
+END;
+$$;
+//------------------------------------------------------------------------------------------------------------
+-- Функция по получению расписания по всем сотрудникам в определенном офисе на дату
+CREATE EXTENSION IF NOT EXISTS tablefunc;
+
+CREATE OR REPLACE FUNCTION public.get_schedule(
+    p_work_day date,
+    p_location_id bigint
+)
+RETURNS TABLE (
+    employee_name text,
+    "09:00 - 10:00" int,
+    "10:00 - 11:00" int,
+    "11:00 - 12:00" int,
+    "12:00 - 13:00" int,
+    "14:00 - 15:00" int,
+    "15:00 - 16:00" int,
+    "16:00 - 17:00" int,
+    "17:00 - 18:00" int,
+    total int
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        e.last_name || ' ' || e.first_name::text AS employee_name,
+        ct.*,
+        COALESCE(ct."09:00 - 10:00", 0) +
+        COALESCE(ct."10:00 - 11:00", 0) +
+        COALESCE(ct."11:00 - 12:00", 0) +
+        COALESCE(ct."12:00 - 13:00", 0) +
+        COALESCE(ct."14:00 - 15:00", 0) +
+        COALESCE(ct."15:00 - 16:00", 0) +
+        COALESCE(ct."16:00 - 17:00", 0) +
+        COALESCE(ct."17:00 - 18:00", 0) AS total
+    FROM crosstab(
+        $CROSSTAB$
+        SELECT
+            e.employee_id,
+            s.time_interval,
+            CASE WHEN s.work_orders_id IS NULL THEN 0 ELSE 1 END
+        FROM public.schedule s
+        JOIN public.employees e ON s.employee_id = e.employee_id
+        WHERE
+            s.work_day = $1
+            AND s.location_id = $2
+        ORDER BY e.employee_id, s.time_interval
+        $CROSSTAB$,
+        $CATEGORIES$
+        VALUES
+            ('09:00 - 10:00'),
+            ('10:00 - 11:00'),
+            ('11:00 - 12:00'),
+            ('12:00 - 13:00'),
+            ('14:00 - 15:00'),
+            ('15:00 - 16:00'),
+            ('16:00 - 17:00'),
+            ('17:00 - 18:00')
+        $CATEGORIES$
+    ) AS ct(
+        employee_id bigint,
+        "09:00 - 10:00" int,
+        "10:00 - 11:00" int,
+        "11:00 - 12:00" int,
+        "12:00 - 13:00" int,
+        "14:00 - 15:00" int,
+        "15:00 - 16:00" int,
+        "16:00 - 17:00" int,
+        "17:00 - 18:00" int
+    )
+    JOIN public.employees e ON ct.employee_id = e.employee_id
+    ORDER BY e.last_name, e.first_name;
+END;
+$$;
+//------------------------------------------------------------------------------------------------------------

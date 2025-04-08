@@ -21,7 +21,7 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
-        add(new Span("ClientForm Добавить поля по клиенту (статус)"));
+        add(new Span("ClientForm Добавить поля по клиенту (статус). Создать тригер при создание с присвоением статуса = 1 (Обычный)"));
         add(new Span("Отчетность по WorkOrders"));
         add(new Span("BonusView Карточка бонусного счета Остаток/все операции (BonusAccountOperation) (вместо заказов)"));
         add(new Span("Отчетность по Locations - добавить количество человек в офисе"));
@@ -35,6 +35,7 @@ public class ToDoView extends VerticalLayout {
         add(new Span("ClientStatus логика изменения: Первое присвоение, механизм изменения"));
         add(new Span("OrderForm Формирование Заказа доработать. Добавить все поля  (номер заказа, дата заказа)"));
         add(new Span("Orders Статус логика изменения"));
+        add(new Span("Client Статус логика изменения (Постоянный и Премиум)"));
         add(new Span("Заполнения графика работы"));
         add(new Span("WorkOrders новое Представление"));
         add(new Span("WorkOrders права:рабочий видит свои, GOD - все"));
@@ -46,6 +47,7 @@ public class ToDoView extends VerticalLayout {
         add(new H4("Бантики"));
         add(new Span("В перемещениях добавить ограничения на привязку к должности в другом городе "));
         add(new Span("В OrderForm не закрывать форму после нажатия кнопки сохранить, чтобы можно было добавить услуги и компоненты "));
+        add(new Span("ClientForm Добавить логику  скрытия кнопок в зависимости от статуса"));
 
         setSizeFull();
     }
