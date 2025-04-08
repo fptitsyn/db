@@ -419,3 +419,31 @@ BEGIN
 END;
 $$;
 //------------------------------------------------------------------------------------------------------------
+// Orders. Создать триггер и функцию по первичному присвоения Даты, номера, Статуса при создании.
+CREATE SEQUENCE IF NOT EXISTS public.order_number_seq
+    INCREMENT 1
+    START 1000000000
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+
+ALTER SEQUENCE public.order_number_seq
+    OWNER TO postgres;
+
+CREATE OR REPLACE FUNCTION set_order_default_info()
+    RETURNS TRIGGER AS $$
+BEGIN
+    NEW.date_of_order := CURRENT_DATE;
+    NEW.order_status_id := 1;
+    IF NEW.number_of_order IS NULL THEN
+        NEW.number_of_order := nextval('public.order_number_seq');
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER order_created
+    AFTER INSERT ON orders
+    FOR EACH ROW
+EXECUTE FUNCTION set_order_default_info();
+------------------------------------------------------------------------------------------------------------

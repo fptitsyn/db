@@ -37,7 +37,7 @@ public class Orders {
     @JoinColumn(name = "location_id")
     private Locations location;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "order_status_id")
     private OrderStatus orderStatus;
 
@@ -75,7 +75,7 @@ public class Orders {
 
     public Long getNumberOfOrder() {return numberOfOrder;    }
     public LocalDate getDateOfOrder() {return dateOfOrder;    }
-    public OrderStatus getOrderStatus() {return orderStatus;    }
+    public String getOrderStatus() {return orderStatus.getStatus();    }
     public BigDecimal getTotalCost() {        return totalCost;    }
 
     // Сеттеры
