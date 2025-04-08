@@ -1,6 +1,6 @@
 package com.example.application.data.employees;
 
-import com.example.application.data.Services;
+import com.example.application.data.services.Services;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;

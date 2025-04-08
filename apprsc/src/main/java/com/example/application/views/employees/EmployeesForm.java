@@ -1,9 +1,9 @@
 package com.example.application.views.employees;
 
 import com.example.application.data.employees.Employees;
-import com.example.application.data.Services;
+import com.example.application.data.services.Services;
 import com.example.application.data.employees.EmployeesService;
-import com.example.application.services.ServicesService;
+import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

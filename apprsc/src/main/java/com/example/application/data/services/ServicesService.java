@@ -1,7 +1,5 @@
-package com.example.application.services;
+package com.example.application.data.services;
 
-import com.example.application.data.Services;
-import com.example.application.data.ServicesRepository;
 import com.example.application.data.components.TypeOfDevice;
 import com.example.application.data.components.TypeOfDeviceRepository;
 import com.example.application.data.employees.Employees;

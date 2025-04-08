@@ -1,7 +1,7 @@
 package com.example.application.data.employees;
 
-import com.example.application.data.Services;
-import com.example.application.data.ServicesRepository;
+import com.example.application.data.services.Services;
+import com.example.application.data.services.ServicesRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
