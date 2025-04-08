@@ -233,6 +233,7 @@ ON public.schedule (work_day, employee_id, location_id, time_interval);
 
 
 --Процедура для создания расписания для сотрудник в конкретном офисе на день(с проверкой существующих записей).
+--CALL public.insert_schedule_entries('2025-04-08', 2, 1);
 CREATE OR REPLACE PROCEDURE public.insert_schedule_entries(
     p_work_day date,
     p_employee_id bigint,
@@ -241,43 +242,41 @@ CREATE OR REPLACE PROCEDURE public.insert_schedule_entries(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Проверяем, существуют ли записи для данного дня, сотрудника и локации
-    IF NOT EXISTS (
-        SELECT 1
-        FROM public.schedule
-        WHERE
-            work_day = p_work_day
-            AND employee_id = p_employee_id
-            AND location_id = p_location_id
+    IF EXISTS (
+        SELECT 1 FROM public.schedule
+        WHERE work_day = p_work_day
+          AND employee_id = p_employee_id
+          AND location_id = p_location_id
         LIMIT 1
     ) THEN
-        -- Вставляем интервалы, если записей нет
-        INSERT INTO public.schedule (time_interval, work_day, employee_id, location_id)
-        SELECT
-            ti,
-            p_work_day,
-            p_employee_id,
-            p_location_id
-        FROM unnest(ARRAY[
-            '09:00 - 10:00',
-            '10:00 - 11:00',
-            '11:00 - 12:00',
-            '12:00 - 13:00',
-            '14:00 - 15:00',
-            '15:00 - 16:00',
-            '16:00 - 17:00',
-            '17:00 - 18:00'
-        ]) AS ti;
-    ELSE
-        RAISE NOTICE 'Записи уже существуют для сотрудника %, локации % и дня %',
-            p_employee_id,
-            p_location_id,
-            p_work_day;
+        RAISE EXCEPTION 'DUPLICATE_SCHEDULE_ENTRY';
     END IF;
+
+    INSERT INTO public.schedule (time_interval, work_day, employee_id, location_id)
+    SELECT ti, p_work_day, p_employee_id, p_location_id
+    FROM unnest(ARRAY[
+        '09:00 - 10:00',
+        '10:00 - 11:00',
+        '11:00 - 12:00',
+        '12:00 - 13:00',
+        '14:00 - 15:00',
+        '15:00 - 16:00',
+        '16:00 - 17:00',
+        '17:00 - 18:00'
+    ]) AS ti;
+
+EXCEPTION
+    WHEN unique_violation THEN
+        RAISE EXCEPTION 'DUPLICATE_SCHEDULE_ENTRY';
 END;
 $$;
+
+ALTER PROCEDURE public.insert_schedule_entries(date, bigint, bigint)
+    OWNER TO postgres;
+
 //------------------------------------------------------------------------------------------------------------
 -- Функция по получению расписания по всем сотрудникам в определенном офисе на дату
+--SELECT * FROM public.get_schedule('2025-04-08', 1);
 CREATE EXTENSION IF NOT EXISTS tablefunc;
 
 CREATE OR REPLACE FUNCTION public.get_schedule(
@@ -302,7 +301,14 @@ BEGIN
     RETURN QUERY
     SELECT
         e.last_name || ' ' || e.first_name::text AS employee_name,
-        ct.*,
+        COALESCE(ct."09:00 - 10:00", 0),
+        COALESCE(ct."10:00 - 11:00", 0),
+        COALESCE(ct."11:00 - 12:00", 0),
+        COALESCE(ct."12:00 - 13:00", 0),
+        COALESCE(ct."14:00 - 15:00", 0),
+        COALESCE(ct."15:00 - 16:00", 0),
+        COALESCE(ct."16:00 - 17:00", 0),
+        COALESCE(ct."17:00 - 18:00", 0),
         COALESCE(ct."09:00 - 10:00", 0) +
         COALESCE(ct."10:00 - 11:00", 0) +
         COALESCE(ct."11:00 - 12:00", 0) +
@@ -312,18 +318,22 @@ BEGIN
         COALESCE(ct."16:00 - 17:00", 0) +
         COALESCE(ct."17:00 - 18:00", 0) AS total
     FROM crosstab(
-        $CROSSTAB$
-        SELECT
-            e.employee_id,
-            s.time_interval,
-            CASE WHEN s.work_orders_id IS NULL THEN 0 ELSE 1 END
-        FROM public.schedule s
-        JOIN public.employees e ON s.employee_id = e.employee_id
-        WHERE
-            s.work_day = $1
-            AND s.location_id = $2
-        ORDER BY e.employee_id, s.time_interval
-        $CROSSTAB$,
+        format(
+            $QUERY$
+            SELECT
+                e.employee_id,
+                s.time_interval,
+                CASE WHEN s.work_orders_id IS NULL THEN 0 ELSE 1 END
+            FROM public.schedule s
+            JOIN public.employees e ON s.employee_id = e.employee_id
+            WHERE
+                s.work_day = %L
+                AND s.location_id = %s
+            ORDER BY e.employee_id, s.time_interval
+            $QUERY$,
+            p_work_day,
+            p_location_id
+        ),
         $CATEGORIES$
         VALUES
             ('09:00 - 10:00'),
@@ -348,6 +358,64 @@ BEGIN
     )
     JOIN public.employees e ON ct.employee_id = e.employee_id
     ORDER BY e.last_name, e.first_name;
+END;
+$$;
+//------------------------------------------------------------------------------------------------------------
+--Процедура удаления графика по сотруднику (на определенную дату, в определенном офисе)
+CREATE OR REPLACE PROCEDURE public.delete_schedule_entries(
+    p_work_day date,
+    p_employee_id bigint,
+    p_location_id bigint
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_has_orders boolean;
+    v_has_records boolean;
+BEGIN
+    -- Проверка на наличие связанных заказов
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.schedule
+        WHERE
+            work_day = p_work_day
+            AND employee_id = p_employee_id
+            AND location_id = p_location_id
+            AND work_orders_id IS NOT NULL
+    ) INTO v_has_orders;
+
+    IF v_has_orders THEN
+        RAISE EXCEPTION 'Невозможно удалить расписание. Существуют связанные заказы (work_orders_id).';
+    END IF;
+
+    -- Проверка на существование записей
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.schedule
+        WHERE
+            work_day = p_work_day
+            AND employee_id = p_employee_id
+            AND location_id = p_location_id
+    ) INTO v_has_records;
+
+    IF NOT v_has_records THEN
+        RAISE EXCEPTION 'Записи для удаления не найдены (день: %, сотрудник: %, локация: %).',
+            p_work_day,
+            p_employee_id,
+            p_location_id;
+    END IF;
+
+    -- Удаление записей
+    DELETE FROM public.schedule
+    WHERE
+        work_day = p_work_day
+        AND employee_id = p_employee_id
+        AND location_id = p_location_id;
+
+    RAISE NOTICE 'Удалено расписание для сотрудника % в локации % на день %.',
+        p_employee_id,
+        p_location_id,
+        p_work_day;
 END;
 $$;
 //------------------------------------------------------------------------------------------------------------
