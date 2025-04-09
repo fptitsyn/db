@@ -85,6 +85,10 @@ public class ClientsView extends VerticalLayout {
                 .setHeader("Проживает")
                 .setWidth("40px");
 
+        Grid.Column<Clients> statusCol = clientGrid.addColumn(Clients::getClientStatus)
+                .setHeader("Статус")
+                .setWidth("30px");
+
         clientGrid.addComponentColumn(this::createActions)
                 .setHeader("Действия")
                 .setWidth("420px");
@@ -120,6 +124,10 @@ public class ClientsView extends VerticalLayout {
         // Фильтр для Города
         filterRow.getCell(clientGrid.getColumns().get(4))
                 .setComponent(createFilterHeader("Город", clientFilter::setCity));
+
+        // Фильтр для статуса
+        filterRow.getCell(clientGrid.getColumns().get(5))
+                .setComponent(createFilterHeader("Статус", clientFilter::setStatus));
     }
 
     private Component createFilterHeader(String label, Consumer<String> filterConsumer) {
@@ -164,6 +172,7 @@ public class ClientsView extends VerticalLayout {
         private String gender;
         private String email;
         private String city;
+        private String status;
 
         public ClientFilter(GridListDataView<Clients> dataView) {
             this.dataView = dataView;
@@ -195,14 +204,20 @@ public class ClientsView extends VerticalLayout {
             dataView.refreshAll();
         }
 
+        public void setStatus(String status) {
+            this.status = status;
+            dataView.refreshAll();
+        }
+
         public boolean test(Clients client) {
             boolean matchesFullName = matches(client.getFullName(), fullName);
             boolean matchesDob = matchesDate(client.getDateOfBirth(), dateOfBirth);
             boolean matchesGender = matches(client.getGender(), gender);
             boolean matchesEmail = matches(client.getEmail(), email);
             boolean matchesCity = matches(client.getCityOfResidence(), city);
+            boolean matchesStatus = matches(client.getClientStatus(), status);
 
-            return matchesFullName && matchesDob && matchesGender && matchesEmail && matchesCity;
+            return matchesFullName && matchesDob && matchesGender && matchesEmail && matchesCity && matchesStatus;
         }
 
         private boolean matchesDate(LocalDate date, String searchTerm) {

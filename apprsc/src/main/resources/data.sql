@@ -475,3 +475,22 @@ CREATE OR REPLACE TRIGGER work_order_created
     FOR EACH ROW
 EXECUTE FUNCTION set_work_order_default_info();
 ------------------------------------------------------------------------------------------------------------
+// Client триггер для присвоения статуса при создании
+CREATE OR REPLACE TRIGGER work_order_created
+    BEFORE INSERT ON work_orders
+    FOR EACH ROW
+EXECUTE FUNCTION set_work_order_default_info();
+
+CREATE OR REPLACE FUNCTION set_client_default_status()
+    RETURNS TRIGGER AS $$
+BEGIN
+    NEW.client_status_id := 1;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER client_created
+    BEFORE INSERT ON clients
+    FOR EACH ROW
+EXECUTE FUNCTION set_client_default_status()
+------------------------------------------------------------------------------------------------------------

@@ -34,7 +34,7 @@ public class Clients {
     @Column(name = "city_of_residence")
     private String cityOfResidence;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "client_status_id")
     private ClientStatus clientStatus;
 
@@ -84,7 +84,7 @@ public class Clients {
         return cityOfResidence;
     }
 
-    public ClientStatus getClientStatus() { return clientStatus;    }
+    public String getClientStatus() { return clientStatus.getStatus();    }
 
     public String getFullName() {
         return lastName + " " + firstName + " " + (middleName != null ? middleName : "");
