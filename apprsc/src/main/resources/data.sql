@@ -192,6 +192,7 @@ CREATE OR REPLACE TRIGGER trigger_set_bonus_account_number
     EXECUTE FUNCTION public.set_bonus_account_number();
 //------------------------------------------------------------------------------------------------------------
 //Отчет по офисам
+//DROP FUNCTION IF EXISTS public.get_location_info()
 CREATE OR REPLACE FUNCTION public.get_location_info()
     RETURNS TABLE (
     location_name VARCHAR(255),
@@ -201,7 +202,8 @@ CREATE OR REPLACE FUNCTION public.get_location_info()
     street VARCHAR(255),
     building_number VARCHAR(255),
     postal_code VARCHAR(255),
-    location_type_name VARCHAR(255)
+    location_type_name VARCHAR(255),
+    employee_amount Integer
 )
     LANGUAGE 'plpgsql'
     COST 50
@@ -217,10 +219,23 @@ BEGIN
         l.street,
         l.building_number,
         l.postal_code,
-        lt.location_type_name
+        lt.location_type_name,
+        COUNT(e)::integer AS employee_amount
     FROM
         locations l
-  LEFT JOIN locations_type lt ON l.location_id = lt.location_type_id;
+  		LEFT JOIN locations_type lt ON l.location_id = lt.location_type_id
+		RIGHT JOIN staffing_table st ON l.location_id = st.staffing_table_id
+		LEFT JOIN employees_moving em ON st.staffing_table_id = em.employees_moving_id
+		LEFT JOIN employees e ON em.employee_id = e.employee_id
+	GROUP BY
+		l.name,
+        l.phone_number,
+        l.country,
+        l.city,
+        l.street,
+        l.building_number,
+        l.postal_code,
+        lt.location_type_name;
 END;
 $BODY$;
 

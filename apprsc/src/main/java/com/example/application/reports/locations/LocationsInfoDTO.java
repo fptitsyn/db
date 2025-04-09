@@ -8,7 +8,8 @@ public record LocationsInfoDTO (
     String street,
     String building_number,
     String postal_code,
-    String location_type_name){
+    String location_type_name,
+    Integer employee_amount){
         // Конструктор для JPA
     public LocationsInfoDTO(
             String location_name,
@@ -18,7 +19,8 @@ public record LocationsInfoDTO (
             String street,
             String building_number,
             String postal_code,
-            String location_type_name
+            String location_type_name,
+            Integer employee_amount
     )
     {
         this.location_type_name = location_type_name;
@@ -29,5 +31,6 @@ public record LocationsInfoDTO (
         this.postal_code = postal_code;
         this.city = city;
         this.building_number = building_number;
+        this.employee_amount = employee_amount;
     }
 }

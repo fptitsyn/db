@@ -50,6 +50,7 @@ public class LocationsInfoView extends VerticalLayout {
         grid.addColumn(LocationsInfoDTO::building_number).setHeader("Номер строения");
         grid.addColumn(LocationsInfoDTO::postal_code).setHeader("Почтовый индекс");
         grid.addColumn(LocationsInfoDTO::location_type_name).setHeader("Специализация офиса");
+        grid.addColumn(LocationsInfoDTO::employee_amount).setHeader("Количество сотрудников");
     }
 
     private Button createExportButton() {
@@ -102,7 +103,7 @@ public class LocationsInfoView extends VerticalLayout {
         Row headerRow = sheet.createRow(0);
         String[] headers = {
                 "Название", "Телефон", "Страна", "Город", "Улица",
-                "Номер строения", "Почтовый индекс", "Специализация офиса"
+                "Номер строения", "Почтовый индекс", "Специализация офиса", "Количество сотрудников"
         };
 
         for (int i = 0; i < headers.length; i++) {
@@ -126,11 +127,12 @@ public class LocationsInfoView extends VerticalLayout {
             row.createCell(5).setCellValue(location.building_number());
             row.createCell(6).setCellValue(location.postal_code());
             row.createCell(7).setCellValue(location.location_type_name());
+            row.createCell(8).setCellValue(location.employee_amount());
         }
     }
 
     private void autoSizeColumns(Sheet sheet) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 9; i++) {
             sheet.autoSizeColumn(i);
         }
     }

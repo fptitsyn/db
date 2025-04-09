@@ -1,5 +1,6 @@
 package com.example.application.views.locations;
 
+import com.example.application.data.employees.Employees;
 import com.example.application.data.locations.Locations;
 import com.example.application.data.locations.LocationsRepository;
 import com.example.application.data.locations.LocationsType;
@@ -101,6 +102,10 @@ public class LocationsForm extends VerticalLayout {
                     return type != null ? type.getLocationTypeName() : "—";
                 })
                 .setHeader("Тип")
+                .setAutoWidth(true);
+
+        grid.addColumn(Locations::getEmployeeAmount)
+                .setHeader("Количество сотрудников")
                 .setAutoWidth(true);
 
         grid.asSingleSelect().addValueChangeListener(e -> editLocation(e.getValue()));

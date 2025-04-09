@@ -15,6 +15,7 @@ public class Locations {
 
 
     private String name;
+    private Integer employeeAmount;
     private String phoneNumber;
     private String postalCode;
     private String country;
@@ -62,6 +63,9 @@ public class Locations {
     public LocationsType getLocationType() {
         return locationType;
     }
+    public Integer getEmployeeAmount() {
+        return employeeAmount;
+    }
 
     // Сеттеры
     public void setId(Long id) {
@@ -102,6 +106,9 @@ public class Locations {
 
     public String getLocationTypeName() {
         return locationType != null ? locationType.getLocationTypeName() : "";
+    }
+    public void setEmployeeAmount(Integer employeeAmount) {
+        this.employeeAmount = employeeAmount;
     }
 
     @Override
