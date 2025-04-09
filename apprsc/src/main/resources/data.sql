@@ -443,7 +443,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER order_created
-    AFTER INSERT ON orders
+    BEFORE INSERT ON orders
     FOR EACH ROW
 EXECUTE FUNCTION set_order_default_info();
 ------------------------------------------------------------------------------------------------------------

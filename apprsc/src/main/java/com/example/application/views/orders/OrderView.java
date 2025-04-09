@@ -72,6 +72,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         orderGrid.addColumn(o -> o.getNumberOfOrder()).setHeader("Номер");
         orderGrid.addColumn(o -> o.getTotalCost()).setHeader("Сумма");
         orderGrid.addColumn(o -> o.getOrderStatus()).setHeader("Статус");
+
         orderGrid.addColumn(order -> {
             if (order.getLocation() != null) {
                 return order.getLocation().getName();
