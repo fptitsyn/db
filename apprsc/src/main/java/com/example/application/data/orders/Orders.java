@@ -44,17 +44,6 @@ public class Orders {
 
     // Пустой конструктор (обязателен для JPA)
     public Orders() { }
-    /*
-    // Конструктор с основными параметрами (опционально)
-    public Orders(Clients client, Employees employee, Locations location, String product, int quantity) {
-        this.client = client;
-        this.employee = employee;
-        this.location = location;
-        this.product = product;
-        this.quantity = quantity;
-    }
-
-     */
 
     // Геттеры
     public Long getId() {
@@ -75,8 +64,17 @@ public class Orders {
 
     public Long getNumberOfOrder() {return numberOfOrder;    }
     public LocalDate getDateOfOrder() {return dateOfOrder;    }
-    public String getOrderStatus() {return orderStatus.getStatus();    }
+    //public String getOrderStatus() {return orderStatus.getStatus();    }
     public BigDecimal getTotalCost() {        return totalCost;    }
+    // Заменяем метод getOrderStatus() чтобы возвращал объект
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
+    }
+
+    // Добавляем метод для получения названия статуса
+    public String getOrderStatusName() {
+        return orderStatus != null ? orderStatus.getStatus() : "";
+    }
 
     // Сеттеры
     public void setClient(Clients client) {
@@ -90,4 +88,9 @@ public class Orders {
     public void setDateOfOrder(LocalDate dateOfOrder) {        this.dateOfOrder = dateOfOrder;    }
     public void setOrderStatus(OrderStatus orderStatus) {        this.orderStatus = orderStatus;    }
     public void setTotalCost(BigDecimal totalCost) {        this.totalCost = totalCost;    }
+
+    public void setOrderStatusId(Long statusId) {
+        this.orderStatus = new OrderStatus();
+        this.orderStatus.setId(statusId);
+    }
 }

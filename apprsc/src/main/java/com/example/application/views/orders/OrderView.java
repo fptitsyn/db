@@ -71,7 +71,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         orderGrid.addColumn(o -> o.getDateOfOrder()).setHeader("Дата");
         orderGrid.addColumn(o -> o.getNumberOfOrder()).setHeader("Номер");
         orderGrid.addColumn(o -> o.getTotalCost()).setHeader("Сумма");
-        orderGrid.addColumn(o -> o.getOrderStatus()).setHeader("Статус");
+        orderGrid.addColumn(o -> o.getOrderStatusName()).setHeader("Статус");
 
         orderGrid.addColumn(order -> {
             if (order.getLocation() != null) {
@@ -135,6 +135,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
 
     private void updateGrid() {
         orderGrid.setItems(orderService.findByClientId(currentClient.getId()));
+        orderGrid.getDataProvider().refreshAll(); // Принудительное обновление данных
     }
 
     private HorizontalLayout createOrderActions(Orders order) {
@@ -206,10 +207,14 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 orderComponentsService,
                 componentService,
                 () -> {
-                    updateGrid();
-                    dialog.close();
+                    orderService.refresh(order); // Добавлено: обновляем entity
+                    updateGrid();               // Обновляем сетку
+                    dialog.close();             // Закрываем диалог
+                    Notification.show("Заказ сохранен", 3000, Notification.Position.TOP_CENTER);
                 },
-                dialog::close
+                () -> {
+                    dialog.close();              // Просто закрываем диалог при отмене
+                }
         );
         dialog.setWidth("1500px");
         dialog.add(form);

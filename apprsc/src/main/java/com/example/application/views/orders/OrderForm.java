@@ -8,6 +8,7 @@ import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -90,7 +91,7 @@ public class OrderForm extends VerticalLayout {
             String formattedDate = order.getDateOfOrder().format(formatter);
             orderDate.setText("Дата создания: " + formattedDate);
 
-            orderStatus.setText("Статус заказа: " + order.getOrderStatus());
+            orderStatus.setText("Статус заказа: " + order.getOrderStatusName());
         }
 
         commentField.setWidthFull();
@@ -221,6 +222,10 @@ public class OrderForm extends VerticalLayout {
 
     private Button createSaveButton() {
         Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK.create(), e -> save());
+
+        // Устанавливаем видимость кнопки
+        saveBtn.setVisible(showForNewOrder());
+
         saveBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         saveBtn.getStyle()
                 .set("margin-right", "1em")
@@ -229,7 +234,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createCancelButton() {
-        Button cancelBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), e -> onCancel.run());
+        Button cancelBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), e -> onCancel.run());
         cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         cancelBtn.getStyle()
                 .set("margin-right", "1em")
@@ -239,6 +244,10 @@ public class OrderForm extends VerticalLayout {
 
     private Button createAddServiceButton() {
         Button btn = new Button("Добавить услугу", VaadinIcon.PLUS.create(), e -> openAddServiceDialog());
+
+        // Устанавливаем видимость кнопки
+        btn.setVisible(showForNewOrder());
+
         btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         btn.getStyle()
                 .set("margin-right", "1em")
@@ -248,6 +257,10 @@ public class OrderForm extends VerticalLayout {
 
     private Button createAddComponentButton() {
         Button btn = new Button("Добавить компонент", VaadinIcon.PLUS.create(), e -> openAddComponentDialog());
+
+        // Устанавливаем видимость кнопки
+        btn.setVisible(showForNewOrder());
+
         btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         btn.getStyle()
                 .set("margin-right", "1em")
@@ -257,6 +270,10 @@ public class OrderForm extends VerticalLayout {
 
     private Button createSetWorkOrderButton() {
         Button btn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), e -> openAddComponentDialog());
+
+        // Устанавливаем видимость кнопки
+        btn.setVisible(showForNewOrder());
+
         btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         btn.getStyle()
                 .set("margin-right", "1em")
@@ -265,6 +282,10 @@ public class OrderForm extends VerticalLayout {
     }
     private Button createPayButton() {
         Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), e -> openAddComponentDialog());
+
+        // Устанавливаем видимость кнопки
+        btn.setVisible(showForPayOrder());
+
         btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         btn.getStyle()
                 .set("margin-right", "1em")
@@ -272,15 +293,66 @@ public class OrderForm extends VerticalLayout {
         return btn;
     }
     private Button createCancelOrderButton() {
-        Button btn = new Button("Отменить заказ", VaadinIcon.FILE_REMOVE.create(), e -> openAddComponentDialog());
-        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Button btn = new Button("Отменить заказ", VaadinIcon.FILE_REMOVE.create(), e -> {
+            // Проверяем статус заказа
+            if (showForNewOrder()) {
+                showCancelConfirmationDialog();
+            }
+        });
+
+        // Устанавливаем видимость кнопки
+        btn.setVisible(showForNewOrder());
+
+        btn.addThemeVariants(ButtonVariant.LUMO_ERROR);
         btn.getStyle()
                 .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+                .set("color", "var(--lumo-error-color)");
         return btn;
     }
+
+    private boolean showForNewOrder() {
+        // Проверяем что заказ сохранен и статус = 1 ('Создан')
+        return order.getId() != null
+                && order.getOrderStatus() != null
+                && order.getOrderStatus().getId().equals(1L);
+    }
+
+    private boolean showForPayOrder() {
+        // Проверяем что заказ сохранен и статус = 1 ('Создан')
+        return order.getId() != null
+                && order.getOrderStatus() != null
+                && order.getOrderStatus().getId().equals(3L);
+    }
+
+    private void showCancelConfirmationDialog() {
+        ConfirmDialog confirmDialog = new ConfirmDialog(
+                "Подтверждение отмены",
+                "Вы уверены, что хотите отменить заказ #" + order.getNumberOfOrder() + "?",
+                "Подтвердить отмену", confirmEvent -> {
+            try {
+                order.setOrderStatusId(5L); // 5 - ID статуса "Отменен"
+                orderService.save(order);
+                Notification.show("Заказ #" + order.getNumberOfOrder() + " отменен",
+                        3000, Notification.Position.TOP_CENTER);
+                onCancel.run();
+            } catch (Exception ex) {
+                Notification.show("Ошибка отмены заказа: " + ex.getMessage(),
+                        5000, Notification.Position.TOP_CENTER);
+            }
+        },
+                "Отмена", cancelEvent -> {}
+        );
+
+        confirmDialog.setConfirmButtonTheme("error primary");
+        confirmDialog.open();
+    }
+
     private Button createSelectLocationButton() {
         Button btn = new Button("Где починить?", VaadinIcon.TOOLS.create(), e -> openAddComponentDialog());
+
+        // Устанавливаем видимость кнопки
+        btn.setVisible(showForNewOrder());
+
         btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         btn.getStyle()
                 .set("margin-right", "1em")
@@ -290,9 +362,13 @@ public class OrderForm extends VerticalLayout {
 
     private void save() {
         if (binder.writeBeanIfValid(order)) {
-            orderService.save(order);
-            refreshGrids();
-            onSave.run();
+            try {
+                orderService.save(order); // Используется saveAndFlush
+                refreshGrids();
+                onSave.run(); // Важно: должен вызываться после успешного сохранения
+            } catch (Exception e) {
+                Notification.show("Ошибка сохранения: " + e.getMessage(), 5000, Notification.Position.TOP_CENTER);
+            }
         }
     }
 
