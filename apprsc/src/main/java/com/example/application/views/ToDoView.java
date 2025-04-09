@@ -21,8 +21,6 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
-        //add(new Span("Перевести всё исчисляемое время из минут в часы"));
-        add(new Span("Поменять везде где есть рубли тип на одинаковый (например: BigDecimal): Зарплата, стоимость услуг, компонент..."));
         add(new Span("ClientForm Добавить поля по клиенту (статус). Создать тригер при создание с присвоением статуса = 1 (Обычный)"));
         add(new Span("BonusView Карточка бонусного счета Остаток/все операции (BonusAccountOperation) (вместо заказов)"));
         add(new Span("bonus_account_operation нет bonus_account_id"));
