@@ -207,7 +207,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 orderComponentsService,
                 componentService,
                 () -> {
-                    orderService.refresh(order); // Добавлено: обновляем entity
+                    //orderService.refresh(order); // Добавлено: обновляем entity
                     updateGrid();               // Обновляем сетку
                     dialog.close();             // Закрываем диалог
                     Notification.show("Заказ сохранен", 3000, Notification.Position.TOP_CENTER);

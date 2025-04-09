@@ -224,7 +224,7 @@ public class OrderForm extends VerticalLayout {
         Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK.create(), e -> save());
 
         // Устанавливаем видимость кнопки
-        saveBtn.setVisible(showForNewOrder());
+        //saveBtn.setVisible(showForNewOrder());
 
         saveBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         saveBtn.getStyle()
@@ -269,7 +269,13 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createSetWorkOrderButton() {
-        Button btn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), e -> openAddComponentDialog());
+        Button btn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), e -> {
+            order.setOrderStatusId(2L); // 4 - ID статуса "Распределен"
+            orderService.save(order);
+            Notification.show("Заказ #" + order.getNumberOfOrder() + " распределен",
+                    3000, Notification.Position.TOP_CENTER);
+            onCancel.run();
+        });
 
         // Устанавливаем видимость кнопки
         btn.setVisible(showForNewOrder());
@@ -281,7 +287,13 @@ public class OrderForm extends VerticalLayout {
         return btn;
     }
     private Button createPayButton() {
-        Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), e -> openAddComponentDialog());
+        Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), e -> {
+            order.setOrderStatusId(4L); // 4 - ID статуса "Оплачен"
+            orderService.save(order);
+            Notification.show("Заказ #" + order.getNumberOfOrder() + " оплачен",
+                    3000, Notification.Position.TOP_CENTER);
+            onCancel.run();
+        });
 
         // Устанавливаем видимость кнопки
         btn.setVisible(showForPayOrder());

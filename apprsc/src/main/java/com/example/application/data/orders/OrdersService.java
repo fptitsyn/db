@@ -32,8 +32,10 @@ public class OrdersService {
         return repository.findByClientId(clientId);
     }
 
-    @Transactional
+    /*@Transactional
     public void refresh(Orders order) {
         entityManager.refresh(order);
     }
+
+     */
 }
