@@ -24,7 +24,6 @@ public class ToDoView extends VerticalLayout {
         add(new Span("ClientForm Добавить поля по клиенту (статус). Создать тригер при создание с присвоением статуса = 1 (Обычный)"));
         add(new Span("BonusView Карточка бонусного счета Остаток/все операции (BonusAccountOperation) (вместо заказов)"));
         add(new Span("bonus_account_operation нет bonus_account_id"));
-        add(new Span("WorkOrders. Создать триггер и функция по первичному присвоения Даты, номера, статуса при создании."));
         add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity. Например order_services нет fk на order_id"));
 
         add(new Span("Отчетность по Locations - добавить количество человек в офисе"));
