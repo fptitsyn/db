@@ -1,13 +1,18 @@
 package com.example.application.views.employees;
 
+import com.example.application.data.employees.StaffingTable;
 import com.example.application.reports.employees.EmployeeInfoDTO;
 import com.example.application.reports.employees.EmployeeInfoService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -21,7 +26,10 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 @PageTitle("Отчет по сотрудникам")
 @Route("employees-info")
@@ -49,7 +57,14 @@ public class EmployeeInfoView extends VerticalLayout {
         grid.addColumn(EmployeeInfoDTO::age).setHeader("Age");
         grid.addColumn(EmployeeInfoDTO::department).setHeader("Department");
         grid.addColumn(EmployeeInfoDTO::position).setHeader("Position");
-        grid.addColumn(EmployeeInfoDTO::salary).setHeader("Salary");
+
+        grid.addColumn(
+                new NumberRenderer<>(
+                        EmployeeInfoDTO::salary,
+                        NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                ))
+                .setHeader("Salary");
+
         grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Workplace");
         grid.addColumn(EmployeeInfoDTO::experience).setHeader("Experience (years)");
     }
@@ -129,7 +144,7 @@ public class EmployeeInfoView extends VerticalLayout {
             row.createCell(6).setCellValue(employee.age());
             row.createCell(7).setCellValue(employee.department());
             row.createCell(8).setCellValue(employee.position());
-            row.createCell(9).setCellValue(employee.salary());
+            row.createCell(9).setCellValue(employee.salary().doubleValue());
             row.createCell(10).setCellValue(employee.workplace());
             row.createCell(11).setCellValue(employee.experience());
         }

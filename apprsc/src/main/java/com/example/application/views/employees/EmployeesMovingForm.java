@@ -8,6 +8,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.H4;
@@ -16,14 +17,19 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @PageTitle("Приём/Увольнение")
 @Route("EmployeesMoving")
@@ -101,9 +107,13 @@ public class EmployeesMovingForm extends VerticalLayout {
                 .setKey("position")
                 .setAutoWidth(true)
                 .setSortable(true);
-        grid.addColumn(StaffingTable::getSalary)
-                .setHeader("ФОТ")
-                .setAutoWidth(true);
+
+        grid.addColumn(
+                        new NumberRenderer<>(
+                                StaffingTable::getSalary,
+                                NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                        ))
+                .setHeader("ФОТ");
 
         // Обработчик выбора должности
         grid.asSingleSelect().addValueChangeListener(e -> {

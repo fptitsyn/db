@@ -1,5 +1,6 @@
 package com.example.application.views.services;
 
+import com.example.application.data.components.ComponentDTO;
 import com.example.application.data.employees.Employees;
 import com.example.application.data.services.Services;
 
@@ -13,9 +14,11 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -25,8 +28,10 @@ import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
+import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Route("services")
@@ -40,10 +45,9 @@ public class ServicesView extends VerticalLayout {
 
     private final Grid<Services> grid = new Grid<>(Services.class);
     private final TextField serviceNameField = new TextField("Название услуги");
-    private final NumberField costField = new NumberField("Стоимость");
-    private final NumberField timeToCompleteField = new NumberField("Время выполнения (мин.)");
+    private final BigDecimalField costField = new BigDecimalField("Стоимость");
+    private final NumberField timeToCompleteField = new NumberField("Время выполнения (ч.)");
     private final ComboBox<TypeOfDevice> typeOfDeviceComboBox = new ComboBox<>("Тип устройства");
-    private final CheckboxGroup<Employees> employeesCheckboxGroup = new CheckboxGroup<>("Сотрудники");
     private final Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
     private final Button deleteButton = new Button("Удалить", VaadinIcon.CLOSE_CIRCLE_O.create());
 
@@ -59,7 +63,7 @@ public class ServicesView extends VerticalLayout {
         configureForm();
 
         add(grid, new HorizontalLayout(serviceNameField, costField, timeToCompleteField),
-                typeOfDeviceComboBox, employeesCheckboxGroup,
+                typeOfDeviceComboBox,
                 new HorizontalLayout(saveButton, deleteButton));
 
         updateList();
@@ -71,28 +75,28 @@ public class ServicesView extends VerticalLayout {
         grid.addColumn(Services::getServiceId).setHeader("ID");
         grid.addColumn(Services::getServiceName).setHeader("Название");
         grid.addColumn(s -> s.getTypeOfDevice().getTypeOfDeviceName()).setHeader("Тип устройства");
-        grid.addColumn(Services::getCost).setHeader("Стоимость");
-        grid.addColumn(s -> s.getTimeToCompleteMinutes() + " мин.").setHeader("Время выполнения");
-        grid.addColumn(s -> s.getEmployees().stream()
-                        .map(Employees::getFullName)
-                        .collect(Collectors.joining(", ")))
-                .setHeader("Сотрудники");
+
+        grid.addColumn(
+                        new NumberRenderer<>(
+                                Services::getCost,
+                                NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                        ))
+                .setHeader("Стоимость");
+
+        grid.addColumn(s -> s.getTimeToCompleteHours() + " ч.").setHeader("Время выполнения");
 
         grid.asSingleSelect().addValueChangeListener(event -> editService(event.getValue()));
     }
 
-    private String formatDuration(Duration duration) {
-        long hours = duration.toHours();
-        long minutes = duration.toMinutesPart();
-        return String.format("%d ч. %d мин.", hours, minutes);
-    }
+//    private String formatDuration(Duration duration) {
+//        long hours = duration.toHours();
+//        long minutes = duration.toMinutesPart();
+//        return String.format("%d ч. %d мин.", hours, minutes);
+//    }
 
     private void configureForm() {
         typeOfDeviceComboBox.setItems(service.findAllTypesOfDevices());
         typeOfDeviceComboBox.setItemLabelGenerator(TypeOfDevice::getTypeOfDeviceName);
-
-        employeesCheckboxGroup.setItems(service.findAllEmployees());
-        employeesCheckboxGroup.setItemLabelGenerator(Employees::getFullName);
 
         saveButton.addClickListener(event -> saveService());
         saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -116,9 +120,8 @@ public class ServicesView extends VerticalLayout {
         } else {
             serviceNameField.setValue(service.getServiceName());
             costField.setValue(service.getCost());
-            timeToCompleteField.setValue(service.getTimeToCompleteMinutes().doubleValue());
+            timeToCompleteField.setValue(service.getTimeToCompleteHours().doubleValue());
             typeOfDeviceComboBox.setValue(service.getTypeOfDevice());
-            employeesCheckboxGroup.setValue(service.getEmployees());
         }
     }
 
@@ -127,9 +130,8 @@ public class ServicesView extends VerticalLayout {
             Services serviceObj = new Services();
             serviceObj.setServiceName(serviceNameField.getValue());
             serviceObj.setCost(costField.getValue());
-            serviceObj.setTimeToCompleteMinutes(timeToCompleteField.getValue().intValue());
+            serviceObj.setTimeToCompleteHours(timeToCompleteField.getValue().intValue());
             serviceObj.setTypeOfDevice(typeOfDeviceComboBox.getValue());
-            serviceObj.setEmployees(new HashSet<>(employeesCheckboxGroup.getSelectedItems()));
 
             service.save(serviceObj);
             updateList();
@@ -154,7 +156,6 @@ public class ServicesView extends VerticalLayout {
         costField.clear();
         timeToCompleteField.clear();
         typeOfDeviceComboBox.clear();
-        employeesCheckboxGroup.deselectAll();
         grid.asSingleSelect().clear();
     }
 }

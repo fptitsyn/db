@@ -4,27 +4,37 @@ import com.example.application.data.locations.Locations;
 import com.example.application.data.locations.LocationsRepository;
 import com.example.application.data.employees.StaffingTable;
 import com.example.application.data.employees.StaffingTableRepository;
+import com.example.application.data.orders.OrderComponents;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.transaction.Transactional;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @PageTitle("Штатное расписание")
 @Route("StaffingTable")
@@ -44,7 +54,7 @@ public class StaffingTableForm extends VerticalLayout {
     private TextField position = new TextField("Должность");
     private TextField department = new TextField("Подразделение");
 
-    private IntegerField salary = new IntegerField("ФОТ");
+    private BigDecimalField salary = new BigDecimalField("ФОТ");
     private ComboBox<Locations> location = new ComboBox<>("Офис");
     private Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
     private Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
@@ -71,7 +81,8 @@ public class StaffingTableForm extends VerticalLayout {
 
     private void configureGrid() {
         grid.removeAllColumns();
-        // Колонка Офис с кастомным компаратором
+
+        // Колонка Офис
         grid.addColumn(l -> {
                     Locations type = l.getLocation();
                     return type != null ? type.getName() : "—";
@@ -84,6 +95,7 @@ public class StaffingTableForm extends VerticalLayout {
                     Locations loc = st.getLocation();
                     return loc != null ? loc.getName() : "";
                 });
+
         // Колонка Подразделение
         grid.addColumn(StaffingTable::getDepartment)
                 .setHeader("Подразделение")
@@ -98,10 +110,15 @@ public class StaffingTableForm extends VerticalLayout {
                 .setAutoWidth(true)
                 .setSortable(true);
 
-        // Колонка ФОТ (без сортировки)
-        grid.addColumn(StaffingTable::getSalary)
+        // Колонка ФОТ с валютой
+        grid.addColumn(
+                        new NumberRenderer<>(
+                                StaffingTable::getSalary,
+                                NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                        ))
                 .setHeader("ФОТ")
-                .setAutoWidth(true);
+                .setTextAlign(ColumnTextAlign.END)
+                .setKey("salary");
 
         // Обработчик выбора записи
         grid.asSingleSelect().addValueChangeListener(e -> editStaffingTable(e.getValue()));

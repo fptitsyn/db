@@ -4,6 +4,7 @@ import com.example.application.data.components.TypeOfDevice;
 import com.example.application.data.employees.Employees;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,34 +16,24 @@ public class Services {
     private Long service_id;
 
     private String serviceName;
-    private Double cost;
-    private Integer timeToCompleteMinutes; // Храним время в минутах
+    private BigDecimal cost;
+    private Integer timeToCompleteHours; // Храним время в часах
 
     @ManyToOne
     @JoinColumn(name = "type_of_device_id", nullable = false)
     private TypeOfDevice typeOfDevice;
-
-    @ManyToMany(fetch = FetchType.EAGER) // Или LAZY с открытой сессией
-    @JoinTable(
-            name = "employee_service",
-            joinColumns = @JoinColumn(name = "service_id"),
-            inverseJoinColumns = @JoinColumn(name = "employee_id")
-    )
-    private Set<Employees> employees = new HashSet<>();
 
     // Геттеры и сеттеры
     public Long getServiceId() { return service_id; }
     public void setServiceId(Long service_id) { this.service_id = service_id; }
     public String getServiceName() { return serviceName; }
     public void setServiceName(String serviceName) { this.serviceName = serviceName; }
-    public Double getCost() { return cost; }
-    public void setCost(Double cost) { this.cost = cost; }
-    public Integer getTimeToCompleteMinutes() { return timeToCompleteMinutes; }
-    public void setTimeToCompleteMinutes(Integer timeToCompleteMinutes) { this.timeToCompleteMinutes = timeToCompleteMinutes; }
+    public BigDecimal getCost() { return cost; }
+    public void setCost(BigDecimal cost) { this.cost = cost; }
+    public Integer getTimeToCompleteHours() { return timeToCompleteHours; }
+    public void setTimeToCompleteHours(Integer timeToCompleteHours) { this.timeToCompleteHours = timeToCompleteHours; }
     public TypeOfDevice getTypeOfDevice() { return typeOfDevice; }
     public void setTypeOfDevice(TypeOfDevice typeOfDevice) { this.typeOfDevice = typeOfDevice; }
-    public Set<Employees> getEmployees() { return employees; }
-    public void setEmployees(Set<Employees> employees) { this.employees = employees; }
 
     @Override
     public String toString() {

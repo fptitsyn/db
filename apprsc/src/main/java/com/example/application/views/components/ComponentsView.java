@@ -2,10 +2,12 @@ package com.example.application.views.components;
 
 import com.example.application.data.components.ComponentDTO;
 import com.example.application.data.components.*;
+import com.example.application.reports.employees.EmployeeInfoDTO;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -18,6 +20,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.DoubleToBigDecimalConverter;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -27,8 +30,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Route("components-management")
 @Menu(order = 16, icon = LineAwesomeIconUrl.MICROCHIP_SOLID)
@@ -125,7 +130,11 @@ public class ComponentsView extends VerticalLayout {
                 .setSortable(true);
 
         // Колонка Cost (без сортировки)
-        grid.addColumn(c -> String.format("$%.2f", c.getCost()))
+        grid.addColumn(
+                        new NumberRenderer<>(
+                                ComponentDTO::getCost,
+                                NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                        ))
                 .setHeader("Cost");
 
         // Колонка с кнопкой удаления

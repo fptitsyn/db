@@ -13,15 +13,12 @@ import java.util.List;
 public class ServicesService {
     private final ServicesRepository servicesRepository;
     private final TypeOfDeviceRepository typeOfDeviceRepository;
-    private final EmployeesRepository employeesRepository;
 
     @Autowired
     public ServicesService(ServicesRepository servicesRepository,
-                          TypeOfDeviceRepository typeOfDeviceRepository,
-                          EmployeesRepository employeesRepository) {
+                          TypeOfDeviceRepository typeOfDeviceRepository) {
         this.servicesRepository = servicesRepository;
         this.typeOfDeviceRepository = typeOfDeviceRepository;
-        this.employeesRepository = employeesRepository;
     }
 
     public List<Services> findAll() {
@@ -40,7 +37,4 @@ public class ServicesService {
         return typeOfDeviceRepository.findAll();
     }
 
-    public List<Employees> findAllEmployees() {
-        return employeesRepository.findAll();
-    }
 }

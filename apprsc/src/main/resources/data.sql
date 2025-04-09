@@ -39,7 +39,7 @@ DROP FUNCTION IF EXISTS public.get_employee_info();
 
 CREATE OR REPLACE FUNCTION public.get_employee_info(
 	)
-    RETURNS TABLE(last_name character varying, first_name character varying, middle_name character varying, date_of_birth date, phone_number character varying, email character varying, comment character varying, age integer, "department" character varying, "position" character varying, salary integer, workplace character varying, experience integer)
+    RETURNS TABLE(last_name character varying, first_name character varying, middle_name character varying, date_of_birth date, phone_number character varying, email character varying, comment character varying, age integer, "department" character varying, "position" character varying, salary numeric, workplace character varying, experience integer)
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE

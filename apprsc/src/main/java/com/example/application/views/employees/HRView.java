@@ -5,15 +5,22 @@ import com.example.application.reports.employees.EmployeeInfoService;
 import com.example.application.views.locations.LocationsForm;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
+
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 @PageTitle("Персонал")
 @Route("HRView")
@@ -51,7 +58,14 @@ public class HRView extends VerticalLayout {
         grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Офис");
         grid.addColumn(EmployeeInfoDTO::department).setHeader("Подразделение");
         grid.addColumn(EmployeeInfoDTO::position).setHeader("Должность");
-        grid.addColumn(EmployeeInfoDTO::salary).setHeader("Зарплата");
+
+        grid.addColumn(
+                        new NumberRenderer<>(
+                                EmployeeInfoDTO::salary,
+                                NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                        ))
+                .setHeader("Зарплата");
+
         grid.addColumn(EmployeeInfoDTO::lastName).setHeader("Фамилия");
         grid.addColumn(EmployeeInfoDTO::firstName).setHeader("Имя");
         grid.addColumn(EmployeeInfoDTO::middleName).setHeader("Отчество");

@@ -2,6 +2,7 @@ package com.example.application.reports.employees;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @SqlResultSetMapping(
@@ -19,7 +20,7 @@ import java.time.LocalDate;
                         @ColumnResult(name = "age", type = Integer.class),
                         @ColumnResult(name = "department", type = String.class),
                         @ColumnResult(name = "position", type = String.class),
-                        @ColumnResult(name = "salary", type = Integer.class),
+                        @ColumnResult(name = "salary", type = BigDecimal.class),
                         @ColumnResult(name = "workplace", type = String.class),
                         @ColumnResult(name = "experience", type = Integer.class)
                 }

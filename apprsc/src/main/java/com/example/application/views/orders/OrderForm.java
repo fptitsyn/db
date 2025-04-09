@@ -134,9 +134,9 @@ public class OrderForm extends VerticalLayout {
         costColumn.setFooter("Итого: 0.00 ₽");
 
         // Колонка времени с футером
-        timeColumn = servicesGrid.addColumn(os -> os.getServices().getTimeToCompleteMinutes())
-                .setHeader("Время выполнения (минуты)").setTextAlign(ColumnTextAlign.END);
-        timeColumn.setFooter("Итого: 0 мин");
+        timeColumn = servicesGrid.addColumn(os -> os.getServices().getTimeToCompleteHours())
+                .setHeader("Время выполнения (часы)").setTextAlign(ColumnTextAlign.END);
+        timeColumn.setFooter("Итого: 0 ч");
 
 
         servicesGrid.addComponentColumn(os -> {
@@ -152,16 +152,16 @@ public class OrderForm extends VerticalLayout {
     }
 
     private void updateFooters() {
-        double totalCost = servicesGrid.getDataProvider().fetch(new Query<>())
-                .mapToDouble(os -> os.getServices().getCost())
-                .sum();
+        BigDecimal totalCost = servicesGrid.getDataProvider().fetch(new Query<>())
+                .map(os -> os.getServices().getCost())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         int totalTime = servicesGrid.getDataProvider().fetch(new Query<>())
-                .mapToInt(os -> os.getServices().getTimeToCompleteMinutes())
+                .mapToInt(os -> os.getServices().getTimeToCompleteHours())
                 .sum();
 
         costColumn.setFooter(String.format("Итого: %,.2f ₽", totalCost));
-        timeColumn.setFooter(String.format("Итого: %,d мин", totalTime));
+        timeColumn.setFooter(String.format("Итого: %,d ч", totalTime));
     }
 
     private void refreshServicesGrid() {

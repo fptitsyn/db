@@ -3,6 +3,8 @@ package com.example.application.data.employees;
 import com.example.application.data.locations.Locations;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "staffing_table")
 public class StaffingTable {
@@ -12,7 +14,7 @@ public class StaffingTable {
 
 
     private String position;
-    private int salary;
+    private BigDecimal salary;
     private String department;
 
     @ManyToOne
@@ -26,7 +28,7 @@ public class StaffingTable {
     public String getPosition() {
         return position;
     }
-    public int getSalary() {
+    public BigDecimal getSalary() {
         return salary;
     }
     public String getDepartment() {
@@ -41,7 +43,7 @@ public class StaffingTable {
     public void setPosition(String position) {
         this.position = position;
     }
-    public void setSalary(int salary) {
+    public void setSalary(BigDecimal salary) {
         this.salary = salary;
     }
     public void setDepartment(String department) {

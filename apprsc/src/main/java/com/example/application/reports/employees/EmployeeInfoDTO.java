@@ -1,5 +1,6 @@
 package com.example.application.reports.employees;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record EmployeeInfoDTO(
@@ -13,7 +14,7 @@ public record EmployeeInfoDTO(
         Integer age,
         String department,
         String position,
-        Integer salary,
+        BigDecimal salary,
         String workplace,
         Integer experience
 ) {
@@ -29,7 +30,7 @@ public record EmployeeInfoDTO(
             Integer age,
             String department,
             String position,
-            Integer salary,
+            BigDecimal salary,
             String workplace,
             Integer experience
     ) {
