@@ -1,5 +1,7 @@
 package com.example.application.views.orders;
 
+import com.example.application.data.employees.Employees;
+import com.example.application.data.employees.EmployeesService;
 import com.example.application.data.services.Services;
 import com.example.application.data.components.Component;
 import com.example.application.data.components.ComponentService;
@@ -34,6 +36,8 @@ public class OrderForm extends VerticalLayout {
     private final ServicesService servicesService;
     private final OrderComponentsService orderComponentsService;
     private final ComponentService componentService;
+    private final WorkOrdersService workOrdersService;
+    private final EmployeesService employeesService;
     private final Runnable onSave;
     private final Runnable onCancel;
 
@@ -61,6 +65,8 @@ public class OrderForm extends VerticalLayout {
                      ServicesService servicesService,
                      OrderComponentsService orderComponentsService,
                      ComponentService componentService,
+                     WorkOrdersService workOrdersService,
+                     EmployeesService employeesService,
                      Runnable onSave,
                      Runnable onCancel) {
         this.order = order;
@@ -70,6 +76,8 @@ public class OrderForm extends VerticalLayout {
         this.servicesService = servicesService;
         this.orderComponentsService = orderComponentsService;
         this.componentService = componentService;
+        this.workOrdersService = workOrdersService;
+        this.employeesService = employeesService;
         this.onSave = onSave;
         this.onCancel = onCancel;
 
@@ -277,13 +285,8 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createSetWorkOrderButton() {
-        Button btn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), e -> {
-            order.setOrderStatusId(2L); // 4 - ID статуса "Распределен"
-            orderService.save(order);
-            Notification.show("Заказ #" + order.getNumberOfOrder() + " распределен",
-                    3000, Notification.Position.TOP_CENTER);
-            onCancel.run();
-        });
+        Button btn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), e -> openAddWorkOrderDialog());
+
 
         // Устанавливаем видимость кнопки
         btn.setVisible(showForNewOrder());
@@ -295,13 +298,7 @@ public class OrderForm extends VerticalLayout {
         return btn;
     }
     private Button createPayButton() {
-        Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), e -> {
-            order.setOrderStatusId(4L); // 4 - ID статуса "Оплачен"
-            orderService.save(order);
-            Notification.show("Заказ #" + order.getNumberOfOrder() + " оплачен",
-                    3000, Notification.Position.TOP_CENTER);
-            onCancel.run();
-        });
+        Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), e -> openPayDialog());
 
         // Устанавливаем видимость кнопки
         btn.setVisible(showForPayOrder());
@@ -486,6 +483,71 @@ public class OrderForm extends VerticalLayout {
         orderComponentsService.delete(oc);
         componentsGrid.getDataProvider().refreshAll();
         refreshComponentsGrid();
+    }
+
+    // Методы для передачи в работу
+    private void openAddWorkOrderDialog() {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Передача в работу");
+        dialog.setWidth("500px");
+
+        Button addBtn = new Button("Передать", e -> {
+            try {
+                // Получаем сотрудника с ID = 1
+                Employees employee = employeesService.findById(1L)
+                        .orElseThrow(() -> new RuntimeException("Сотрудник не найден"));
+
+                // Создаем новое рабочее задание
+                WorkOrders workOrder = new WorkOrders();
+                workOrder.setOrders(order);
+                workOrder.setEmployee(employee);
+
+                // Сохраняем рабочее задание (дата и статус установятся триггером)
+                workOrdersService.save(workOrder);
+
+                // Обновляем статус заказа
+                order.setOrderStatusId(2L);
+                orderService.save(order);
+
+                Notification.show("Заказ #" + order.getNumberOfOrder() + " передан в работу",
+                        3000, Notification.Position.TOP_CENTER);
+                onCancel.run();
+                dialog.close();
+            } catch (Exception ex) {
+                Notification.show("Ошибка: " + ex.getMessage(),
+                        5000, Notification.Position.TOP_CENTER);
+            }
+        });
+
+        VerticalLayout layout = new VerticalLayout(
+                new HorizontalLayout(addBtn, new Button("Отмена", ev -> dialog.close()))
+        );
+        layout.setPadding(false);
+        dialog.add(layout);
+        dialog.open();
+    }
+
+    // Методы для оплаты
+    private void openPayDialog() {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Передача в работу"); // Добавляем заголовок
+        dialog.setWidth("500px");
+
+        Button addBtn = new Button("Оплатить", e -> {
+            dialog.close();
+            order.setOrderStatusId(4L); // 4 - ID статуса "Оплачен"
+            orderService.save(order);
+            Notification.show("Заказ #" + order.getNumberOfOrder() + " оплачен",
+                    3000, Notification.Position.TOP_CENTER);
+            onCancel.run();
+        });
+
+        VerticalLayout layout = new VerticalLayout(
+                new HorizontalLayout(addBtn, new Button("Отмена", ev -> dialog.close()))
+        );
+        layout.setPadding(false);
+        dialog.add(layout);
+        dialog.open();
     }
 
 }

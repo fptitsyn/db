@@ -101,4 +101,9 @@ public class EmployeesService {
     public int count() {
         return (int) employeesRepository.count();
     }
+
+    public Optional<Employees> findById(Long id) {
+        return employeesRepository.findById(id);
+    }
+
 }

@@ -39,6 +39,7 @@ public class AboutView extends VerticalLayout {
         add(new Span("OrderForm подсчет и сохранение суммы итого по заказу"));
         add(new Span("Новая Entity InvoiceForPayment Счет по заказу"));
         add(new Span("ClientStatus. Добавлен % для начисления бонусов (Обычный-1%;Постоянный-3%;Премиум-5%)"));
+        add(new Span("Драфт механизма по созданию WorkOrders (всегда создается на Сотрудника с ID=1)"));
         add(new H5("09.04"));
         add(new Span("OrderForm Добавлена логика  скрытия кнопок в зависимости от статуса"));
         add(new Span("ClientForm Добавлено поле статус. Создан тригер при создание с присвоением статуса = 1 (Обычный)"));

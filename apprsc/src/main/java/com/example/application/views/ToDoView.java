@@ -23,7 +23,7 @@ public class ToDoView extends VerticalLayout {
         add(new H4("Нужное. Простое"));
         add(new Span("bonus_account_operation нет bonus_account_id"));
         add(new Span("Реализовать Функцию которая возвращает сумму доступных бонусов"));
-        add(new Span("BonusView вывести все операции (BonusAccountOperation) (вместо заказов) + Доступно бонусов"));
+        add(new Span("BonusView вывести все операции (BonusAccountOperation) (вместо заказов) + Доступно бонусов (через Футер как в заказах или через функцию которая выше)"));
         add(new Span("InvoiceForPayment, создать триггер после вставки: Вставить запись в BonusAccountOperation (списать (с минусом) или зачислить)"));
 
         add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity. Например order_services нет fk на order_id"));

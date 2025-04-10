@@ -2,14 +2,11 @@
 package com.example.application.views.orders;
 
 import com.example.application.data.components.ComponentService;
-import com.example.application.data.employees.Employees;
-import com.example.application.data.employees.EmployeesMoving;
+import com.example.application.data.employees.*;
 import com.example.application.data.locations.Locations;
-import com.example.application.data.employees.StaffingTable;
 import com.example.application.data.login.Users;
 import com.example.application.data.orders.*;
 import com.example.application.security.AuthenticatedUser;
-import com.example.application.data.employees.EmployeesMovingService;
 import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -38,6 +35,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final ServicesService servicesService;
     private final OrderComponentsService orderComponentsService; // Добавлено
     private final ComponentService componentService;
+    private final WorkOrdersService workOrdersService;
+    private final EmployeesService employeesService;
 
     private Clients currentClient;
     private Grid<Orders> orderGrid = new Grid<>(Orders.class);
@@ -51,7 +50,9 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                      OrderServicesService orderServicesService,
                      ServicesService servicesService,
                      OrderComponentsService orderComponentsService,
-                     ComponentService componentService)  { // Модифицированный конструктор
+                     ComponentService componentService,
+                     WorkOrdersService workOrdersService,
+                     EmployeesService employeesService)  {
         this.orderService = orderService;
         this.clientService = clientService;
         this.authenticatedUser = authenticatedUser;
@@ -60,6 +61,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         this.servicesService = servicesService;
         this.orderComponentsService = orderComponentsService;
         this.componentService = componentService;
+        this.workOrdersService = workOrdersService;
+        this.employeesService = employeesService;
 
         initView();
     }
@@ -207,6 +210,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 servicesService,
                 orderComponentsService,
                 componentService,
+                workOrdersService,
+                employeesService,
                 () -> {
                     updateGrid();               // Обновляем сетку
                     dialog.close();             // Закрываем диалог
