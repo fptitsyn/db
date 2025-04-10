@@ -49,7 +49,7 @@ public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
         orderGrid.removeAllColumns();
         orderGrid.addColumn(Orders::getNumberOfOrder).setHeader("Товар");
         orderGrid.addColumn(Orders::getDateOfOrder).setHeader("Количество");
-
+        setSizeFull();
         add(
                 clientFullname,
                 new H3("Информация о бонусном счете"),

@@ -36,7 +36,7 @@ public class ToDoView extends VerticalLayout {
         add(new Span("Привязка услуг к Рабочему"));
         add(new Span("OrderForm Распределение в работу"));
         add(new Span("WorkOrders права:рабочий видит свои, GOD - все"));
-        add(new Span("WorkOrders Статус логика изменения"));
+        add(new Span("WorkOrders Работа с нарядом"));
         add(new Span("Склад"));
         add(new Span("Выдача. Оплата  услуг и комлектующих. Начисление бонус и списание"));
         add(new Span("Client Статус логика изменения (Постоянный и Премиум)"));
@@ -48,7 +48,6 @@ public class ToDoView extends VerticalLayout {
         add(new Span("ScheduleView при добавление/удаление графиков после выбоа офиса показывать только сотрудников работающих в этих офисах"));
         add(new Span("OrderView не обновляется Grid после возвращения из изменения заказа"));
         add(new Span("ClientForm при создание клиента, выбор м/ж из списка"));
-        add(new Span("ClientsView создание клиента в новом окне. Список клиентов расширить на весь экран"));
         add(new Span("ClientsView не обновляется Grid после возврата из заказа"));
         setSizeFull();
     }

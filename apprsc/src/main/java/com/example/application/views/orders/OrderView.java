@@ -100,7 +100,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         addOrderBtn.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
-
+        setSizeFull();
         add(clientFullname, addOrderBtn, orderGrid, backButton);
 
 

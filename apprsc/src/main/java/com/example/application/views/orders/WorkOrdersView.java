@@ -78,7 +78,7 @@ public class WorkOrdersView   extends VerticalLayout {
         workOrderGrid.addComponentColumn(this::createWorkOrderActions).setHeader("Действия").setWidth("250px");
 
         updateGrid();
-
+        setSizeFull();
         add(workOrderGrid);
     }
 

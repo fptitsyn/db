@@ -56,7 +56,7 @@ public class ClientsView extends VerticalLayout {
         addClientBtn.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
-
+        setSizeFull();
         add(addClientBtn, clientGrid);
     }
 
