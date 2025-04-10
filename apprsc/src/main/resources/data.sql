@@ -509,3 +509,46 @@ CREATE OR REPLACE TRIGGER client_created
     FOR EACH ROW
 EXECUTE FUNCTION set_client_default_status()
 ------------------------------------------------------------------------------------------------------------
+// InvoiceForPayment, создать триггер после вставки: Вставить запись в BonusAccountOperation (списать (с минусом) или зачислить)
+CREATE OR REPLACE FUNCTION process_bonus_operations()
+    RETURNS TRIGGER AS $$
+BEGIN
+    -- Добавляем запись о начисленных бонусах, если они есть
+    IF NEW.accrued_bonuses > 0 THEN
+        INSERT INTO bonus_account_operation (
+            operation_date,
+            operation_summ,
+            operation_type,
+            order_id
+        ) VALUES (
+                             CURRENT_DATE,
+                             NEW.accrued_bonuses,
+                             'Начисление',
+                             NEW.orders_id
+                 );
+    END IF;
+
+    -- Добавляем запись о списанных бонусах, если они есть
+    IF NEW.deducted_bonuses > 0 THEN
+        INSERT INTO bonus_account_operation (
+            operation_date,
+            operation_summ,
+            operation_type,
+            order_id
+        ) VALUES (
+                             CURRENT_DATE,
+                             -NEW.deducted_bonuses,
+                             'Списание',
+                             NEW.orders_id
+                 );
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Создаем триггер, который будет вызывать функцию после вставки в invoice_for_payment
+CREATE OR REPLACE TRIGGER after_invoice_insert
+    AFTER INSERT ON invoice_for_payment
+    FOR EACH ROW
+EXECUTE FUNCTION process_bonus_operations();
