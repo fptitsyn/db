@@ -11,6 +11,7 @@ import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -73,7 +74,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
 
         orderGrid.addColumn(o -> o.getDateOfOrder()).setHeader("Дата");
         orderGrid.addColumn(o -> o.getNumberOfOrder()).setHeader("Номер");
-        orderGrid.addColumn(o -> o.getTotalCost()).setHeader("Сумма");
+        orderGrid.addColumn(o -> o.getTotalCost()).setHeader("Сумма").setTextAlign(ColumnTextAlign.END);
         orderGrid.addColumn(o -> o.getOrderStatusName()).setHeader("Статус");
 
         orderGrid.addColumn(order -> {
