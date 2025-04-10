@@ -22,8 +22,8 @@ public class ToDoView extends VerticalLayout {
 
         add(new H4("Нужное. Простое"));
         add(new Span("BonusView Карточка бонусного счета Остаток/все операции (BonusAccountOperation) (вместо заказов)"));
-
-        //add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity. Например order_services нет fk на order_id")); ?
+        add(new Span("bonus_account_operation нет bonus_account_id"));
+        add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity. Например order_services нет fk на order_id"));
         
         add(new Span("Отчетность по WorkOrders"));
         add(new Span("Создать Функцию в базе которая по номеру заказа возвращает список Офисов и сотрудников где можно выполнить заказ. Привязать вызов функции на кнопку (Где починить?) в OrderForm"));
