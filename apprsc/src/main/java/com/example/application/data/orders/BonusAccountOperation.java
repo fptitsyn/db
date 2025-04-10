@@ -12,6 +12,9 @@ public class BonusAccountOperation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bonus_account_operation_id;
 
+    @ManyToOne
+    @JoinColumn(name = "bonus_account_id")
+    private BonusAccount bonus_account;
     @Column(name = "operation_type")
     private String operationType;
     @Column(name = "operation_date")
@@ -51,5 +54,13 @@ public class BonusAccountOperation {
     }
     public void setOrders(Orders orders) {
         this.orders = orders;
+    }
+
+    public BonusAccount getBonus_account() {
+        return bonus_account;
+    }
+
+    public void setBonus_account(BonusAccount bonus_account) {
+        this.bonus_account = bonus_account;
     }
 }

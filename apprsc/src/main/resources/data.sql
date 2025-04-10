@@ -552,3 +552,13 @@ CREATE OR REPLACE TRIGGER after_invoice_insert
     AFTER INSERT ON invoice_for_payment
     FOR EACH ROW
 EXECUTE FUNCTION process_bonus_operations();
+------------------------------------------------------------------------------------------------------------
+// Функция для подсчёта всех доступных бонусов
+CREATE OR REPLACE FUNCTION get_all_available_bonuses(id bigint)
+    RETURNS numeric AS $$
+DECLARE bonuses numeric;
+BEGIN
+    SELECT SUM(operation_summ) INTO bonuses FROM bonus_account_operation WHERE bonus_account_id = id;
+    RETURN bonuses;
+END;
+$$ LANGUAGE plpgsql;

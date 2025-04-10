@@ -21,8 +21,8 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
-        add(new Span("bonus_account_operation нет bonus_account_id"));
-        add(new Span("Реализовать Функцию которая возвращает сумму доступных бонусов"));
+//        add(new Span("bonus_account_operation нет bonus_account_id"));
+//        add(new Span("Реализовать Функцию которая возвращает сумму доступных бонусов"));
         add(new Span("BonusView вывести все операции (BonusAccountOperation) (вместо заказов) + Доступно бонусов (через Футер как в заказах или через функцию которая выше)"));
 //        add(new Span("InvoiceForPayment, создать триггер после вставки: Вставить запись в BonusAccountOperation (списать (с минусом) или зачислить)"));
 
