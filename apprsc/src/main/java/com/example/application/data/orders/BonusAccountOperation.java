@@ -14,7 +14,7 @@ public class BonusAccountOperation {
 
     @ManyToOne
     @JoinColumn(name = "bonus_account_id")
-    private BonusAccount bonus_account;
+    private BonusAccount bonusAccount;
     @Column(name = "operation_type")
     private String operationType;
     @Column(name = "operation_date")
@@ -56,11 +56,11 @@ public class BonusAccountOperation {
         this.orders = orders;
     }
 
-    public BonusAccount getBonus_account() {
-        return bonus_account;
+    public BonusAccount getBonusAccount() {
+        return bonusAccount;
     }
 
-    public void setBonus_account(BonusAccount bonus_account) {
-        this.bonus_account = bonus_account;
+    public void setBonusAccount(BonusAccount bonusAccount) {
+        this.bonusAccount = bonusAccount;
     }
 }

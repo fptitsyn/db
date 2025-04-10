@@ -556,9 +556,12 @@ EXECUTE FUNCTION process_bonus_operations();
 // Функция для подсчёта всех доступных бонусов
 CREATE OR REPLACE FUNCTION get_all_available_bonuses(id bigint)
     RETURNS numeric AS $$
-DECLARE bonuses numeric;
+DECLARE
+    bonuses numeric;
 BEGIN
-    SELECT SUM(operation_summ) INTO bonuses FROM bonus_account_operation WHERE bonus_account_id = id;
+    SELECT COALESCE(SUM(operation_summ), 0) INTO bonuses
+    FROM bonus_account_operation
+    WHERE bonus_account_id = id;
     RETURN bonuses;
 END;
 $$ LANGUAGE plpgsql;

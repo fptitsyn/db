@@ -1,11 +1,7 @@
 package com.example.application.views.orders;
 
-import com.example.application.data.orders.BonusAccount;
-import com.example.application.data.orders.Clients;
-import com.example.application.data.orders.Orders;
-import com.example.application.data.orders.BonusAccountService;
-import com.example.application.data.orders.ClientsService;
-import com.example.application.data.orders.OrdersService;
+import com.example.application.data.orders.*;
+import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -16,6 +12,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
+
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
@@ -26,19 +24,25 @@ public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
     private final OrdersService orderService;
     private final ClientsService clientService;
     private final BonusAccountService bonusAccountService; // Добавили сервис для BonusAccount
+    private final BonusAccountOperationService bonusAccountOperationService;
+    private final ServicesService servicesService;
     private Clients currentClient;
-    private Grid<Orders> orderGrid = new Grid<>(Orders.class);
+    private Grid<BonusAccountOperation> bonusOperationGrid = new Grid<>(BonusAccountOperation.class);
     private Span clientFullname = new Span();
     private Span accountNumberSpan = new Span();
     private Span openDateSpan = new Span();
     private Button backButton = new Button("Вернуться к списку клиентов");
 
+    private Grid.Column<BonusAccountOperation> bonusesColumn;
+
     // Внедряем BonusAccountService через конструктор
-    public BonusForm(OrdersService orderService, ClientsService clientService, BonusAccountService bonusAccountService) {
+    public BonusForm(OrdersService orderService, ClientsService clientService, BonusAccountService bonusAccountService, BonusAccountOperationService bonusAccountOperationService, ServicesService servicesService) {
         this.orderService = orderService;
         this.clientService = clientService;
         this.bonusAccountService = bonusAccountService;
+        this.bonusAccountOperationService = bonusAccountOperationService;
         initView();
+        this.servicesService = servicesService;
     }
 
     private void initView() {
@@ -46,16 +50,17 @@ public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
         accountNumberSpan.addClassName("bonus-info");
         openDateSpan.addClassName("bonus-info");
 
-        orderGrid.removeAllColumns();
-        orderGrid.addColumn(Orders::getNumberOfOrder).setHeader("Товар");
-        orderGrid.addColumn(Orders::getDateOfOrder).setHeader("Количество");
+        bonusOperationGrid.removeAllColumns();
+        bonusOperationGrid.addColumn(BonusAccountOperation::getOperationType).setHeader("Тип операции");
+        bonusesColumn = bonusOperationGrid.addColumn(BonusAccountOperation::getOperationSumm).setHeader("Бонусы");
+        bonusOperationGrid.addColumn(BonusAccountOperation::getOperationDate).setHeader("Дата операции");
         setSizeFull();
         add(
                 clientFullname,
                 new H3("Информация о бонусном счете"),
                 accountNumberSpan, openDateSpan,
                 new H3("Начисления и списания"),
-                orderGrid,
+                bonusOperationGrid,
                 backButton
         );
     }
@@ -111,6 +116,18 @@ public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private void updateGrid() {
-        orderGrid.setItems(orderService.findByClientId(currentClient.getId()));
+        Long bonusAccountId = bonusAccountService.findByClientId(currentClient.getId())
+                .orElseThrow(() -> new RuntimeException("Bonus account not found"))
+                .getId();
+        bonusOperationGrid.setItems(bonusAccountOperationService.findAllByBonusAccountId(bonusAccountId));
+        updateFooters();
+    }
+
+    private void updateFooters() {
+        Long bonusAccountId = bonusAccountService.findByClientId(currentClient.getId())
+                .orElseThrow(() -> new RuntimeException("Bonus account not found"))
+                .getId();
+        BigDecimal totalBonuses = bonusAccountOperationService.getTotalBonuses(bonusAccountId);
+        bonusesColumn.setFooter(String.format("Доступно %,.2f бонусов", totalBonuses));
     }
 }
