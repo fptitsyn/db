@@ -139,7 +139,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private HorizontalLayout createOrderActions(Orders order) {
-        Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> showOrderForm(order));
+        Button editBtn = new Button("Открыть", VaadinIcon.EDIT.create(), e -> showOrderForm(order));
         editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         editBtn.getStyle()
                 .set("margin-right", "1em")
@@ -196,7 +196,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         dialog.setModal(true);
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(false);
-        dialog.setHeaderTitle(order.getId() == null ? "Новый заказ" : "Редактирование заказа");
+        dialog.setHeaderTitle(order.getId() == null ? "Новый заказ"
+                : "Редактирование заказа #"+order.getNumberOfOrder()+" от "+order.getDateOfOrder()+", статус: "+order.getOrderStatusName());
 
         OrderForm form = new OrderForm(
                 order,
@@ -207,7 +208,6 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 orderComponentsService,
                 componentService,
                 () -> {
-                    //orderService.refresh(order); // Добавлено: обновляем entity
                     updateGrid();               // Обновляем сетку
                     dialog.close();             // Закрываем диалог
                     Notification.show("Заказ сохранен", 3000, Notification.Position.TOP_CENTER);

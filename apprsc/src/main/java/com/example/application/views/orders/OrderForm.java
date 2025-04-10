@@ -12,17 +12,19 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.Query;
 
 import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
 
 public class OrderForm extends VerticalLayout {
     private final Orders order;
@@ -36,20 +38,19 @@ public class OrderForm extends VerticalLayout {
     private final Runnable onCancel;
 
     // Основные поля формы
-    private Span orderNumber = new Span();
-    private Span orderDate = new Span();
-    private Span orderStatus = new Span();
-
+    BigDecimalField orderCost = new BigDecimalField();
     private TextArea commentField = new TextArea ("Комментарий к заказу");
+
     private Binder<Orders> binder = new Binder<>(Orders.class);
     // Добавляем переменные для колонок (суммы итого)
     private Grid.Column<OrderServices> costColumn;
     private Grid.Column<OrderServices> timeColumn;
     private Grid.Column<OrderComponents> costComponentsColumn;
+    private BigDecimal totalServicesCost = BigDecimal.ZERO;
+    private BigDecimal totalComponentsCost = BigDecimal.ZERO;
 
     // Grid для услуг
     private Grid<OrderServices> servicesGrid = new Grid<>(OrderServices.class);
-
     // Grid для компонентов
     private Grid<OrderComponents> componentsGrid = new Grid<>(OrderComponents.class);
 
@@ -85,26 +86,23 @@ public class OrderForm extends VerticalLayout {
             order.setClient(currentClient);
         }
         else {
-            orderNumber.setText("Номер заказа: " + order.getNumberOfOrder());
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            String formattedDate = order.getDateOfOrder().format(formatter);
-            orderDate.setText("Дата создания: " + formattedDate);
-
-            orderStatus.setText("Статус заказа: " + order.getOrderStatusName());
+            orderCost.setValue(order.getTotalCost());
+            orderCost.setReadOnly(true);
+            Div rubPrefix = new Div();
+            rubPrefix.setText("₽");
+            orderCost.setPrefixComponent(rubPrefix);
+            orderCost.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
         }
 
         commentField.setWidthFull();
 
         refreshGrids();
 
-        add(new HorizontalLayout(orderNumber, orderDate, orderStatus),
-                commentField,
-                servicesGrid,
-                componentsGrid,
-        new HorizontalLayout(createSaveButton(), createCancelButton(),
-                createAddServiceButton(),createAddComponentButton(),
-                createSetWorkOrderButton(), createPayButton(), createCancelOrderButton(), createSelectLocationButton())
+        add(new HorizontalLayout(createSaveButton(), createCancelButton(),
+                        createAddServiceButton(),createAddComponentButton(),
+                        createSetWorkOrderButton(), createPayButton(), createSelectLocationButton(), createCancelOrderButton()),
+                commentField, servicesGrid, componentsGrid,
+                new HorizontalLayout(new Span("Итоговая сумма по заказу к оплате: "), orderCost)
         );
 
 
@@ -117,6 +115,9 @@ public class OrderForm extends VerticalLayout {
                 .asRequired("Введите комментарий к заказу")
                 .bind(Orders::getComment, Orders::setComment);
 
+        // Привязка orderCost к полю cost сущности Orders
+        binder.forField(orderCost)
+                .bind(Orders::getTotalCost, Orders::setTotalCost);
 
         binder.readBean(order);
     }
@@ -152,7 +153,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private void updateFooters() {
-        BigDecimal totalCost = servicesGrid.getDataProvider().fetch(new Query<>())
+        this.totalServicesCost = servicesGrid.getDataProvider().fetch(new Query<>())
                 .map(os -> os.getServices().getCost())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -160,8 +161,10 @@ public class OrderForm extends VerticalLayout {
                 .mapToInt(os -> os.getServices().getTimeToCompleteHours())
                 .sum();
 
-        costColumn.setFooter(String.format("Итого: %,.2f ₽", totalCost));
+        costColumn.setFooter(String.format("Итого: %,.2f ₽", totalServicesCost));
         timeColumn.setFooter(String.format("Итого: %,d ч", totalTime));
+
+        calculateTotalCost();
     }
 
     private void refreshServicesGrid() {
@@ -205,12 +208,12 @@ public class OrderForm extends VerticalLayout {
     }
 
     private void updateComponentsFooters() {
-        // Для BigDecimal используем правильное суммирование
-        BigDecimal totalComponentsCost = componentsGrid.getDataProvider().fetch(new Query<>())
-                .map(os -> os.getComponent().getCost())
+        this.totalComponentsCost = componentsGrid.getDataProvider().fetch(new Query<>())
+                .map(oc -> oc.getComponent().getCost())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         costComponentsColumn.setFooter(String.format("Итого: %,.2f ₽", totalComponentsCost));
+        calculateTotalCost();
     }
 
     private void refreshComponentsGrid() {
@@ -218,6 +221,11 @@ public class OrderForm extends VerticalLayout {
             componentsGrid.setItems(orderComponentsService.findByOrderId(order.getId()));
             updateComponentsFooters(); // Добавляем вызов обновления
         }
+    }
+
+    private void calculateTotalCost() {
+        BigDecimal totalCost = totalServicesCost.add(totalComponentsCost);
+        orderCost.setValue(totalCost);
     }
 
     private Button createSaveButton() {
@@ -315,7 +323,7 @@ public class OrderForm extends VerticalLayout {
         // Устанавливаем видимость кнопки
         btn.setVisible(showForNewOrder());
 
-        btn.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         btn.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-error-color)");
@@ -360,7 +368,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createSelectLocationButton() {
-        Button btn = new Button("Где починить?", VaadinIcon.TOOLS.create(), e -> openAddComponentDialog());
+        Button btn = new Button("Где починить?", VaadinIcon.QUESTION_CIRCLE_O.create(), e -> openAddComponentDialog());
 
         // Устанавливаем видимость кнопки
         btn.setVisible(showForNewOrder());
@@ -375,9 +383,11 @@ public class OrderForm extends VerticalLayout {
     private void save() {
         if (binder.writeBeanIfValid(order)) {
             try {
-                orderService.save(order); // Используется saveAndFlush
+                // Устанавливаем итоговую стоимость в заказ
+                order.setTotalCost(orderCost.getValue());
+                orderService.save(order);
                 refreshGrids();
-                onSave.run(); // Важно: должен вызываться после успешного сохранения
+                onSave.run();
             } catch (Exception e) {
                 Notification.show("Ошибка сохранения: " + e.getMessage(), 5000, Notification.Position.TOP_CENTER);
             }
@@ -387,6 +397,9 @@ public class OrderForm extends VerticalLayout {
     private void refreshGrids() {
         refreshServicesGrid();
         refreshComponentsGrid();
+        // Принудительно обновляем суммы после обновления данных
+        updateFooters();
+        updateComponentsFooters();
     }
 
     // Методы для работы с услугами
@@ -427,6 +440,7 @@ public class OrderForm extends VerticalLayout {
 
     private void deleteService(OrderServices os) {
         orderServicesService.delete(os);
+        servicesGrid.getDataProvider().refreshAll();
         refreshServicesGrid();
     }
 
@@ -470,6 +484,7 @@ public class OrderForm extends VerticalLayout {
 
     private void deleteComponent(OrderComponents oc) {
         orderComponentsService.delete(oc);
+        componentsGrid.getDataProvider().refreshAll();
         refreshComponentsGrid();
     }
 

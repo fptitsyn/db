@@ -21,8 +21,10 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
-        add(new Span("BonusView Карточка бонусного счета Остаток/все операции (BonusAccountOperation) (вместо заказов)"));
         add(new Span("bonus_account_operation нет bonus_account_id"));
+        add(new Span("Реализовать Функцию которая возвращает сумму доступных бонусов"));
+        add(new Span("BonusView вывести все операции (BonusAccountOperation) (вместо заказов) + Доступно бонусов"));
+
         add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity. Например order_services нет fk на order_id"));
         
         add(new Span("Отчетность по WorkOrders"));
@@ -45,6 +47,8 @@ public class ToDoView extends VerticalLayout {
         add(new Span("В OrderForm скрыть кнопку сохранить после 2го статуса"));
         add(new Span("ScheduleView при добавление/удаление графиков после выбоа офиса показывать только сотрудников работающих в этих офисах"));
         add(new Span("OrderView не обновляется Grid после возвращения из изменения заказа"));
+        add(new Span("ClientForm при создание клиента, выбор м/ж из списка"));
+        add(new Span("ClientForm создание клиента в новом окне. Список клиентов расширить на весь экран"));
         setSizeFull();
     }
 }
