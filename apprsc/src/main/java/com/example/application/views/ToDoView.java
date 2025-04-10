@@ -24,6 +24,7 @@ public class ToDoView extends VerticalLayout {
         add(new Span("bonus_account_operation нет bonus_account_id"));
         add(new Span("Реализовать Функцию которая возвращает сумму доступных бонусов"));
         add(new Span("BonusView вывести все операции (BonusAccountOperation) (вместо заказов) + Доступно бонусов"));
+        add(new Span("InvoiceForPayment, создать триггер после вставки: Вставить запись в BonusAccountOperation (списать (с минусом) или зачислить)"));
 
         add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity. Например order_services нет fk на order_id"));
         
@@ -48,7 +49,8 @@ public class ToDoView extends VerticalLayout {
         add(new Span("ScheduleView при добавление/удаление графиков после выбоа офиса показывать только сотрудников работающих в этих офисах"));
         add(new Span("OrderView не обновляется Grid после возвращения из изменения заказа"));
         add(new Span("ClientForm при создание клиента, выбор м/ж из списка"));
-        add(new Span("ClientForm создание клиента в новом окне. Список клиентов расширить на весь экран"));
+        add(new Span("ClientsView создание клиента в новом окне. Список клиентов расширить на весь экран"));
+        add(new Span("ClientsView не обновляется Grid после возврата из заказа"));
         setSizeFull();
     }
 }

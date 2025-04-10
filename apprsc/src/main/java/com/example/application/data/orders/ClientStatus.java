@@ -2,6 +2,8 @@ package com.example.application.data.orders;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "client_status")
 public class ClientStatus {
@@ -9,11 +11,12 @@ public class ClientStatus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long client_status_id;
     private String status;
+    @Column(name = "bonus_percentage", precision = 10, scale = 2)
+    private BigDecimal bonusPercentage;
 
     public Long getId() {
         return client_status_id;
     }
-
     public void setId(Long client_status_id) {
         this.client_status_id = client_status_id;
     }
@@ -21,8 +24,10 @@ public class ClientStatus {
     public String getStatus() {
         return status;
     }
-
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public BigDecimal getBonusPercentage() {return bonusPercentage;}
+    public void setBonusPercentage(BigDecimal bonusPercentage) {this.bonusPercentage = bonusPercentage;}
 }

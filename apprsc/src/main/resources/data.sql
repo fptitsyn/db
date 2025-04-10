@@ -20,9 +20,9 @@ insert into users_roles (users_user_id, roles) values ('7', 'GOD');
 insert into users_roles (users_user_id, roles) values ('8', 'ANALYSTS');
 //------------------------------------------------------------------------------------------------------------
 //Статусы
-INSERT INTO public.client_status(status) VALUES ('Обычный');
-INSERT INTO public.client_status(status) VALUES ('Постоянный');
-INSERT INTO public.client_status(status) VALUES ('Премиум');
+INSERT INTO public.client_status(status,bonus_percentage) VALUES ('Обычный',1);
+INSERT INTO public.client_status(status,bonus_percentage) VALUES ('Постоянный',3);
+INSERT INTO public.client_status(status,bonus_percentage) VALUES ('Премиум',5);
 
 INSERT INTO public.order_status(status) VALUES ('Создан');
 INSERT INTO public.order_status(status) VALUES ('Распределен');
