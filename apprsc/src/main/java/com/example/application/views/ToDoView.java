@@ -35,7 +35,6 @@ public class ToDoView extends VerticalLayout {
         add(new H4("Нужное. Сложное"));
         add(new Span("Привязка услуг к Рабочему"));
         add(new Span("OrderForm Распределение в работу"));
-        add(new Span("WorkOrders новое Представление"));
         add(new Span("WorkOrders права:рабочий видит свои, GOD - все"));
         add(new Span("WorkOrders Статус логика изменения"));
         add(new Span("Склад"));

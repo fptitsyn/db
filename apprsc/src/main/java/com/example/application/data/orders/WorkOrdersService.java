@@ -1,6 +1,9 @@
 package com.example.application.data.orders;
 
+import com.example.application.data.components.Component;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class WorkOrdersService {
@@ -8,6 +11,10 @@ public class WorkOrdersService {
 
     public WorkOrdersService(WorkOrderRepository repository) {
         this.repository = repository;
+    }
+
+    public List<WorkOrders> findAll() {
+        return repository.findAll();
     }
 
     public WorkOrders save(WorkOrders workOrders) {
