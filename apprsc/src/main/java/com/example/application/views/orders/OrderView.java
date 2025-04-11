@@ -38,6 +38,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final ComponentService componentService;
     private final WorkOrdersService workOrdersService;
     private final EmployeesService employeesService;
+    private final BonusAccountService bonusAccountService;
+    private final BonusAccountOperationService bonusAccountOperationService;
 
     private Clients currentClient;
     private Grid<Orders> orderGrid = new Grid<>(Orders.class);
@@ -53,7 +55,10 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                      OrderComponentsService orderComponentsService,
                      ComponentService componentService,
                      WorkOrdersService workOrdersService,
-                     EmployeesService employeesService)  {
+                     EmployeesService employeesService,
+                     BonusAccountService bonusAccountService,
+                     BonusAccountOperationService bonusAccountOperationService
+    )  {
         this.orderService = orderService;
         this.clientService = clientService;
         this.authenticatedUser = authenticatedUser;
@@ -64,6 +69,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         this.componentService = componentService;
         this.workOrdersService = workOrdersService;
         this.employeesService = employeesService;
+        this.bonusAccountService = bonusAccountService;
+        this.bonusAccountOperationService = bonusAccountOperationService;
 
         initView();
     }
@@ -213,6 +220,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 componentService,
                 workOrdersService,
                 employeesService,
+                bonusAccountService,
+                bonusAccountOperationService,
                 () -> {
                     updateGrid();               // Обновляем сетку
                     dialog.close();             // Закрываем диалог

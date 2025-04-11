@@ -9,6 +9,7 @@ import com.example.application.data.orders.*;
 import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -20,6 +21,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
@@ -27,6 +30,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.Query;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class OrderForm extends VerticalLayout {
     private final Orders order;
@@ -38,6 +42,8 @@ public class OrderForm extends VerticalLayout {
     private final ComponentService componentService;
     private final WorkOrdersService workOrdersService;
     private final EmployeesService employeesService;
+    private final BonusAccountService bonusAccountService;
+    private final BonusAccountOperationService bonusAccountOperationService;
     private final Runnable onSave;
     private final Runnable onCancel;
 
@@ -67,6 +73,8 @@ public class OrderForm extends VerticalLayout {
                      ComponentService componentService,
                      WorkOrdersService workOrdersService,
                      EmployeesService employeesService,
+                     BonusAccountService bonusAccountService,
+                     BonusAccountOperationService bonusAccountOperationService,
                      Runnable onSave,
                      Runnable onCancel) {
         this.order = order;
@@ -78,6 +86,8 @@ public class OrderForm extends VerticalLayout {
         this.componentService = componentService;
         this.workOrdersService = workOrdersService;
         this.employeesService = employeesService;
+        this.bonusAccountService = bonusAccountService;
+        this.bonusAccountOperationService = bonusAccountOperationService;
         this.onSave = onSave;
         this.onCancel = onCancel;
 
@@ -530,19 +540,87 @@ public class OrderForm extends VerticalLayout {
     // Методы для оплаты
     private void openPayDialog() {
         Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Передача в работу"); // Добавляем заголовок
-        dialog.setWidth("500px");
+        dialog.setHeaderTitle("Оплата");
+        dialog.setWidth("400px");
+
+        Div rubPrefix = new Div();
+        rubPrefix.setText("₽");
+
+        // Поле для отображения доступных бонусов
+        BigDecimalField totalBonusesField = new BigDecimalField();
+        totalBonusesField.setReadOnly(true);
+        totalBonusesField.setPrefixComponent(rubPrefix);
+        totalBonusesField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
+
+        Long bonusAccountId = bonusAccountService.findByClientId(currentClient.getId())
+                .orElseThrow(() -> new RuntimeException("Bonus account not found"))
+                .getId();
+        totalBonusesField.setValue(bonusAccountOperationService.getTotalBonuses(bonusAccountId));
+
+        // Поле для начисления бонусов (значение = orderCost / 100)
+        BigDecimalField accruedBonusesField = new BigDecimalField();
+        accruedBonusesField.setPrefixComponent(rubPrefix);
+        accruedBonusesField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
+
+        // Устанавливаем значение с делением на 100 и округлением
+        BigDecimal accruedValue = orderCost.getValue() != null
+                ? orderCost.getValue().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+        accruedBonusesField.setValue(accruedValue);
+
+        // Поле для списания бонусов
+        BigDecimalField deductedBonusesField = new BigDecimalField();
+        deductedBonusesField.setPrefixComponent(rubPrefix);
+        deductedBonusesField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
+        deductedBonusesField.setValue(BigDecimal.ZERO);
+
+        // Радио-группа для выбора операции
+        RadioButtonGroup<String> radioGroup = new RadioButtonGroup<>();
+        radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+        radioGroup.setLabel("Начисление/списание бонусов");
+        radioGroup.setItems("Начислить", "Списать");
+        radioGroup.setValue("Начислить"); // Значение по умолчанию
+
+        // Обработчик изменений выбора в радио-группе
+        radioGroup.addValueChangeListener(event -> {
+            String selected = event.getValue();
+            if ("Начислить".equals(selected)) {
+                // Устанавливаем значение с делением на 100
+                BigDecimal value = orderCost.getValue() != null
+                        ? orderCost.getValue().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+                        : BigDecimal.ZERO;
+                accruedBonusesField.setValue(value);
+                accruedBonusesField.setReadOnly(true); // Если поле должно быть read-only
+                deductedBonusesField.setReadOnly(true);
+                deductedBonusesField.setValue(BigDecimal.ZERO);
+            } else {
+                accruedBonusesField.setReadOnly(true);
+                accruedBonusesField.setValue(BigDecimal.ZERO);
+                deductedBonusesField.setReadOnly(false);
+            }
+        });
+
+        // Инициализация состояния полей при открытии диалога
+        String initialValue = radioGroup.getValue();
+        if ("Начислить".equals(initialValue)) {
+            accruedBonusesField.setReadOnly(true);
+            deductedBonusesField.setReadOnly(true);
+        } else {
+            accruedBonusesField.setReadOnly(true);
+            deductedBonusesField.setReadOnly(false);
+        }
 
         Button addBtn = new Button("Оплатить", e -> {
+            // Обработка оплаты...
             dialog.close();
-            order.setOrderStatusId(4L); // 4 - ID статуса "Оплачен"
-            orderService.save(order);
-            Notification.show("Заказ #" + order.getNumberOfOrder() + " оплачен",
-                    3000, Notification.Position.TOP_CENTER);
-            onCancel.run();
         });
 
         VerticalLayout layout = new VerticalLayout(
+                new HorizontalLayout(orderCost, new Span(" - сумма к оплате")),
+                new HorizontalLayout(totalBonusesField, new Span(" - доступно бонусов")),
+                radioGroup,
+                new HorizontalLayout(accruedBonusesField, new Span(" - бонусы для начисления")),
+                new HorizontalLayout(deductedBonusesField, new Span(" - списать бонусы")),
                 new HorizontalLayout(addBtn, new Button("Отмена", ev -> dialog.close()))
         );
         layout.setPadding(false);

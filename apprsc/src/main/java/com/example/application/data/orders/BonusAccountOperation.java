@@ -58,7 +58,7 @@ public class BonusAccountOperation {
 
     // Добавляем метод для получения названия статуса
     public String getOrderNumDate() {
-        return orders != null ? "по заказу №"+Long.toString(orders.getNumberOfOrder()) + " от " + orders.getDateOfOrder() + " нв  сумму: "+orders.getTotalCost() : "";
+        return orders != null ? "по заказу №"+Long.toString(orders.getNumberOfOrder()) + " от " + orders.getDateOfOrder() + " на  сумму: "+orders.getTotalCost() : "";
     }
 
     public BonusAccount getBonusAccount() {
