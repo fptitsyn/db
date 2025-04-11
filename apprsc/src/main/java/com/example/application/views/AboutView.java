@@ -42,9 +42,13 @@ public class AboutView extends VerticalLayout {
         add(new Span("Драфт механизма по созданию WorkOrders (всегда создается на Сотрудника с ID=1)"));
         add(new Span("WorkOrders новое Представление"));
         add(new Span("Открытие на весь экран (ClientsView, WorkOrdersView, OrdersView, BonusForm)"));
+        add(new Span("Реализована Функция которая возвращает сумму доступных бонусов"));
+        add(new Span("BonusView доработана. Выведено: все операции (BonusAccountOperation) + Доступно бонусов (в Футере через функцию)"));
+        add(new Span("InvoiceForPayment, создан триггер после вставки: Вставить запись в BonusAccountOperation (списать (с минусом) или зачислить)"));
+
         add(new H5("09.04"));
         add(new Span("OrderForm Добавлена логика  скрытия кнопок в зависимости от статуса"));
-        add(new Span("ClientForm Добавлено поле статус. Создан тригер при создание с присвоением статуса = 1 (Обычный)"));
+        add(new Span("ClientForm Добавлено поле статус. Создан триггер при создание с присвоением статуса = 1 (Обычный)"));
         add(new Span("Переведено всё исчисляемое время из минут в часы"));
         add(new Span("WorkOrders. Создать триггер и функция по первичному присвоения Даты, номера, статуса при создании."));
         add(new Span("Поменяно везде где есть рубли тип на одинаковый (BigDecimal): Зарплата, стоимость услуг, компонент..."));
@@ -52,7 +56,7 @@ public class AboutView extends VerticalLayout {
         add(new H5("08.04"));
         add(new Span("Orders. Созданы триггер и функция по первичному присвоения Даты, номера, статуса при создании. Поправлено отображение этих полей в OrderView"));
         add(new Span("Создан Защита от дубликатов в расписание - уникальный индекс"));
-        add(new Span("Создана роцедуры для создания/удаления расписания для сотрудник в конкретном офисе на день(с проверкой существующих записей)."));
+        add(new Span("Созданы процедуры для создания/удаления расписания для сотрудник в конкретном офисе на день(с проверкой существующих записей)."));
         add(new Span("Создана Функция по получению расписания по всем сотрудникам в определенном офисе на дату"));
         add(new Span("Добавлена Entity Schedule. ScheduleView. Просмотр графиков о офисе. Создание/удаление графиков"));
         add(new H5("07.04"));
@@ -80,7 +84,7 @@ public class AboutView extends VerticalLayout {
         add(new Span("Изменена привязка услуг к сотруднику"));
         add(new Span("Тестирование гита"));
         add(new Span("Изменен внешний вид справочников компонентов (3шт)"));
-        add(new Span("MainView. Добавлена кнока (Бонус). Создана форма BonusView новая форма для информации про бонусный счет"));
+        add(new Span("MainView. Добавлена кнопка (Бонус). Создана форма BonusView новая форма для информации про бонусный счет"));
         add(new Span("Изменена Entity Client"));
         add(new Span("Добавлены формы ReleaseNotes и ToDoView"));
         add(new Span("Добавлена дата в BonusAccount, созданы: BonusAccountRepository и BonusAccountService "));
@@ -98,7 +102,7 @@ public class AboutView extends VerticalLayout {
         add(new H5("21.03"));
         add(new Span("Базовые формы для создания Клиентов и Заказов"));
         add(new H5("19.03"));
-        add(new Span("Отчет по сотрудникам. Выгрузка в Excell"));
+        add(new Span("Отчет по сотрудникам. Выгрузка в Excel"));
         add(new H5("18.03"));
         add(new Span("Перемещения сотрудников"));
         add(new H5("17.03"));
@@ -107,7 +111,7 @@ public class AboutView extends VerticalLayout {
         add(new Span("LocationsView. Справочник Офисов"));
         add(new Span("EmployeesView. Справочник Сотрудников"));
         add(new H5("13.03"));
-        add(new Span("UsersView. Сохранение пароля(шифрованого)"));
+        add(new Span("UsersView. Сохранение пароля(шифрованного)"));
         add(new H5("12.03"));
         add(new Span("UsersView. Справочник пользователей"));
         add(new H5("10.03"));
