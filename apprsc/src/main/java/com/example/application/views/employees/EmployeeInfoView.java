@@ -63,7 +63,7 @@ public class EmployeeInfoView extends VerticalLayout {
                         EmployeeInfoDTO::salary,
                         NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
                 ))
-                .setHeader("Salary");
+                .setHeader("Salary").setTextAlign(ColumnTextAlign.END);
 
         grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Workplace");
         grid.addColumn(EmployeeInfoDTO::experience).setHeader("Experience (years)");

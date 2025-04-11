@@ -9,6 +9,7 @@ import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -62,9 +63,8 @@ public class ServicesView extends VerticalLayout {
         configureGrid();
         configureForm();
 
-        add(grid, new HorizontalLayout(serviceNameField, costField, timeToCompleteField),
-                typeOfDeviceComboBox,
-                new HorizontalLayout(saveButton, deleteButton));
+        add(grid, new HorizontalLayout(serviceNameField, costField, timeToCompleteField, typeOfDeviceComboBox),
+                    new HorizontalLayout(saveButton, deleteButton));
 
         updateList();
     }
@@ -81,18 +81,12 @@ public class ServicesView extends VerticalLayout {
                                 Services::getCost,
                                 NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
                         ))
-                .setHeader("Стоимость");
+                .setHeader("Стоимость").setTextAlign(ColumnTextAlign.END);
 
-        grid.addColumn(s -> s.getTimeToCompleteHours() + " ч.").setHeader("Время выполнения");
+        grid.addColumn(s -> s.getTimeToCompleteHours() + " ч.").setHeader("Время выполнения").setTextAlign(ColumnTextAlign.END);
 
         grid.asSingleSelect().addValueChangeListener(event -> editService(event.getValue()));
     }
-
-//    private String formatDuration(Duration duration) {
-//        long hours = duration.toHours();
-//        long minutes = duration.toMinutesPart();
-//        return String.format("%d ч. %d мин.", hours, minutes);
-//    }
 
     private void configureForm() {
         typeOfDeviceComboBox.setItems(service.findAllTypesOfDevices());

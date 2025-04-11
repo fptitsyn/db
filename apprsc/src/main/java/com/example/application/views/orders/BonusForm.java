@@ -4,6 +4,7 @@ import com.example.application.data.orders.*;
 import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -52,8 +53,9 @@ public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
 
         bonusOperationGrid.removeAllColumns();
         bonusOperationGrid.addColumn(BonusAccountOperation::getOperationType).setHeader("Тип операции");
-        bonusesColumn = bonusOperationGrid.addColumn(BonusAccountOperation::getOperationSumm).setHeader("Бонусы");
+        bonusesColumn = bonusOperationGrid.addColumn(BonusAccountOperation::getOperationSumm).setHeader("Бонусы").setTextAlign(ColumnTextAlign.END);
         bonusOperationGrid.addColumn(BonusAccountOperation::getOperationDate).setHeader("Дата операции");
+        bonusOperationGrid.addColumn(BonusAccountOperation::getOrderNumDate).setHeader("Основание").setWidth("25rem");
         setSizeFull();
         add(
                 clientFullname,

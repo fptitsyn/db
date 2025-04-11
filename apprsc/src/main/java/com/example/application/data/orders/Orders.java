@@ -64,9 +64,7 @@ public class Orders {
 
     public Long getNumberOfOrder() {return numberOfOrder;    }
     public LocalDate getDateOfOrder() {return dateOfOrder;    }
-    //public String getOrderStatus() {return orderStatus.getStatus();    }
     public BigDecimal getTotalCost() {        return totalCost;    }
-    // Заменяем метод getOrderStatus() чтобы возвращал объект
     public OrderStatus getOrderStatus() {
         return orderStatus;
     }

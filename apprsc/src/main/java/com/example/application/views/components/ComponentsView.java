@@ -135,7 +135,7 @@ public class ComponentsView extends VerticalLayout {
                                 ComponentDTO::getCost,
                                 NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
                         ))
-                .setHeader("Cost");
+                .setHeader("Cost").setTextAlign(ColumnTextAlign.END);
 
         // Колонка с кнопкой удаления
         grid.addComponentColumn(item -> {

@@ -64,7 +64,7 @@ public class HRView extends VerticalLayout {
                                 EmployeeInfoDTO::salary,
                                 NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
                         ))
-                .setHeader("Зарплата");
+                .setHeader("Зарплата").setTextAlign(ColumnTextAlign.END);
 
         grid.addColumn(EmployeeInfoDTO::lastName).setHeader("Фамилия");
         grid.addColumn(EmployeeInfoDTO::firstName).setHeader("Имя");
