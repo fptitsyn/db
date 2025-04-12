@@ -21,11 +21,13 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
+        add(new Span("InvoiceForPayment, доработать триггер. Вставить запись в BonusAccountOperation (bonus_account_id)"));
         add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity. Например order_services нет fk на order_id"));
         
         add(new Span("Отчетность по WorkOrders"));
         add(new Span("Создать Функцию в базе которая по номеру заказа возвращает список Офисов и сотрудников где можно выполнить заказ. Привязать вызов функции на кнопку (Где починить?) в OrderForm"));
-        add(new Span("В перемещениях добавить ограничения на привязку к должности в другом городе "));
+        add(new Span("В перемещениях добавить ограничения на привязку к должности в другом городе."));
+        add(new Span("Добавить отображение чеков в оплаченные заказы."));
 
         add(new H4("Нужное. Сложное"));
         add(new Span("Привязка услуг к Рабочему"));
@@ -33,7 +35,6 @@ public class ToDoView extends VerticalLayout {
         add(new Span("WorkOrders права:рабочий видит свои, GOD - все"));
         add(new Span("WorkOrders Работа с нарядом"));
         add(new Span("Склад"));
-        add(new Span("Выдача. Оплата  услуг и комлектующих. Начисление бонус и списание"));
         add(new Span("Client Статус логика изменения (Постоянный и Премиум)"));
         add(new Span("Сгорание бонусов???"));
 
@@ -44,6 +45,8 @@ public class ToDoView extends VerticalLayout {
         add(new Span("OrderView не обновляется Grid после возвращения из изменения заказа"));
         add(new Span("ClientForm при создание клиента, выбор м/ж из списка"));
         add(new Span("ClientsView не обновляется Grid после возврата из заказа"));
+        add(new Span("OrdersForm скрыть кнопки удалить сервисы/компоненты после 1-го статуса."));
+        add(new Span("OrdersForm при оплате контролировать списание бонусов не больше чем есть."));
         setSizeFull();
     }
 }

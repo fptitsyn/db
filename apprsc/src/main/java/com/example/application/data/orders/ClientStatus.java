@@ -3,6 +3,8 @@ package com.example.application.data.orders;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "client_status")
@@ -14,6 +16,9 @@ public class ClientStatus {
     @Column(name = "bonus_percentage", precision = 10, scale = 2)
     private BigDecimal bonusPercentage;
 
+    @OneToMany(mappedBy = "clientStatus")
+    private List<Clients> clients = new ArrayList<>();
+    
     public Long getId() {
         return client_status_id;
     }

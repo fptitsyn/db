@@ -35,6 +35,8 @@ public class AboutView extends VerticalLayout {
         add(new H2("Список изменений"));
         add(new Paragraph("=============================================================================="));
 
+        add(new H5("12.04"));
+        add(new Span("Оплата заказа. Формирование чека. Начисление/списание бонусов"));
         add(new H5("10.04"));
         add(new Span("OrderForm подсчет и сохранение суммы итого по заказу"));
         add(new Span("Новая Entity InvoiceForPayment Счет по заказу"));

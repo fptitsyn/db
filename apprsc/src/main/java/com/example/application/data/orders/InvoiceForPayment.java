@@ -26,4 +26,52 @@ public class InvoiceForPayment {
     @ManyToOne
     @JoinColumn(name = "orders_id")
     private Orders orders;
+
+    public Long getId() {
+        return invoice_for_payment_id;
+    }
+
+    public void setId(Long invoice_for_payment_id) {
+        this.invoice_for_payment_id = invoice_for_payment_id;
+    }
+
+    public BigDecimal getTotalCost() {
+        return totalCost;
+    }
+
+    public void setTotalCost(BigDecimal totalCost) {
+        this.totalCost = totalCost;
+    }
+
+    public BigDecimal getAccruedBonuses() {
+        return accruedBonuses;
+    }
+
+    public void setAccruedBonuses(BigDecimal accruedBonuses) {
+        this.accruedBonuses = accruedBonuses;
+    }
+
+    public BigDecimal getDeductedBonuses() {
+        return deductedBonuses;
+    }
+
+    public void setDeductedBonuses(BigDecimal deductedBonuses) {
+        this.deductedBonuses = deductedBonuses;
+    }
+
+    public BigDecimal getDiscountedCost() {
+        return discountedCost;
+    }
+
+    public void setDiscountedCost(BigDecimal discountedCost) {
+        this.discountedCost = discountedCost;
+    }
+
+    public Orders getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Orders orders) {
+        this.orders = orders;
+    }
 }

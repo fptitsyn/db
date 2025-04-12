@@ -41,6 +41,8 @@ public class Orders {
     @JoinColumn(name = "order_status_id")
     private OrderStatus orderStatus;
 
+    @OneToOne(mappedBy = "orders")
+    private InvoiceForPayment invoiceForPayment;
 
     // Пустой конструктор (обязателен для JPA)
     public Orders() { }

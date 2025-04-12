@@ -40,6 +40,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final EmployeesService employeesService;
     private final BonusAccountService bonusAccountService;
     private final BonusAccountOperationService bonusAccountOperationService;
+    private final ClientStatusService clientStatusService;
+    private final InvoiceForPaymentService invoiceForPaymentService;
 
     private Clients currentClient;
     private Grid<Orders> orderGrid = new Grid<>(Orders.class);
@@ -57,7 +59,9 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                      WorkOrdersService workOrdersService,
                      EmployeesService employeesService,
                      BonusAccountService bonusAccountService,
-                     BonusAccountOperationService bonusAccountOperationService
+                     BonusAccountOperationService bonusAccountOperationService,
+                     ClientStatusService clientStatusService,
+                     InvoiceForPaymentService invoiceForPaymentService
     )  {
         this.orderService = orderService;
         this.clientService = clientService;
@@ -71,6 +75,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         this.employeesService = employeesService;
         this.bonusAccountService = bonusAccountService;
         this.bonusAccountOperationService = bonusAccountOperationService;
+        this.clientStatusService = clientStatusService;
+        this.invoiceForPaymentService = invoiceForPaymentService;
 
         initView();
     }
@@ -222,6 +228,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 employeesService,
                 bonusAccountService,
                 bonusAccountOperationService,
+                clientStatusService,
+                invoiceForPaymentService,
                 () -> {
                     updateGrid();               // Обновляем сетку
                     dialog.close();             // Закрываем диалог

@@ -31,6 +31,7 @@ import com.vaadin.flow.data.provider.Query;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 public class OrderForm extends VerticalLayout {
     private final Orders order;
@@ -44,6 +45,9 @@ public class OrderForm extends VerticalLayout {
     private final EmployeesService employeesService;
     private final BonusAccountService bonusAccountService;
     private final BonusAccountOperationService bonusAccountOperationService;
+    private final ClientStatusService clientStatusService;
+    private final InvoiceForPaymentService invoiceForPaymentService;
+
     private final Runnable onSave;
     private final Runnable onCancel;
 
@@ -75,6 +79,8 @@ public class OrderForm extends VerticalLayout {
                      EmployeesService employeesService,
                      BonusAccountService bonusAccountService,
                      BonusAccountOperationService bonusAccountOperationService,
+                     ClientStatusService clientStatusService,
+                     InvoiceForPaymentService invoiceForPaymentService,
                      Runnable onSave,
                      Runnable onCancel) {
         this.order = order;
@@ -88,6 +94,8 @@ public class OrderForm extends VerticalLayout {
         this.employeesService = employeesService;
         this.bonusAccountService = bonusAccountService;
         this.bonusAccountOperationService = bonusAccountOperationService;
+        this.clientStatusService = clientStatusService;
+        this.invoiceForPaymentService = invoiceForPaymentService;
         this.onSave = onSave;
         this.onCancel = onCancel;
 
@@ -557,15 +565,32 @@ public class OrderForm extends VerticalLayout {
                 .getId();
         totalBonusesField.setValue(bonusAccountOperationService.getTotalBonuses(bonusAccountId));
 
-        // Поле для начисления бонусов (значение = orderCost / 100)
+        // Получаем bonusPercentage
+        List<ClientStatus> statuses = clientStatusService.findByClientId(currentClient.getId());
+        final BigDecimal bonusPercentage = !statuses.isEmpty()
+                ? statuses.get(0).getBonusPercentage() != null
+                ? statuses.get(0).getBonusPercentage()
+                : BigDecimal.ZERO // Исправлено на 0% по умолчанию
+                : BigDecimal.ZERO;
+
+// Форматируем процент
+        String percentageText = bonusPercentage
+                .setScale(2, RoundingMode.HALF_UP) + "%";
+
+        // Создаем Span с динамическим текстом
+        Span bonusSpan = new Span(" - бонусы для начисления (" + percentageText + ")");
+
+        // Поле для начисления бонусов
         BigDecimalField accruedBonusesField = new BigDecimalField();
         accruedBonusesField.setPrefixComponent(rubPrefix);
         accruedBonusesField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
 
-        // Устанавливаем значение с делением на 100 и округлением
-        BigDecimal accruedValue = orderCost.getValue() != null
-                ? orderCost.getValue().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
+        // Расчет значения: (orderCost / 100) * bonusPercentage
+        BigDecimal orderCostValue = orderCost.getValue() != null ? orderCost.getValue() : BigDecimal.ZERO;
+        BigDecimal accruedValue = orderCostValue
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+                .multiply(bonusPercentage)
+                .setScale(2, RoundingMode.HALF_UP);
         accruedBonusesField.setValue(accruedValue);
 
         // Поле для списания бонусов
@@ -581,19 +606,21 @@ public class OrderForm extends VerticalLayout {
         radioGroup.setItems("Начислить", "Списать");
         radioGroup.setValue("Начислить"); // Значение по умолчанию
 
-        // Обработчик изменений выбора в радио-группе
+        // Обработчик изменений для radioGroup
         radioGroup.addValueChangeListener(event -> {
-            String selected = event.getValue();
-            if ("Начислить".equals(selected)) {
-                // Устанавливаем значение с делением на 100
-                BigDecimal value = orderCost.getValue() != null
-                        ? orderCost.getValue().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+            if ("Начислить".equals(event.getValue())) {
+                BigDecimal currentOrderCost = orderCost.getValue() != null
+                        ? orderCost.getValue()
                         : BigDecimal.ZERO;
-                accruedBonusesField.setValue(value);
-                accruedBonusesField.setReadOnly(true); // Если поле должно быть read-only
+                BigDecimal newValue = currentOrderCost
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+                        .multiply(bonusPercentage) // Теперь bonusPercentage - effectively final
+                        .setScale(2, RoundingMode.HALF_UP);
+                accruedBonusesField.setValue(newValue);
                 deductedBonusesField.setReadOnly(true);
                 deductedBonusesField.setValue(BigDecimal.ZERO);
-            } else {
+            }
+            else {
                 accruedBonusesField.setReadOnly(true);
                 accruedBonusesField.setValue(BigDecimal.ZERO);
                 deductedBonusesField.setReadOnly(false);
@@ -611,15 +638,58 @@ public class OrderForm extends VerticalLayout {
         }
 
         Button addBtn = new Button("Оплатить", e -> {
-            // Обработка оплаты...
-            dialog.close();
+            try {
+                // Создание объекта InvoiceForPayment
+                InvoiceForPayment invoice = new InvoiceForPayment();
+
+                // Заполнение данных
+                invoice.setTotalCost(orderCost.getValue() != null
+                        ? orderCost.getValue()
+                        : BigDecimal.ZERO);
+
+                invoice.setAccruedBonuses(accruedBonusesField.getValue() != null
+                        ? accruedBonusesField.getValue()
+                        : BigDecimal.ZERO);
+
+                invoice.setDeductedBonuses(deductedBonusesField.getValue() != null
+                        ? deductedBonusesField.getValue()
+                        : BigDecimal.ZERO);
+
+                // Расчет итоговой стоимости
+                BigDecimal discountedCost = invoice.getTotalCost().subtract(
+                        invoice.getDeductedBonuses() != null
+                                ? invoice.getDeductedBonuses()
+                                : BigDecimal.ZERO
+                );
+                invoice.setDiscountedCost(discountedCost);
+
+                // Связь с заказом
+                invoice.setOrders(order);
+
+                // Сохранение в базу
+                invoiceForPaymentService.save(invoice);
+
+                // Обновление статуса заказа
+                order.setOrderStatusId(4L); // 4 - Оплачен
+                orderService.save(order);
+
+                // Уведомление и закрытие
+                Notification.show("Заказ #" + order.getNumberOfOrder() + " оплачен",
+                        3000, Notification.Position.TOP_CENTER);
+                dialog.close();
+                onSave.run(); // Обновление интерфейса
+            } catch (Exception ex) {
+                Notification.show("Ошибка оплаты: " + ex.getMessage(),
+                        5000, Notification.Position.TOP_CENTER);
+                ex.printStackTrace();
+            }
         });
 
         VerticalLayout layout = new VerticalLayout(
                 new HorizontalLayout(orderCost, new Span(" - сумма к оплате")),
                 new HorizontalLayout(totalBonusesField, new Span(" - доступно бонусов")),
                 radioGroup,
-                new HorizontalLayout(accruedBonusesField, new Span(" - бонусы для начисления")),
+                new HorizontalLayout(accruedBonusesField, bonusSpan),
                 new HorizontalLayout(deductedBonusesField, new Span(" - списать бонусы")),
                 new HorizontalLayout(addBtn, new Button("Отмена", ev -> dialog.close()))
         );
