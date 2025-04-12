@@ -37,6 +37,9 @@ public class AboutView extends VerticalLayout {
 
         add(new H5("12.04"));
         add(new Span("Оплата заказа. Формирование чека. Начисление/списание бонусов"));
+        add(new Span("ClientForm при создание клиента, выбор м/ж из списка"));
+        add(new H5("11.04"));
+        add(new Span("Выравнивание сумм по правому краю в Grid'ах (.setTextAlign(ColumnTextAlign.END)) + отображение основания для начисления/списания бонусов (BonusForm)"));
         add(new H5("10.04"));
         add(new Span("OrderForm подсчет и сохранение суммы итого по заказу"));
         add(new Span("Новая Entity InvoiceForPayment Счет по заказу"));

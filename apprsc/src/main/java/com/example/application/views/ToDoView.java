@@ -50,7 +50,6 @@ public class ToDoView extends VerticalLayout {
         add(new Span("В OrderForm скрыть кнопку сохранить после 2го статуса"));
         add(new Span("ScheduleView при добавление/удаление графиков после выбор офиса показывать только сотрудников работающих в этих офисах"));
         add(new Span("OrderView не обновляется Grid после возвращения из изменения заказа"));
-        add(new Span("ClientForm при создание клиента, выбор м/ж из списка"));
         add(new Span("ClientsView не обновляется Grid после возврата из заказа"));
         add(new Span("OrdersForm скрыть кнопки удалить сервисы/компоненты после 1-го статуса."));
         add(new Span("OrdersForm при оплате контролировать списание бонусов не больше чем есть."));

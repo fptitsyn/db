@@ -4,6 +4,7 @@ import com.example.application.data.orders.Clients;
 import com.example.application.data.orders.ClientsService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -25,7 +26,7 @@ public class ClientForm extends FormLayout {
     private DatePicker dateOfBirth = new DatePicker("Дата рождения клиента");
     private EmailField email = new EmailField("Электронная почта клиента");
     private TextField phoneNumber = new TextField("Номер телефона клиента");
-    private TextField gender = new TextField("Пол клиента");
+    private ComboBox<String> gender = new ComboBox<>("Пол клиента");
     private TextField cityOfResidence = new TextField("Город проживания клиента");
 
     private Binder<Clients> binder = new Binder<>(Clients.class);
@@ -38,6 +39,9 @@ public class ClientForm extends FormLayout {
     }
 
     private void initForm() {
+        gender.setItems("м", "ж");
+        gender.setPlaceholder("Выберите пол");
+
         // Ручная привязка вместо bindInstanceFields()
         binder.forField(firstName)
                 .asRequired("Имя обязательно")
