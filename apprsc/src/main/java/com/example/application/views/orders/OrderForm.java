@@ -18,6 +18,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -394,10 +395,10 @@ public class OrderForm extends VerticalLayout {
     }
 
     private boolean showForPaidOrder() {
-        // Проверяем что заказ сохранен и статус = Оплачен ('Оплачен')
         return order.getId() != null
                 && order.getOrderStatus() != null
-                && order.getOrderStatus().getId().equals(4L);
+                && order.getOrderStatus().getId().equals(4L)
+                && !invoiceForPaymentService.findByOrderId(order.getId()).isEmpty();
     }
 
     private void showCancelConfirmationDialog() {
@@ -782,25 +783,20 @@ public class OrderForm extends VerticalLayout {
     }
 
     private void openShowInvoice() {
-        // Получаем связанный счет
         List<InvoiceForPayment> invoices = invoiceForPaymentService.findByOrderId(order.getId());
         if (invoices.isEmpty()) {
             Notification.show("Чек не найден для этого заказа", 3000, Notification.Position.TOP_CENTER);
             return;
         }
-        InvoiceForPayment invoice = invoices.get(invoices.size() - 1); // Берем последний чек
+        InvoiceForPayment invoice = invoices.get(invoices.size() - 1);
 
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Чек по заказу");
         dialog.setWidth("450px");
 
-        // Форматируем дату заказа
-        String orderDate = order.getDateOfOrder().toString(); // Можно использовать DateTimeFormatter для красивого формата
-
-        // Создаем компоненты для отображения
         VerticalLayout content = new VerticalLayout();
         content.add(new Span(String.format("Чек по заказу № %s от %s",
-                order.getNumberOfOrder(), orderDate)));
+                order.getNumberOfOrder(), order.getDateOfOrder())));
         content.add(new Span("---------------------------------------------------------"));
         content.add(new Span("Описание работ: " + order.getComment()));
         content.add(new Span("---------------------------------------------------------"));
@@ -817,10 +813,25 @@ public class OrderForm extends VerticalLayout {
         content.add(new Span(String.format("Итоговая сумма: %,.2f ₽",
                 invoice.getDiscountedCost().add(invoice.getDeductedBonuses()))));
 
+        // Контейнер для кнопки
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setWidthFull();
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        buttonLayout.setPadding(true);
+
         Button closeBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(),
                 e -> dialog.close());
+        closeBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        dialog.add(content, closeBtn);
+        closeBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
+        buttonLayout.add(closeBtn);
+        content.add(buttonLayout);
+        content.setHorizontalComponentAlignment(Alignment.CENTER, buttonLayout);
+
+        dialog.add(content);
         dialog.open();
     }
 
