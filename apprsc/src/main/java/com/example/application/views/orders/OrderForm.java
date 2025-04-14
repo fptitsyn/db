@@ -599,6 +599,22 @@ public class OrderForm extends VerticalLayout {
         deductedBonusesField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
         deductedBonusesField.setValue(BigDecimal.ZERO);
 
+        // Валидация списываемых бонусов
+        deductedBonusesField.addValueChangeListener(e -> {
+            BigDecimal deductedValue = e.getValue() != null ? e.getValue() : BigDecimal.ZERO;
+            BigDecimal availableBonuses = totalBonusesField.getValue() != null
+                    ? totalBonusesField.getValue()
+                    : BigDecimal.ZERO;
+
+            boolean invalid = deductedValue.compareTo(availableBonuses) > 0;
+            deductedBonusesField.setInvalid(invalid);
+
+            if (invalid) {
+                deductedBonusesField.setErrorMessage("Недостаточно бонусов. Доступно: "
+                        + availableBonuses.setScale(2, RoundingMode.HALF_UP));
+            }
+        });
+
         // Радио-группа для выбора операции
         RadioButtonGroup<String> radioGroup = new RadioButtonGroup<>();
         radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
@@ -639,6 +655,21 @@ public class OrderForm extends VerticalLayout {
 
         Button addBtn = new Button("Оплатить", e -> {
             try {
+                // Проверка перед сохранением
+                BigDecimal deducted = deductedBonusesField.getValue() != null
+                        ? deductedBonusesField.getValue()
+                        : BigDecimal.ZERO;
+
+                BigDecimal available = totalBonusesField.getValue() != null
+                        ? totalBonusesField.getValue()
+                        : BigDecimal.ZERO;
+
+                if (deducted.compareTo(available) > 0) {
+                    Notification.show("Ошибка: Сумма списания превышает доступные бонусы",
+                            3000, Notification.Position.MIDDLE);
+                    return;
+                }
+
                 // Создание объекта InvoiceForPayment
                 InvoiceForPayment invoice = new InvoiceForPayment();
 

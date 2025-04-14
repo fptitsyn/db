@@ -52,7 +52,7 @@ public class ToDoView extends VerticalLayout {
         add(new Span("OrderView не обновляется Grid после возвращения из изменения заказа"));
         add(new Span("ClientsView не обновляется Grid после возврата из заказа"));
         add(new Span("OrdersForm скрыть кнопки удалить сервисы/компоненты после 1-го статуса."));
-        add(new Span("OrdersForm при оплате контролировать списание бонусов не больше чем есть."));
+
         setSizeFull();
     }
 }
