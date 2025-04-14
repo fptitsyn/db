@@ -236,6 +236,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                     Notification.show("Заказ сохранен", 3000, Notification.Position.TOP_CENTER);
                 },
                 () -> {
+                    updateGrid();               // Обновляем сетку
                     dialog.close();              // Просто закрываем диалог при отмене
                 }
         );

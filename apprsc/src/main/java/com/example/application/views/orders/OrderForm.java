@@ -369,7 +369,7 @@ public class OrderForm extends VerticalLayout {
                 orderService.save(order);
                 Notification.show("Заказ #" + order.getNumberOfOrder() + " отменен",
                         3000, Notification.Position.TOP_CENTER);
-                onCancel.run();
+                onSave.run();
             } catch (Exception ex) {
                 Notification.show("Ошибка отмены заказа: " + ex.getMessage(),
                         5000, Notification.Position.TOP_CENTER);
@@ -529,7 +529,7 @@ public class OrderForm extends VerticalLayout {
 
                 Notification.show("Заказ #" + order.getNumberOfOrder() + " передан в работу",
                         3000, Notification.Position.TOP_CENTER);
-                onCancel.run();
+                onSave.run();
                 dialog.close();
             } catch (Exception ex) {
                 Notification.show("Ошибка: " + ex.getMessage(),
