@@ -1,17 +1,14 @@
 package com.example.application.views.employees;
 
-import com.example.application.data.employees.StaffingTable;
 import com.example.application.reports.employees.EmployeeInfoDTO;
 import com.example.application.reports.employees.EmployeeInfoService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -19,14 +16,16 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
 import jakarta.annotation.security.RolesAllowed;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -34,7 +33,7 @@ import java.util.Locale;
 @PageTitle("Отчет по сотрудникам")
 @Route("employees-info")
 @Menu(order = 45, icon = LineAwesomeIconUrl.CHART_BAR_SOLID)
-@RolesAllowed({"HR","ANALYSTS", "GOD"})
+@RolesAllowed({"HR", "ANALYSTS", "GOD"})
 
 public class EmployeeInfoView extends VerticalLayout {
     private final transient EmployeeInfoService service;
@@ -59,10 +58,10 @@ public class EmployeeInfoView extends VerticalLayout {
         grid.addColumn(EmployeeInfoDTO::position).setHeader("Position");
 
         grid.addColumn(
-                new NumberRenderer<>(
-                        EmployeeInfoDTO::salary,
-                        NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
-                ))
+                        new NumberRenderer<>(
+                                EmployeeInfoDTO::salary,
+                                NumberFormat.getCurrencyInstance(Locale.of("ru", "RU"))
+                        ))
                 .setHeader("Salary").setTextAlign(ColumnTextAlign.END);
 
         grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Workplace");
@@ -70,7 +69,7 @@ public class EmployeeInfoView extends VerticalLayout {
     }
 
     private Button createExportButton() {
-        return new Button("Открыть в Excel", VaadinIcon.BAR_CHART.create(), event -> exportToExcel());
+        return new Button("Открыть в Excel", VaadinIcon.BAR_CHART.create(), ignored -> exportToExcel());
     }
 
     private void exportToExcel() {
@@ -127,6 +126,7 @@ public class EmployeeInfoView extends VerticalLayout {
             cell.setCellValue(headers[i]);
         }
     }
+
     private void fillDataRows(Sheet sheet, Workbook workbook) {
         // Используем переданный workbook
         List<EmployeeInfoDTO> employees = service.getAllEmployeeInfo();

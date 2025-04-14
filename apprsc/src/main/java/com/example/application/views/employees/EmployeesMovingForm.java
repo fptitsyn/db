@@ -17,7 +17,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.PageTitle;
@@ -25,7 +24,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.RolesAllowed;
 
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +33,7 @@ import java.util.Locale;
 @Route("EmployeesMoving")
 @UIScope
 //@Menu(order = 42, icon = LineAwesomeIconUrl.FILE_CONTRACT_SOLID)
-@RolesAllowed({"HR","GOD"})
+@RolesAllowed({"HR", "GOD"})
 public class EmployeesMovingForm extends VerticalLayout {
     private final StaffingTableRepository staffingTableRepository;
     private final EmployeesRepository employeesRepository;
@@ -44,20 +42,20 @@ public class EmployeesMovingForm extends VerticalLayout {
     private StaffingTable selectedStaffingTable;
     private Binder<EmployeesMoving> binderForMoving;
 
-    private Grid<StaffingTable> grid = new Grid<>(StaffingTable.class);
-    private Grid<EmployeesMoving> historyGrid = new Grid<>(EmployeesMoving.class);
+    private final Grid<StaffingTable> grid;
+    private final Grid<EmployeesMoving> historyGrid;
     private FormLayout bindingForm;
 
     // Form fields
-    private ComboBox<Employees> employeeCombo = new ComboBox<>("Сотрудник");
-    private DatePicker employmentDate = new DatePicker("Дата приема");
-    private DatePicker dismissalDate = new DatePicker("Дата увольнения");
-    private Button bindButton = new Button("Привязать", VaadinIcon.LINK.create());
+    private final ComboBox<Employees> employeeCombo = new ComboBox<>("Сотрудник");
+    private final DatePicker employmentDate = new DatePicker("Дата приема");
+    private final DatePicker dismissalDate = new DatePicker("Дата увольнения");
+    private final Button bindButton = new Button("Привязать", VaadinIcon.LINK.create());
 
     // Добавляем кнопки для редактирования и удаления
-    private Button editButton = new Button("Изменить", VaadinIcon.CHECK_SQUARE_O.create());
-    private Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
-    private Button backButton = new Button("Вернуться назад");
+    private final Button editButton = new Button("Изменить", VaadinIcon.CHECK_SQUARE_O.create());
+    private final Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
+    private final Button backButton = new Button("Вернуться назад");
 
     public EmployeesMovingForm(StaffingTableRepository staffingTableRepository,
                                EmployeesRepository employeesRepository,
@@ -76,7 +74,7 @@ public class EmployeesMovingForm extends VerticalLayout {
         add(grid);
 
         configureBindingForm();
-        configureHistoryGrid(); // Добавляем настройку грида истории
+        configureHistoryGrid();
         add(new H4("Привязанные сотрудники:"), historyGrid, new HorizontalLayout(bindingForm));
 
         add(backButton);
@@ -111,9 +109,10 @@ public class EmployeesMovingForm extends VerticalLayout {
         grid.addColumn(
                         new NumberRenderer<>(
                                 StaffingTable::getSalary,
-                                NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                                NumberFormat.getCurrencyInstance(Locale.of("ru", "RU"))
                         ))
-                .setHeader("ФОТ");
+                .setHeader("ФОТ")
+                .setTextAlign(ColumnTextAlign.END);
 
         // Обработчик выбора должности
         grid.asSingleSelect().addValueChangeListener(e -> {
@@ -148,7 +147,7 @@ public class EmployeesMovingForm extends VerticalLayout {
         binderForMoving.bind(dismissalDate, EmployeesMoving::getDateOfDismissal, EmployeesMoving::setDateOfDismissal);
 
         // Обработчик выбора сотрудника
-        employeeCombo.addValueChangeListener(e -> {
+        employeeCombo.addValueChangeListener(ignored -> {
             clearFormOnlyDate(); // Очищаем форму
         });
 
@@ -161,7 +160,7 @@ public class EmployeesMovingForm extends VerticalLayout {
 
         bindingForm.setWidth("1400px");
         // Обработчик кнопки "Привязать"
-        bindButton.addClickListener(e -> {
+        bindButton.addClickListener(ignored -> {
             if (selectedStaffingTable != null && employeeCombo.getValue() != null) {
                 EmployeesMoving moving = new EmployeesMoving();
                 moving.setStaffingTable(selectedStaffingTable);
@@ -181,7 +180,7 @@ public class EmployeesMovingForm extends VerticalLayout {
                 .set("color", "var(--lumo-primary-text-color)");
 
         // Обработчик кнопки "Изменить"
-        editButton.addClickListener(e -> {
+        editButton.addClickListener(ignored -> {
             EmployeesMoving selected = historyGrid.asSingleSelect().getValue();
             if (selected != null) {
                 // Обновляем данные из формы
@@ -200,19 +199,20 @@ public class EmployeesMovingForm extends VerticalLayout {
                 .set("color", "var(--lumo-primary-text-color)");
 
         // Обработчик кнопки "Удалить"
-        deleteButton.addClickListener(e -> {
+        deleteButton.addClickListener(ignored -> {
             EmployeesMoving selected = historyGrid.asSingleSelect().getValue();
             if (selected != null) {
                 ConfirmDialog dialog = new ConfirmDialog(
                         "Подтверждение удаления",
                         "Вы уверены что хотите удалить это перемещение?",
-                        "Да", confirmEvent -> {
+                        "Да", ignoredEvent -> {
                     employeesMovingRepository.delete(selected);
                     Notification.show("Перемещение удалено");
                     updateHistory();
                     clearForm();
                 },
-                        "Нет", cancelEvent -> {}
+                        "Нет", ignoredEvent -> {
+                }
                 );
                 dialog.open();
             } else {
@@ -246,6 +246,7 @@ public class EmployeesMovingForm extends VerticalLayout {
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
     }
+
     private void clearFormOnlyDate() {
         employmentDate.clear();
         dismissalDate.clear();
@@ -278,6 +279,7 @@ public class EmployeesMovingForm extends VerticalLayout {
                 populateForm(selected);
             }
         });
+        historyGrid.setEmptyStateText("Не было принятых сотрудников");
     }
 
     private void populateForm(EmployeesMoving moving) {
@@ -303,7 +305,7 @@ public class EmployeesMovingForm extends VerticalLayout {
         backButton.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
-        backButton.addClickListener(e ->
+        backButton.addClickListener(ignored ->
                 getUI().ifPresent(ui -> ui.navigate(HRView.class))
         );
     }

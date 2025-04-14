@@ -1,22 +1,20 @@
 package com.example.application.views.employees;
 
 import com.example.application.data.employees.Employees;
-import com.example.application.data.locations.Locations;
-import com.example.application.reports.schedule.ScheduleData;
 import com.example.application.data.employees.EmployeesService;
+import com.example.application.data.locations.Locations;
 import com.example.application.data.locations.LocationsService;
+import com.example.application.reports.schedule.ScheduleData;
 import com.example.application.reports.schedule.ScheduleService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -33,7 +31,7 @@ import java.time.LocalDate;
 @Route(value = "schedule-view")
 @PageTitle("График работы")
 @Menu(order = 43, icon = LineAwesomeIconUrl.BUSINESS_TIME_SOLID)
-@RolesAllowed({"HR","WORKS","GOD"})
+@RolesAllowed({"HR", "WORKS", "GOD"})
 public class ScheduleView extends VerticalLayout {
 
     // Компоненты интерфейса
@@ -69,13 +67,13 @@ public class ScheduleView extends VerticalLayout {
 
         // Настройка поля даты
         datePicker.setValue(LocalDate.now());
-        datePicker.addValueChangeListener(e -> updateGrid());
+        datePicker.addValueChangeListener(ignored -> updateGrid());
 
         // Настройка выбора офиса
         locationComboBox.setItemLabelGenerator(Locations::getName);
         locationComboBox.setItems(locationsService.findAll());
         locationComboBox.setPlaceholder("Выберите офис");
-        locationComboBox.addValueChangeListener(e -> updateGrid());
+        locationComboBox.addValueChangeListener(ignored -> updateGrid());
 
         // Стиль кнопки
         addButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -122,7 +120,7 @@ public class ScheduleView extends VerticalLayout {
     }
 
     private void configureAddButton() {
-        addButton.addClickListener(e -> showScheduleForm());
+        addButton.addClickListener(ignored -> showScheduleForm());
     }
 
     private void showScheduleForm() {
@@ -144,14 +142,14 @@ public class ScheduleView extends VerticalLayout {
         // Кнопки формы
         Button addScheduleButton = new Button("Добавить график", VaadinIcon.PLUS.create());
         Button deleteScheduleButton = new Button("Удалить график", VaadinIcon.TRASH.create());
-        Button cancelButton = new Button("Отмена", e -> dialog.close());
+        Button cancelButton = new Button("Отмена", ignored -> dialog.close());
 
         // Стили кнопок
         addScheduleButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         deleteScheduleButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        addScheduleButton.addClickListener(e -> {
+        addScheduleButton.addClickListener(ignored -> {
             try {
                 handleAddSchedule(
                         dateField.getValue(),
@@ -165,7 +163,7 @@ public class ScheduleView extends VerticalLayout {
             }
         });
 
-        deleteScheduleButton.addClickListener(e -> {
+        deleteScheduleButton.addClickListener(ignored -> {
             try {
                 handleDeleteSchedule(
                         dateField.getValue(),
@@ -214,16 +212,13 @@ public class ScheduleView extends VerticalLayout {
         if (message.contains("Существуют связанные заказы")) {
             Notification.show("Невозможно удалить: есть связанные заказы",
                     5000, Notification.Position.TOP_CENTER);
-        }
-        else if (message.contains("Записи для удаления не найдены")) {
+        } else if (message.contains("Записи для удаления не найдены")) {
             Notification.show("Записи не найдены для указанных параметров",
                     3000, Notification.Position.TOP_CENTER);
-        }
-        else if (message.contains("DUPLICATE_SCHEDULE_ENTRY")) {
+        } else if (message.contains("DUPLICATE_SCHEDULE_ENTRY")) {
             Notification.show("График уже существует для выбранных параметров",
                     3000, Notification.Position.TOP_CENTER);
-        }
-        else {
+        } else {
             Notification.show("Ошибка: " + message,
                     5000, Notification.Position.TOP_CENTER);
         }

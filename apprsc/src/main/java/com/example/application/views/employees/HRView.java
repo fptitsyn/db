@@ -10,7 +10,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -18,21 +17,20 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 @PageTitle("Персонал")
 @Route("HRView")
 @Menu(order = 40, icon = LineAwesomeIconUrl.USER_FRIENDS_SOLID)
-@RolesAllowed({"HR","GOD"})
+@RolesAllowed({"HR", "GOD"})
 public class HRView extends VerticalLayout {
     private final transient EmployeeInfoService service;
     private final Grid<EmployeeInfoDTO> grid = new Grid<>(EmployeeInfoDTO.class, false);
-    private Button button1 = new Button("Сотрудники", VaadinIcon.USERS.create(), event -> showEmployeesForm());
-    private Button button2 = new Button("Приём/Увольнение", VaadinIcon.REFRESH.create(), event -> showEmployeesMovingForm());
-    private Button button3 = new Button("Штатное расписание", VaadinIcon.FILE_CODE.create(), event -> showStaffingTableForm());
-    private Button button4 = new Button("Офисы", VaadinIcon.WORKPLACE.create(), event -> showLocationsForm());
+    private final Button button1 = new Button("Сотрудники", VaadinIcon.USERS.create(), ignored -> showEmployeesForm());
+    private final Button button2 = new Button("Приём/Увольнение", VaadinIcon.REFRESH.create(), ignored -> showEmployeesMovingForm());
+    private final Button button3 = new Button("Штатное расписание", VaadinIcon.FILE_CODE.create(), ignored -> showStaffingTableForm());
+    private final Button button4 = new Button("Офисы", VaadinIcon.WORKPLACE.create(), ignored -> showLocationsForm());
 
     public HRView(EmployeeInfoService service) {
         this.service = service;
@@ -62,7 +60,7 @@ public class HRView extends VerticalLayout {
         grid.addColumn(
                         new NumberRenderer<>(
                                 EmployeeInfoDTO::salary,
-                                NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                                NumberFormat.getCurrencyInstance(Locale.of("ru", "RU"))
                         ))
                 .setHeader("Зарплата").setTextAlign(ColumnTextAlign.END);
 
@@ -82,15 +80,19 @@ public class HRView extends VerticalLayout {
     private void showEmployeesForm() {
         getUI().ifPresent(ui -> ui.navigate(EmployeesForm.class));
     }
+
     private void showEmployeesMovingForm() {
         getUI().ifPresent(ui -> ui.navigate(EmployeesMovingForm.class));
     }
+
     private void showStaffingTableForm() {
         getUI().ifPresent(ui -> ui.navigate(StaffingTableForm.class));
     }
+
     private void showLocationsForm() {
         getUI().ifPresent(ui -> ui.navigate(LocationsForm.class));
     }
+
     private void configureBackButton() {
         button1.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         button1.getStyle()

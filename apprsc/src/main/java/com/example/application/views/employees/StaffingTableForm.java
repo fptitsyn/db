@@ -1,11 +1,9 @@
 package com.example.application.views.employees;
 
-import com.example.application.data.locations.Locations;
-import com.example.application.data.locations.LocationsRepository;
 import com.example.application.data.employees.StaffingTable;
 import com.example.application.data.employees.StaffingTableRepository;
-import com.example.application.data.orders.OrderComponents;
-import com.vaadin.flow.component.Text;
+import com.example.application.data.locations.Locations;
+import com.example.application.data.locations.LocationsRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -13,15 +11,12 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.PageTitle;
@@ -30,7 +25,6 @@ import com.vaadin.flow.spring.annotation.SpringComponent;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.transaction.Transactional;
 
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -41,26 +35,26 @@ import java.util.Locale;
 @SpringComponent
 @Transactional
 //@Menu(order = 41, icon = LineAwesomeIconUrl.FILE_ALT_SOLID)
-@RolesAllowed({"HR","GOD"})
+@RolesAllowed({"HR", "GOD"})
 public class StaffingTableForm extends VerticalLayout {
     private final LocationsRepository locationRepository;
     private final StaffingTableRepository staffingTableRepository;
 
-    private Grid<StaffingTable> grid = new Grid<>(StaffingTable.class);
-    private Binder<StaffingTable> binder = new Binder<>(StaffingTable.class);
+    private final Grid<StaffingTable> grid = new Grid<>(StaffingTable.class);
+    private final Binder<StaffingTable> binder = new Binder<>(StaffingTable.class);
     private FormLayout form;
 
     // Form fields
-    private TextField position = new TextField("Должность");
-    private TextField department = new TextField("Подразделение");
+    private final TextField position = new TextField("Должность");
+    private final TextField department = new TextField("Подразделение");
 
-    private BigDecimalField salary = new BigDecimalField("ФОТ");
-    private ComboBox<Locations> location = new ComboBox<>("Офис");
-    private Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
-    private Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
-    private Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
-    private Button addButton = new Button("Новая", VaadinIcon.PLUS_SQUARE_O.create());
-    private Button backButton = new Button("Вернуться назад");
+    private final BigDecimalField salary = new BigDecimalField("ФОТ");
+    private final ComboBox<Locations> location = new ComboBox<>("Офис");
+    private final Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+    private final Button deleteButton = new Button("Удалить", VaadinIcon.TRASH.create());
+    private final Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
+    private final Button addButton = new Button("Новая", VaadinIcon.PLUS_SQUARE_O.create());
+    private final Button backButton = new Button("Вернуться назад");
 
     public StaffingTableForm(StaffingTableRepository staffingTableRepository,
                              LocationsRepository locationRepository) {
@@ -114,7 +108,7 @@ public class StaffingTableForm extends VerticalLayout {
         grid.addColumn(
                         new NumberRenderer<>(
                                 StaffingTable::getSalary,
-                                NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                                NumberFormat.getCurrencyInstance(Locale.of("ru", "RU"))
                         ))
                 .setHeader("ФОТ")
                 .setTextAlign(ColumnTextAlign.END)
@@ -170,22 +164,22 @@ public class StaffingTableForm extends VerticalLayout {
         form.add(department, position, salary, location, buttons);
         form.setVisible(false);
         // Event handlers
-        saveButton.addClickListener(e -> saveStaffingTable());
+        saveButton.addClickListener(ignored -> saveStaffingTable());
         saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         saveButton.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
-        deleteButton.addClickListener(e -> deleteStaffingTable());
+        deleteButton.addClickListener(ignored -> deleteStaffingTable());
         deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         deleteButton.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
-        cancelButton.addClickListener(e -> cancelStaffingTable());
+        cancelButton.addClickListener(ignored -> cancelStaffingTable());
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         cancelButton.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
-        addButton.addClickListener(e -> addStaffingTable());
+        addButton.addClickListener(ignored -> addStaffingTable());
         addButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         addButton.getStyle()
                 .set("margin-right", "1em")
@@ -239,6 +233,7 @@ public class StaffingTableForm extends VerticalLayout {
             hideForm();
         }
     }
+
     private void deleteStaffingTable() {
         StaffingTable staffingTable = binder.getBean();
         if (staffingTable != null && staffingTable.getId() != null) {
@@ -254,13 +249,14 @@ public class StaffingTableForm extends VerticalLayout {
             hideForm();
         }
     }
+
     private void configureBackButton() {
         backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
         backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         backButton.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
-        backButton.addClickListener(e ->
+        backButton.addClickListener(ignored ->
                 getUI().ifPresent(ui -> ui.navigate(HRView.class))
         );
     }

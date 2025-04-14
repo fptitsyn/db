@@ -1,9 +1,8 @@
 package com.example.application.views.employees;
 
 import com.example.application.data.employees.Employees;
-import com.example.application.data.services.Services;
 import com.example.application.data.employees.EmployeesService;
-import com.example.application.data.services.ServicesService;
+import com.example.application.data.services.Services;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -24,31 +23,38 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.provider.SortDirection;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import jakarta.annotation.security.RolesAllowed;
-
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import net.datafaker.Faker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @PageTitle("Сотрудники")
 @Route("employees-detail/:samplePersonID?/:action?(edit)")
-@RolesAllowed({"HR","GOD"})
+@RolesAllowed({"HR", "GOD"})
 public class EmployeesForm extends Div implements BeforeEnterObserver {
 
     private final String SAMPLEPERSON_ID = "samplePersonID";
     private final String SAMPLEPERSON_EDIT_ROUTE_TEMPLATE = "employees-detail/%s/edit";
 
     private final Grid<Employees> grid = new Grid<>(Employees.class, false);
-
-    private MultiSelectComboBox<Services> servicesComboBox = new MultiSelectComboBox<>("Services");
-    private Button backButton = new Button("Вернуться назад");
-
+    private final Button cancel = new Button("Cancel", VaadinIcon.CLOSE_CIRCLE_O.create());
+    private final Button save = new Button("Save", VaadinIcon.CHECK_SQUARE_O.create());
+    private final Button autoFillButton = new Button("Автозаполнение", VaadinIcon.MAGIC.create());
+    private final BeanValidationBinder<Employees> binder;
+    private final EmployeesService employeesService;
+    private final MultiSelectComboBox<Services> servicesComboBox = new MultiSelectComboBox<>("Services");
+    private final Button backButton = new Button("Вернуться назад");
     private TextField firstName;
     private TextField lastName;
     private TextField middleName;
@@ -57,24 +63,10 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
     private TextField gender;
     private DatePicker dateOfBirth;
     private TextField comment;
-
-    private final Button cancel = new Button("Cancel", VaadinIcon.CLOSE_CIRCLE_O.create());
-
-    private final Button save = new Button("Save", VaadinIcon.CHECK_SQUARE_O.create());
-
-    private final Button autoFillButton = new Button("Автозаполнить", VaadinIcon.MAGIC.create());
-
-    private final BeanValidationBinder<Employees> binder;
-
     private Employees samplePerson;
 
-    private final EmployeesService employeesService;
-
-    private final ServicesService servicesService;
-
-    public EmployeesForm(EmployeesService employeesService, ServicesService servicesService) {
+    public EmployeesForm(EmployeesService employeesService) {
         this.employeesService = employeesService;
-        this.servicesService = servicesService;
         addClassNames("employees-view");
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
@@ -105,14 +97,14 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
 
         binder.bindInstanceFields(this);
 
-        cancel.addClickListener(e -> {
+        cancel.addClickListener(ignored -> {
             clearForm();
             refreshGrid();
         });
 
-        autoFillButton.addClickListener(event -> autoFillWithCustomData());
+        autoFillButton.addClickListener(ignored -> autoFillWithCustomData());
 
-        save.addClickListener(e -> {
+        save.addClickListener(ignored -> {
             try {
                 if (this.samplePerson == null) {
                     this.samplePerson = new Employees();
@@ -188,22 +180,18 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
 
     private void autoFillWithCustomData() {
         try {
-            Faker faker = new Faker(new Locale("ru"));
+            Faker faker = new Faker(Locale.of("ru", "RU"));
             if (faker.random().nextInt(0, 1) == 0) gender.setValue("М");
             else gender.setValue("Ж");
 
             if (gender.getValue().equals("М")) firstName.setValue(faker.name().malefirstName());
             else firstName.setValue(faker.name().femaleFirstName());
             String tempLastName = faker.name().lastName();
-            if (gender.getValue().equals("М"))
-            {
+            if (gender.getValue().equals("М")) {
                 if (tempLastName.endsWith("а")) lastName.setValue(StringUtils.chop(tempLastName));
-            }
-            else if (tempLastName.endsWith("а"))
-            {
+            } else if (tempLastName.endsWith("а")) {
                 lastName.setValue(tempLastName);
-            }
-            else lastName.setValue(tempLastName + "а");
+            } else lastName.setValue(tempLastName + "а");
             if (gender.getValue().equals("М")) middleName.setValue(faker.name().malefirstName() + "ович");
             else middleName.setValue(faker.name().malefirstName() + "овна");
             email.setValue(faker.internet().emailAddress());
@@ -219,6 +207,7 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
                     3000, Position.MIDDLE);
         }
     }
+
     private void createButtonLayout(Div editorLayoutDiv) {
         HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setClassName("button-layout");
@@ -257,7 +246,7 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
         this.samplePerson = value;
         binder.readBean(this.samplePerson);
 
-        // Обновляем выбранные услуги в комбобоксе
+        // Обновляем выбранные услуги
         if (value != null) {
             servicesComboBox.clear();
             servicesComboBox.select(value.getServices());
@@ -266,7 +255,7 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
         }
     }
 
-    private void configureGrid(){
+    private void configureGrid() {
         grid.removeAllColumns();
         Grid.Column<Employees> lastNameCol = grid.addColumn("lastName")
                 .setAutoWidth(true)
@@ -284,18 +273,19 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
         grid.setItems(query -> employeesService.list(VaadinSpringDataHelpers.toSpringPageRequest(query)).stream());
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         // Настройка сортировки по умолчанию
-        List<GridSortOrder<Employees>> sortOrder = Arrays.asList(
+        List<GridSortOrder<Employees>> sortOrder = List.of(
                 new GridSortOrder<>(lastNameCol, SortDirection.ASCENDING)
         );
         grid.sort(sortOrder);
     }
+
     private void configureBackButton() {
         backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
         backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         backButton.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
-        backButton.addClickListener(e ->
+        backButton.addClickListener(ignored ->
                 getUI().ifPresent(ui -> ui.navigate(HRView.class))
         );
     }
