@@ -1,7 +1,8 @@
 package com.example.application.views.orders;
 
 import com.example.application.data.components.ComponentService;
-import com.example.application.data.employees.*;
+import com.example.application.data.employees.Employees;
+import com.example.application.data.employees.EmployeesService;
 import com.example.application.data.login.Users;
 import com.example.application.data.orders.*;
 import com.example.application.data.services.ServicesService;
@@ -14,7 +15,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.Menu;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
@@ -24,8 +27,8 @@ import java.util.Optional;
 @PageTitle("Список работ")
 @Menu(order = 12, icon = LineAwesomeIconUrl.TOOLS_SOLID)
 
-@RolesAllowed({"WORKS","GOD"})
-public class WorkOrdersView   extends VerticalLayout {
+@RolesAllowed({"WORKS", "GOD"})
+public class WorkOrdersView extends VerticalLayout {
     private final AuthenticatedUser authenticatedUser;
     private final OrdersService orderService;
     private final OrderServicesService orderServicesService; // Добавлено
@@ -35,17 +38,16 @@ public class WorkOrdersView   extends VerticalLayout {
     private final WorkOrdersService workOrdersService;
     private final EmployeesService employeesService;
 
-    private Grid<WorkOrders> workOrderGrid = new Grid<>(WorkOrders.class);
+    private final Grid<WorkOrders> workOrderGrid = new Grid<>(WorkOrders.class);
 
     public WorkOrdersView(OrdersService orderService,
-                     AuthenticatedUser authenticatedUser,
-                     EmployeesMovingService employeesMovingService,
-                     OrderServicesService orderServicesService,
-                     ServicesService servicesService,
-                     OrderComponentsService orderComponentsService,
-                     ComponentService componentService,
-                     WorkOrdersService workOrdersService,
-                     EmployeesService employeesService)  {
+                          AuthenticatedUser authenticatedUser,
+                          OrderServicesService orderServicesService,
+                          ServicesService servicesService,
+                          OrderComponentsService orderComponentsService,
+                          ComponentService componentService,
+                          WorkOrdersService workOrdersService,
+                          EmployeesService employeesService) {
         this.orderService = orderService;
         this.authenticatedUser = authenticatedUser;
         this.orderServicesService = orderServicesService;
@@ -60,9 +62,9 @@ public class WorkOrdersView   extends VerticalLayout {
 
     private void initView() {
         workOrderGrid.removeAllColumns();
-        workOrderGrid.addColumn(o -> o.getDateOfWorkOrder()).setHeader("Дата наряда");
-        workOrderGrid.addColumn(o -> o.getNumberOfWorkOrder()).setHeader("Номер");
-        workOrderGrid.addColumn(o -> o.getWorkOrderStatusName()).setHeader("Статус");
+        workOrderGrid.addColumn(WorkOrders::getDateOfWorkOrder).setHeader("Дата наряда");
+        workOrderGrid.addColumn(WorkOrders::getNumberOfWorkOrder).setHeader("Номер");
+        workOrderGrid.addColumn(WorkOrders::getWorkOrderStatusName).setHeader("Статус");
         workOrderGrid.addColumn(workOrder -> {
             if (workOrder.getOrders() != null) {
                 return workOrder.getOrders().getNumberOfOrder();
@@ -86,7 +88,6 @@ public class WorkOrdersView   extends VerticalLayout {
         workOrderGrid.setItems(workOrdersService.findAll()); // Загрузка данных
         workOrderGrid.getDataProvider().refreshAll(); // Принудительное обновление данных
     }
-
 
 
     private HorizontalLayout createWorkOrderActions(WorkOrders workOrder) {
@@ -123,7 +124,7 @@ public class WorkOrdersView   extends VerticalLayout {
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(false);
         dialog.setHeaderTitle(workOrder.getId() == null ? "Новый заказ"
-                : "Редактирование заказа #"+workOrder.getNumberOfWorkOrder()+" от "+workOrder.getDateOfWorkOrder()+", статус: "+workOrder.getWorkOrderStatusName());
+                : "Редактирование заказа #" + workOrder.getNumberOfWorkOrder() + " от " + workOrder.getDateOfWorkOrder() + ", статус: " + workOrder.getWorkOrderStatusName());
 
         WorkOrderForm form = new WorkOrderForm(
                 workOrder,

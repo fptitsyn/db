@@ -1,15 +1,14 @@
 package com.example.application.views.orders;
 
-import com.example.application.data.employees.Employees;
-import com.example.application.data.employees.EmployeesService;
-import com.example.application.data.services.Services;
 import com.example.application.data.components.Component;
 import com.example.application.data.components.ComponentService;
+import com.example.application.data.employees.Employees;
+import com.example.application.data.employees.EmployeesService;
 import com.example.application.data.orders.*;
+import com.example.application.data.services.Services;
 import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -53,9 +52,9 @@ public class OrderForm extends VerticalLayout {
 
     // Основные поля формы
     BigDecimalField orderCost = new BigDecimalField();
-    private TextArea commentField = new TextArea ("Комментарий к заказу");
+    private final TextArea commentField = new TextArea("Комментарий к заказу");
 
-    private Binder<Orders> binder = new Binder<>(Orders.class);
+    private final Binder<Orders> binder = new Binder<>(Orders.class);
     // Добавляем переменные для колонок (суммы итого)
     private Grid.Column<OrderServices> costColumn;
     private Grid.Column<OrderServices> timeColumn;
@@ -64,9 +63,9 @@ public class OrderForm extends VerticalLayout {
     private BigDecimal totalComponentsCost = BigDecimal.ZERO;
 
     // Grid для услуг
-    private Grid<OrderServices> servicesGrid = new Grid<>(OrderServices.class);
+    private final Grid<OrderServices> servicesGrid = new Grid<>(OrderServices.class);
     // Grid для компонентов
-    private Grid<OrderComponents> componentsGrid = new Grid<>(OrderComponents.class);
+    private final Grid<OrderComponents> componentsGrid = new Grid<>(OrderComponents.class);
 
     public OrderForm(Orders order,
                      Clients currentClient,
@@ -107,11 +106,9 @@ public class OrderForm extends VerticalLayout {
         configureServicesGrid();
         configureComponentsGrid();
 
-        if (order.getId() == null)
-        {
+        if (order.getId() == null) {
             order.setClient(currentClient);
-        }
-        else {
+        } else {
             orderCost.setValue(order.getTotalCost());
             orderCost.setReadOnly(true);
             Div rubPrefix = new Div();
@@ -125,12 +122,11 @@ public class OrderForm extends VerticalLayout {
         refreshGrids();
 
         add(new HorizontalLayout(createSaveButton(), createCancelButton(),
-                        createAddServiceButton(),createAddComponentButton(),
+                        createAddServiceButton(), createAddComponentButton(),
                         createSetWorkOrderButton(), createPayButton(), createSelectLocationButton(), createCancelOrderButton()),
                 commentField, servicesGrid, componentsGrid,
                 new HorizontalLayout(new Span("Итоговая сумма по заказу к оплате: "), orderCost)
         );
-
 
 
         setSizeFull(); // Для всей формы OrderForm
@@ -315,6 +311,7 @@ public class OrderForm extends VerticalLayout {
                 .set("color", "var(--lumo-primary-text-color)");
         return btn;
     }
+
     private Button createPayButton() {
         Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), e -> openPayDialog());
 
@@ -327,6 +324,7 @@ public class OrderForm extends VerticalLayout {
                 .set("color", "var(--lumo-primary-text-color)");
         return btn;
     }
+
     private Button createCancelOrderButton() {
         Button btn = new Button("Отменить заказ", VaadinIcon.FILE_REMOVE.create(), e -> {
             // Проверяем статус заказа
@@ -375,7 +373,8 @@ public class OrderForm extends VerticalLayout {
                         5000, Notification.Position.TOP_CENTER);
             }
         },
-                "Отмена", cancelEvent -> {}
+                "Отмена", cancelEvent -> {
+        }
         );
 
         confirmDialog.setConfirmButtonTheme("error primary");
@@ -568,8 +567,8 @@ public class OrderForm extends VerticalLayout {
         // Получаем bonusPercentage
         List<ClientStatus> statuses = clientStatusService.findByClientId(currentClient.getId());
         final BigDecimal bonusPercentage = !statuses.isEmpty()
-                ? statuses.get(0).getBonusPercentage() != null
-                ? statuses.get(0).getBonusPercentage()
+                ? statuses.getFirst().getBonusPercentage() != null
+                ? statuses.getFirst().getBonusPercentage()
                 : BigDecimal.ZERO // Исправлено на 0% по умолчанию
                 : BigDecimal.ZERO;
 
@@ -635,8 +634,7 @@ public class OrderForm extends VerticalLayout {
                 accruedBonusesField.setValue(newValue);
                 deductedBonusesField.setReadOnly(true);
                 deductedBonusesField.setValue(BigDecimal.ZERO);
-            }
-            else {
+            } else {
                 accruedBonusesField.setReadOnly(true);
                 accruedBonusesField.setValue(BigDecimal.ZERO);
                 deductedBonusesField.setReadOnly(false);

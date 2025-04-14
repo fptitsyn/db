@@ -44,9 +44,9 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final InvoiceForPaymentService invoiceForPaymentService;
 
     private Clients currentClient;
-    private Grid<Orders> orderGrid = new Grid<>(Orders.class);
-    private Span clientFullname = new Span();
-    private Button backButton = new Button("Вернуться к списку клиентов");
+    private final Grid<Orders> orderGrid = new Grid<>(Orders.class);
+    private final Span clientFullname = new Span();
+    private final Button backButton = new Button("Вернуться к списку клиентов");
 
     public OrderView(OrdersService orderService,
                      ClientsService clientService,
@@ -85,10 +85,10 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         configureBackButton(); // Настройка кнопки
         orderGrid.removeAllColumns();
 
-        orderGrid.addColumn(o -> o.getDateOfOrder()).setHeader("Дата");
-        orderGrid.addColumn(o -> o.getNumberOfOrder()).setHeader("Номер");
-        orderGrid.addColumn(o -> o.getTotalCost()).setHeader("Сумма").setTextAlign(ColumnTextAlign.END);
-        orderGrid.addColumn(o -> o.getOrderStatusName()).setHeader("Статус");
+        orderGrid.addColumn(Orders::getDateOfOrder).setHeader("Дата");
+        orderGrid.addColumn(Orders::getNumberOfOrder).setHeader("Номер");
+        orderGrid.addColumn(Orders::getTotalCost).setHeader("Сумма").setTextAlign(ColumnTextAlign.END);
+        orderGrid.addColumn(Orders::getOrderStatusName).setHeader("Статус");
 
         orderGrid.addColumn(order -> {
             if (order.getLocation() != null) {

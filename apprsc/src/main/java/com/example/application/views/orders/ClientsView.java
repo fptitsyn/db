@@ -32,11 +32,11 @@ import java.util.function.Consumer;
 @PageTitle("Список клиентов")
 @Menu(order = 11, icon = LineAwesomeIconUrl.ADDRESS_BOOK_SOLID)
 
-@RolesAllowed({"SALES","GOD"})
+@RolesAllowed({"SALES", "GOD"})
 public class ClientsView extends VerticalLayout {
     private final ClientsService clientService;
-    private ClientForm form;
     private final Grid<Clients> clientGrid = new Grid<>(Clients.class, false);
+    private ClientForm form;
     private GridListDataView<Clients> dataView;
     private ClientFilter clientFilter;
 
@@ -164,7 +164,84 @@ public class ClientsView extends VerticalLayout {
         return datePicker;
     }
 
-    private class ClientFilter {
+    private HorizontalLayout createActions(Clients client) {
+        Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> showClientForm(client));
+        editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        editBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
+        Button ordersBtn = new Button("Заказы", VaadinIcon.CART.create(), e -> showOrders(client));
+        ordersBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        ordersBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
+        Button bonusBtn = new Button("Бонусы", VaadinIcon.GIFT.create(), e -> showBonus(client));
+        bonusBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        bonusBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+
+        Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> {
+            clientService.delete(client);
+            updateGrid();
+        });
+        deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        deleteBtn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        return new HorizontalLayout(editBtn, deleteBtn, ordersBtn, bonusBtn);
+    }
+
+    private void showClientForm(Clients client) {
+
+        if (form != null) {
+            remove(form);
+        }
+
+        form = new ClientForm(client, clientService, () -> {
+            updateGrid();
+            if (form != null) {
+                remove(form);
+                form = null;
+            }
+        });
+        add(form);
+        form.setVisible(true);
+    }
+
+    private void showOrders(Clients client) {
+        getUI().ifPresent(ui -> {
+            // Создаем параметры маршрута через Map
+            RouteParameters parameters = new RouteParameters(
+                    Collections.singletonMap("clientID", String.valueOf(client.getId()))
+            );
+
+            // Переход на OrderView с параметрами
+            ui.navigate(OrderView.class, parameters);
+        });
+    }
+
+    private void showBonus(Clients client) {
+        getUI().ifPresent(ui -> {
+            // Создаем параметры маршрута через Map
+            RouteParameters parameters = new RouteParameters(
+                    Collections.singletonMap("clientID", String.valueOf(client.getId()))
+            );
+
+            // Переход на BonusView с параметрами
+            ui.navigate(BonusForm.class, parameters);
+        });
+    }
+
+    public void updateGrid() {
+        List<Clients> clients = clientService.findAll();
+        dataView = clientGrid.setItems(clients);
+        configureFilter(); // Пересоздаем фильтр для новых данных
+    }
+
+    private static class ClientFilter {
         private final GridListDataView<Clients> dataView;
 
         private String fullName;
@@ -233,81 +310,5 @@ public class ClientsView extends VerticalLayout {
 
             return value.toLowerCase().contains(searchTerm.toLowerCase());
         }
-    }
-
-
-    private HorizontalLayout createActions(Clients client) {
-        Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> showClientForm(client));
-        editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        editBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-
-        Button ordersBtn = new Button("Заказы", VaadinIcon.CART.create(), e -> showOrders(client));
-        ordersBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        ordersBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-
-        Button bonusBtn = new Button("Бонусы", VaadinIcon.GIFT.create(), e -> showBonus(client));
-        bonusBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        bonusBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-
-        Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> {
-            clientService.delete(client);
-            updateGrid();
-        });
-        deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        deleteBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-        return new HorizontalLayout(editBtn, deleteBtn, ordersBtn, bonusBtn);
-    }
-
-    private void showClientForm(Clients client) {
-
-        if (form != null) {
-            remove(form);
-        }
-
-        form = new ClientForm(client, clientService, () -> {
-            updateGrid();
-            if (form != null) {
-                remove(form);
-                form = null;
-            }
-        });
-        add(form);
-        form.setVisible(true);
-    }
-
-    private void showOrders(Clients client) {
-        getUI().ifPresent(ui -> {
-            // Создаем параметры маршрута через Map
-            RouteParameters parameters = new RouteParameters(
-                    Collections.singletonMap("clientID", String.valueOf(client.getId()))
-            );
-
-            // Переход на OrderView с параметрами
-            ui.navigate(OrderView.class, parameters);
-        });
-    }
-    private void showBonus(Clients client) {
-        getUI().ifPresent(ui -> {
-            // Создаем параметры маршрута через Map
-            RouteParameters parameters = new RouteParameters(
-                    Collections.singletonMap("clientID", String.valueOf(client.getId()))
-            );
-
-            // Переход на BonusView с параметрами
-            ui.navigate(BonusForm.class, parameters);
-        });
-    }
-    public void updateGrid() {
-        List<Clients> clients = clientService.findAll();
-        dataView = clientGrid.setItems(clients);
-        configureFilter(); // Пересоздаем фильтр для новых данных
     }
 }

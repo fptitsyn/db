@@ -20,16 +20,16 @@ public class ClientForm extends FormLayout {
     private final Runnable refreshCallback;
 
     // Поля формы должны быть объявлены как instance-переменные
-    private TextField firstName = new TextField("Имя клиента");
-    private TextField lastName = new TextField("Фамилия клиента");
-    private TextField middleName = new TextField("Отчество клиента");
-    private DatePicker dateOfBirth = new DatePicker("Дата рождения клиента");
-    private EmailField email = new EmailField("Электронная почта клиента");
-    private TextField phoneNumber = new TextField("Номер телефона клиента");
-    private ComboBox<String> gender = new ComboBox<>("Пол клиента");
-    private TextField cityOfResidence = new TextField("Город проживания клиента");
+    private final TextField firstName = new TextField("Имя клиента");
+    private final TextField lastName = new TextField("Фамилия клиента");
+    private final TextField middleName = new TextField("Отчество клиента");
+    private final DatePicker dateOfBirth = new DatePicker("Дата рождения клиента");
+    private final EmailField email = new EmailField("Электронная почта клиента");
+    private final TextField phoneNumber = new TextField("Номер телефона клиента");
+    private final ComboBox<String> gender = new ComboBox<>("Пол клиента");
+    private final TextField cityOfResidence = new TextField("Город проживания клиента");
 
-    private Binder<Clients> binder = new Binder<>(Clients.class);
+    private final Binder<Clients> binder = new Binder<>(Clients.class);
 
     public ClientForm(Clients client, ClientsService service, Runnable refreshCallback) {
         this.client = client;

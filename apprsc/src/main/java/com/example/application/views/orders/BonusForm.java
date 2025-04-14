@@ -1,7 +1,6 @@
 package com.example.application.views.orders;
 
 import com.example.application.data.orders.*;
-import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -19,31 +18,26 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @PageTitle("Бонусный счет")
-@RolesAllowed({"SALES","GOD"})
+@RolesAllowed({"SALES", "GOD"})
 @Route(value = "bonus/:clientID")
 public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
-    private final OrdersService orderService;
     private final ClientsService clientService;
     private final BonusAccountService bonusAccountService; // Добавили сервис для BonusAccount
     private final BonusAccountOperationService bonusAccountOperationService;
-    private final ServicesService servicesService;
+    private final Grid<BonusAccountOperation> bonusOperationGrid = new Grid<>(BonusAccountOperation.class);
+    private final Span clientFullName = new Span();
+    private final Span accountNumberSpan = new Span();
+    private final Span openDateSpan = new Span();
+    private final Button backButton = new Button("Вернуться к списку клиентов");
     private Clients currentClient;
-    private Grid<BonusAccountOperation> bonusOperationGrid = new Grid<>(BonusAccountOperation.class);
-    private Span clientFullname = new Span();
-    private Span accountNumberSpan = new Span();
-    private Span openDateSpan = new Span();
-    private Button backButton = new Button("Вернуться к списку клиентов");
-
     private Grid.Column<BonusAccountOperation> bonusesColumn;
 
     // Внедряем BonusAccountService через конструктор
-    public BonusForm(OrdersService orderService, ClientsService clientService, BonusAccountService bonusAccountService, BonusAccountOperationService bonusAccountOperationService, ServicesService servicesService) {
-        this.orderService = orderService;
+    public BonusForm(ClientsService clientService, BonusAccountService bonusAccountService, BonusAccountOperationService bonusAccountOperationService) {
         this.clientService = clientService;
         this.bonusAccountService = bonusAccountService;
         this.bonusAccountOperationService = bonusAccountOperationService;
         initView();
-        this.servicesService = servicesService;
     }
 
     private void initView() {
@@ -56,9 +50,10 @@ public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
         bonusesColumn = bonusOperationGrid.addColumn(BonusAccountOperation::getOperationSumm).setHeader("Бонусы").setTextAlign(ColumnTextAlign.END);
         bonusOperationGrid.addColumn(BonusAccountOperation::getOperationDate).setHeader("Дата операции");
         bonusOperationGrid.addColumn(BonusAccountOperation::getOrderNumDate).setHeader("Основание").setWidth("25rem");
+        bonusOperationGrid.setEmptyStateText("Нет начисленных бонусов");
         setSizeFull();
         add(
-                clientFullname,
+                clientFullName,
                 new H3("Информация о бонусном счете"),
                 accountNumberSpan, openDateSpan,
                 new H3("Начисления и списания"),
@@ -66,6 +61,7 @@ public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
                 backButton
         );
     }
+
     private void configureBackButton() {
         backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
         backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -88,8 +84,8 @@ public class BonusForm extends VerticalLayout implements BeforeEnterObserver {
                     .orElseThrow(() -> new NotFoundException("Client not found"));
 
             // Устанавливаем имя клиента
-            clientFullname.setText("Клиент: " + currentClient.getFullName());
-            clientFullname.addClassName("client-name");
+            clientFullName.setText("Клиент: " + currentClient.getFullName());
+            clientFullName.addClassName("client-name");
 
             // Получаем BonusAccount для текущего клиента
             updateBonusAccountInfo();

@@ -1,8 +1,6 @@
 package com.example.application.views;
 
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.H5;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
@@ -15,7 +13,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @PageTitle("Нужно сделать")
 @Menu(order = 102, icon = LineAwesomeIconUrl.EXCLAMATION_TRIANGLE_SOLID)
 
-@RolesAllowed({"HR","WORKS","ADMIN","USER","SALES","GOD","ANALYSTS"})
+@RolesAllowed({"HR", "WORKS", "ADMIN", "USER", "SALES", "GOD", "ANALYSTS"})
 public class ToDoView extends VerticalLayout {
     public ToDoView() {
         setSpacing(false);
@@ -54,4 +52,3 @@ public class ToDoView extends VerticalLayout {
         setSizeFull();
     }
 }
-//Иконки https://icons8.com/line-awesome

@@ -7,7 +7,6 @@ import com.example.application.data.services.ServicesService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -24,15 +23,15 @@ public class WorkOrderForm extends VerticalLayout {
     private final Runnable onCancel;
 
     public WorkOrderForm(WorkOrders workOrder,
-                     OrdersService orderService,
-                     OrderServicesService orderServicesService,
-                     ServicesService servicesService,
-                     OrderComponentsService orderComponentsService,
-                     ComponentService componentService,
-                     WorkOrdersService workOrdersService,
-                     EmployeesService employeesService,
-                     Runnable onSave,
-                     Runnable onCancel) {
+                         OrdersService orderService,
+                         OrderServicesService orderServicesService,
+                         ServicesService servicesService,
+                         OrderComponentsService orderComponentsService,
+                         ComponentService componentService,
+                         WorkOrdersService workOrdersService,
+                         EmployeesService employeesService,
+                         Runnable onSave,
+                         Runnable onCancel) {
         this.workOrder = workOrder;
         this.orderService = orderService;
         this.orderServicesService = orderServicesService;
@@ -46,6 +45,7 @@ public class WorkOrderForm extends VerticalLayout {
 
         initForm();
     }
+
     private void initForm() {
         add(new HorizontalLayout(createSaveButton(), createCancelButton()));
     }
