@@ -239,20 +239,11 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 bonusAccountOperationService,
                 clientStatusService,
                 invoiceForPaymentService,
-                createSaveHandler(dialog),
-                createCancelHandler(dialog)
+                createCloseDialogOrderFormHandler(dialog)
         );
     }
 
-    private Runnable createSaveHandler(Dialog dialog) {
-        return () -> {
-            updateGrid();
-            dialog.close();
-            Notification.show("Заказ сохранен", 3000, Notification.Position.TOP_CENTER);
-        };
-    }
-
-    private Runnable createCancelHandler(Dialog dialog) {
+    private Runnable createCloseDialogOrderFormHandler(Dialog dialog) {
         return () -> {
             updateGrid();
             dialog.close();

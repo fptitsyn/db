@@ -47,8 +47,8 @@ public class OrderForm extends VerticalLayout {
     private final ClientStatusService clientStatusService;
     private final InvoiceForPaymentService invoiceForPaymentService;
 
-    private final Runnable onSave;
-    private final Runnable onCancel;
+    //private final Runnable onSave;
+    private final Runnable onCloseDialogOrderForm;
 
     // Основные поля формы
     BigDecimalField orderCost = new BigDecimalField();
@@ -80,8 +80,8 @@ public class OrderForm extends VerticalLayout {
                      BonusAccountOperationService bonusAccountOperationService,
                      ClientStatusService clientStatusService,
                      InvoiceForPaymentService invoiceForPaymentService,
-                     Runnable onSave,
-                     Runnable onCancel) {
+                     //Runnable onSave,
+                     Runnable onCloseDialogOrderForm) {
         this.order = order;
         this.currentClient = currentClient;
         this.orderService = orderService;
@@ -95,8 +95,8 @@ public class OrderForm extends VerticalLayout {
         this.bonusAccountOperationService = bonusAccountOperationService;
         this.clientStatusService = clientStatusService;
         this.invoiceForPaymentService = invoiceForPaymentService;
-        this.onSave = onSave;
-        this.onCancel = onCancel;
+        //this.onSave = onSave;
+        this.onCloseDialogOrderForm = onCloseDialogOrderForm;
 
         initForm();
     }
@@ -256,7 +256,7 @@ public class OrderForm extends VerticalLayout {
         Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK.create(), ignored -> save());
 
         // Устанавливаем видимость кнопки
-        //saveBtn.setVisible(showForNewOrder());
+        saveBtn.setVisible(showForNullOrder());
 
         saveBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         saveBtn.getStyle()
@@ -266,7 +266,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createCancelButton() {
-        Button cancelBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), ignored -> onCancel.run());
+        Button cancelBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), ignored -> onCloseDialogOrderForm.run());
         cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         cancelBtn.getStyle()
                 .set("margin-right", "1em")
@@ -345,8 +345,15 @@ public class OrderForm extends VerticalLayout {
         return btn;
     }
 
+    private boolean showForNullOrder() {
+        // Проверяем что заказ не сохранен (не создан в базе) или статус равен 1
+        return order.getId() == null
+                || (order.getOrderStatus() != null
+                && order.getOrderStatus().getId().equals(1L));
+    }
+
     private boolean showForNewOrder() {
-        // Проверяем что заказ сохранен и статус = 1 ('Создан')
+        // Проверяем что заказ сохранен в базе и имеет статус = 1 ('Создан')
         return order.getId() != null
                 && order.getOrderStatus() != null
                 && order.getOrderStatus().getId().equals(1L);
@@ -360,16 +367,23 @@ public class OrderForm extends VerticalLayout {
     }
 
     private void showCancelConfirmationDialog() {
+        if (!binder.writeBeanIfValid(order)) {
+            Notification.show("Заполните все обязательные поля");
+            return;
+        }
         ConfirmDialog confirmDialog = new ConfirmDialog(
                 "Подтверждение отмены",
                 "Вы уверены, что хотите отменить заказ #" + order.getNumberOfOrder() + "?",
                 "Подтвердить отмену", ignored -> {
             try {
+                // Сохраняем заказ с обновленными данными
+                orderService.save(order);  // <-- Сохраняем изменения из формы
+
                 order.setOrderStatusId(5L); // 5 - ID статуса "Отменен"
-                orderService.save(order);
+                orderService.save(order); //Сохраняем статус
                 Notification.show("Заказ #" + order.getNumberOfOrder() + " отменен",
                         3000, Notification.Position.TOP_CENTER);
-                onSave.run();
+                onCloseDialogOrderForm.run();
             } catch (Exception ex) {
                 Notification.show("Ошибка отмены заказа: " + ex.getMessage(),
                         5000, Notification.Position.TOP_CENTER);
@@ -403,7 +417,8 @@ public class OrderForm extends VerticalLayout {
                 order.setTotalCost(orderCost.getValue());
                 orderService.save(order);
                 refreshGrids();
-                onSave.run();
+                onCloseDialogOrderForm.run();
+                Notification.show("Заказ сохранен", 3000, Notification.Position.TOP_CENTER);
             } catch (Exception e) {
                 Notification.show("Ошибка сохранения: " + e.getMessage(), 5000, Notification.Position.TOP_CENTER);
             }
@@ -506,12 +521,19 @@ public class OrderForm extends VerticalLayout {
 
     // Методы для передачи в работу
     private void openAddWorkOrderDialog() {
+        if (!binder.writeBeanIfValid(order)) {
+        Notification.show("Заполните все обязательные поля");
+        return;
+        }
+
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Передача в работу");
         dialog.setWidth("500px");
 
         Button addBtn = new Button("Передать", ignored -> {
             try {
+                orderService.save(order);  // <-- Сохраняем изменения из формы
+
                 // Получаем сотрудника с ID = 1
                 Employees employee = employeesService.findById(1L)
                         .orElseThrow(() -> new RuntimeException("Сотрудник не найден"));
@@ -530,7 +552,7 @@ public class OrderForm extends VerticalLayout {
 
                 Notification.show("Заказ #" + order.getNumberOfOrder() + " передан в работу",
                         3000, Notification.Position.TOP_CENTER);
-                onSave.run();
+                onCloseDialogOrderForm.run();
                 dialog.close();
             } catch (Exception ex) {
                 Notification.show("Ошибка: " + ex.getMessage(),
@@ -548,6 +570,11 @@ public class OrderForm extends VerticalLayout {
 
     // Методы для оплаты
     private void openPayDialog() {
+        if (!binder.writeBeanIfValid(order)) {
+            Notification.show("Заполните все обязательные поля");
+            return;
+        }
+
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Оплата");
         dialog.setWidth("400px");
@@ -655,6 +682,8 @@ public class OrderForm extends VerticalLayout {
 
         Button addBtn = new Button("Оплатить", ignored -> {
             try {
+                orderService.save(order);  // <-- Сохраняем изменения из формы
+
                 // Проверка перед сохранением
                 BigDecimal deducted = deductedBonusesField.getValue() != null
                         ? deductedBonusesField.getValue()
@@ -708,7 +737,7 @@ public class OrderForm extends VerticalLayout {
                 Notification.show("Заказ #" + order.getNumberOfOrder() + " оплачен",
                         3000, Notification.Position.TOP_CENTER);
                 dialog.close();
-                onSave.run(); // Обновление интерфейса
+                onCloseDialogOrderForm.run(); // Обновление интерфейса
             } catch (Exception ex) {
                 Notification.show("Ошибка оплаты: " + ex.getMessage(),
                         5000, Notification.Position.TOP_CENTER);

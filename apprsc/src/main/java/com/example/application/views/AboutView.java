@@ -35,9 +35,10 @@ public class AboutView extends VerticalLayout {
         add(new Paragraph("=============================================================================="));
 
         add(new H5("14.04"));
-        add(new Span("OrdersForm при оплате контроль списание бонусов не больше чем накоплено."));
+        add(new Span("OrdersForm при оплате контроль списание бонусов не больше чем накоплено"));
         add(new Span("OrderView Исправлено: не обновлялся Grid после возврата из заказа"));
-        add(new Span("OrdersForm скрыты кнопки удалить сервисы/компоненты после 1-го статуса."));
+        add(new Span("OrdersForm скрыты кнопки удалить сервисы/компоненты после 1-го статуса"));
+        add(new Span("В OrderForm скрыта кнопка Сохранить после 2го статуса. Все сохранение в других кнопках (распределить, оплатить, отменить)"));
         add(new H5("12.04"));
         add(new Span("Оплата заказа. Формирование чека. Начисление/списание бонусов"));
         add(new Span("ClientForm при создание клиента, выбор м/ж из списка"));
@@ -58,7 +59,7 @@ public class AboutView extends VerticalLayout {
         add(new Span("OrderForm Добавлена логика  скрытия кнопок в зависимости от статуса"));
         add(new Span("ClientForm Добавлено поле статус. Создан триггер при создание с присвоением статуса = 1 (Обычный)"));
         add(new Span("Переведено всё исчисляемое время из минут в часы"));
-        add(new Span("WorkOrders. Создать триггер и функция по первичному присвоения Даты, номера, статуса при создании."));
+        add(new Span("WorkOrders. Создать триггер и функция по первичному присвоения Даты, номера, статуса при создании"));
         add(new Span("Поменяно везде где есть рубли тип на одинаковый (BigDecimal): Зарплата, стоимость услуг, компонент..."));
         add(new Span("Отчётность по Locations - Добавлено количество человек в офисе"));
         add(new H5("08.04"));
@@ -82,7 +83,7 @@ public class AboutView extends VerticalLayout {
         add(new Span("LocationsView доработано отображение и редактирование недостающих полей"));
         add(new H5("01.04"));
         add(new Span("Созданы OrderStatus, WorkOrderStatus, ClientStatus, BonusAccountOperation.  Добавлен пол в Clients и Employees"));
-        add(new Span("В data.sql добавлены скрипты для заполнения  OrderStatus, WorkOrderStatus, ClientStatus."));
+        add(new Span("В data.sql добавлены скрипты для заполнения  OrderStatus, WorkOrderStatus, ClientStatus"));
         add(new Span("Добавлены фильтры для поиска клиента"));
         add(new Span("В OrderForm, BonusForm добавлена кнопку (Вернуться к списку клиентов)"));
         add(new H5("27.03"));
@@ -95,7 +96,7 @@ public class AboutView extends VerticalLayout {
         add(new Span("MainView. Добавлена кнопка (Бонус). Создана форма BonusView новая форма для информации про бонусный счет"));
         add(new Span("Изменена Entity Client"));
         add(new Span("Добавлены формы ReleaseNotes и ToDoView"));
-        add(new Span("Добавлена дата в BonusAccount, созданы: BonusAccountRepository и BonusAccountService "));
+        add(new Span("Добавлена дата в BonusAccount, созданы: BonusAccountRepository и BonusAccountService"));
 
         add(new Span("Изменено окно (О программе)"));
         add(new H5("25.03"));
@@ -106,7 +107,7 @@ public class AboutView extends VerticalLayout {
         add(new Span("Создана функция и триггер создающие Бонусный счет после создания клиента"));
         add(new Span("Добавлена роль Analysts"));
         add(new H5("21.03"));
-        add(new Span("Справочники: Компоненты, Комлектующие, Типы устройств"));
+        add(new Span("Справочники: Компоненты, Комплектующие, Типы устройств"));
         add(new H5("21.03"));
         add(new Span("Базовые формы для создания Клиентов и Заказов"));
         add(new H5("19.03"));

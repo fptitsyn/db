@@ -44,8 +44,6 @@ public class ToDoView extends VerticalLayout {
         add(new Span("Сгорание бонусов???"));
 
         add(new H4("Бантики"));
-        add(new Span("В OrderForm не закрывать форму после нажатия кнопки сохранить, чтобы можно было добавить услуги и компоненты "));
-        add(new Span("В OrderForm скрыть кнопку сохранить после 2го статуса"));
         add(new Span("ScheduleView при добавление/удаление графиков после выбор офиса показывать только сотрудников работающих в этих офисах"));
 
         setSizeFull();
