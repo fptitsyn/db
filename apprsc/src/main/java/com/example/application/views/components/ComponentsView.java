@@ -1,8 +1,6 @@
 package com.example.application.views.components;
 
-import com.example.application.data.components.ComponentDTO;
 import com.example.application.data.components.*;
-import com.example.application.reports.employees.EmployeeInfoDTO;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -37,8 +35,8 @@ import java.util.Locale;
 
 @Route("components-management")
 @Menu(order = 16, icon = LineAwesomeIconUrl.MICROCHIP_SOLID)
-@RolesAllowed({"SALES","GOD"})
-@PageTitle("Комлектующие")
+@RolesAllowed({"SALES", "GOD"})
+@PageTitle("Комплектующие")
 @SpringComponent
 public class ComponentsView extends VerticalLayout {
 
@@ -47,7 +45,7 @@ public class ComponentsView extends VerticalLayout {
     private final CategoryOfComponentService categoryService;
 
     private final Grid<ComponentDTO> grid = new Grid<>(ComponentDTO.class);
-    private final Button addButton = new Button("Комлектующая", VaadinIcon.PLUS_SQUARE_O.create());
+    private final Button addButton = new Button("Комплектующая", VaadinIcon.PLUS_SQUARE_O.create());
     private final Button addCategoryButton = new Button("Категория", VaadinIcon.PLUS_SQUARE_O.create());
     private final Button addDeviceTypeButton = new Button("Тип устройства", VaadinIcon.PLUS_SQUARE_O.create());
 
@@ -133,14 +131,15 @@ public class ComponentsView extends VerticalLayout {
         grid.addColumn(
                         new NumberRenderer<>(
                                 ComponentDTO::getCost,
-                                NumberFormat.getCurrencyInstance(new Locale("ru", "RU"))
+                                NumberFormat.getCurrencyInstance(Locale.of("ru", "RU"))
                         ))
-                .setHeader("Cost").setTextAlign(ColumnTextAlign.END);
+                .setHeader("Cost")
+                .setTextAlign(ColumnTextAlign.END);
 
         // Колонка с кнопкой удаления
         grid.addComponentColumn(item -> {
             Button deleteButton = new Button("", VaadinIcon.TRASH.create());
-            deleteButton.addClickListener(e -> deleteComponent(item));
+            deleteButton.addClickListener(ignored -> deleteComponent(item));
             deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
             deleteButton.getStyle()
                     .set("margin-right", "1em")
@@ -184,9 +183,9 @@ public class ComponentsView extends VerticalLayout {
         categoryEditor.setWidth("850px");
         deviceTypeEditor.setWidth("700px");
 
-        addButton.addClickListener(e -> componentEditor.editComponent(new ComponentDTO()));
-        addCategoryButton.addClickListener(e -> categoryEditor.editCategory(new CategoryDTO()));
-        addDeviceTypeButton.addClickListener(e -> deviceTypeEditor.editDeviceType(new TypeOfDeviceDTO()));
+        addButton.addClickListener(ignored -> componentEditor.editComponent(new ComponentDTO()));
+        addCategoryButton.addClickListener(ignored -> categoryEditor.editCategory(new CategoryDTO()));
+        addDeviceTypeButton.addClickListener(ignored -> deviceTypeEditor.editDeviceType(new TypeOfDeviceDTO()));
     }
 
     private void updateGrid() {
@@ -198,12 +197,13 @@ public class ComponentsView extends VerticalLayout {
         public final ComboBox<String> categoryCombo = new ComboBox<>("Category");
         private final TextField nameField = new TextField("Component Name");
         private final NumberField costField = new NumberField("Cost");
-        private final Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
-        private final Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
-        private ComponentDTO currentDto;
         private final Binder<ComponentDTO> binder = new Binder<>(ComponentDTO.class);
+        private ComponentDTO currentDto;
 
         public ComponentEditor() {
+            // Локальные переменные вместо полей класса
+            Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+            Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
             configureCombos();
             configureBinder();
 
@@ -216,12 +216,12 @@ public class ComponentsView extends VerticalLayout {
             );
             add(layout);
 
-            saveButton.addClickListener(e -> save());
+            saveButton.addClickListener(ignored -> save());
             saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             saveButton.getStyle()
                     .set("margin-right", "1em")
                     .set("color", "var(--lumo-primary-text-color)");
-            cancelButton.addClickListener(e -> close());
+            cancelButton.addClickListener(ignored -> close());
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             cancelButton.getStyle()
                     .set("margin-right", "1em")
@@ -303,13 +303,13 @@ public class ComponentsView extends VerticalLayout {
     private class CategoryEditor extends Dialog {
         public final ComboBox<String> deviceTypeCombo = new ComboBox<>("Device Type");
         private final TextField nameField = new TextField("Category Name");
-        private final Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
-        private final Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
         private final Grid<CategoryDTO> grid = new Grid<>(CategoryDTO.class);
-        private CategoryDTO currentDto;
         private final Binder<CategoryDTO> binder = new Binder<>(CategoryDTO.class);
+        private CategoryDTO currentDto;
 
         public CategoryEditor() {
+            Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+            Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
             configureCombos();
             configureBinder();
             configureGrid();
@@ -330,12 +330,12 @@ public class ComponentsView extends VerticalLayout {
 
             add(mainLayout);
 
-            saveButton.addClickListener(e -> save());
+            saveButton.addClickListener(ignored -> save());
             saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             saveButton.getStyle()
                     .set("margin-right", "1em")
                     .set("color", "var(--lumo-primary-text-color)");
-            cancelButton.addClickListener(e -> close());
+            cancelButton.addClickListener(ignored -> close());
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             cancelButton.getStyle()
                     .set("margin-right", "1em")
@@ -363,7 +363,7 @@ public class ComponentsView extends VerticalLayout {
                 deleteButton.getStyle()
                         .set("margin-right", "1em")
                         .set("color", "var(--lumo-primary-text-color)");
-                deleteButton.addClickListener(e -> deleteCategory(item));
+                deleteButton.addClickListener(ignored -> deleteCategory(item));
                 return deleteButton;
             }).setWidth("70px").setFlexGrow(0);
 
@@ -387,6 +387,7 @@ public class ComponentsView extends VerticalLayout {
         private void refreshGrid() {
             grid.setItems(categoryService.getAllCategories());
         }
+
         private void configureCombos() {
             refreshDeviceTypes();
             deviceTypeCombo.setAllowCustomValue(true);
@@ -433,13 +434,13 @@ public class ComponentsView extends VerticalLayout {
 
     private class DeviceTypeEditor extends Dialog {
         private final TextField nameField = new TextField("Device Type Name");
-        private final Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
-        private final Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
         private final Grid<TypeOfDeviceDTO> grid = new Grid<>(TypeOfDeviceDTO.class);
-        private TypeOfDeviceDTO currentDto;
         private final Binder<TypeOfDeviceDTO> binder = new Binder<>(TypeOfDeviceDTO.class);
+        private TypeOfDeviceDTO currentDto;
 
         public DeviceTypeEditor() {
+            Button saveButton = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create());
+            Button cancelButton = new Button("Отменить", VaadinIcon.CLOSE_CIRCLE_O.create());
             configureBinder();
             configureGrid();
 
@@ -458,12 +459,12 @@ public class ComponentsView extends VerticalLayout {
 
             add(mainLayout);
 
-            saveButton.addClickListener(e -> save());
+            saveButton.addClickListener(ignored -> save());
             saveButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             saveButton.getStyle()
                     .set("margin-right", "1em")
                     .set("color", "var(--lumo-primary-text-color)");
-            cancelButton.addClickListener(e -> close());
+            cancelButton.addClickListener(ignored -> close());
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             cancelButton.getStyle()
                     .set("margin-right", "1em")
@@ -487,13 +488,14 @@ public class ComponentsView extends VerticalLayout {
                 deleteButton.getStyle()
                         .set("margin-right", "1em")
                         .set("color", "var(--lumo-primary-text-color)");
-                deleteButton.addClickListener(e -> deleteDeviceType(item));
+                deleteButton.addClickListener(ignored -> deleteDeviceType(item));
                 return deleteButton;
             }).setWidth("70px").setFlexGrow(0);
 
             grid.setWidth("600px");
             grid.setHeight("200px");
         }
+
         private void deleteDeviceType(TypeOfDeviceDTO dto) {
             try {
                 typeService.deleteDeviceType(dto.getId());
@@ -507,6 +509,7 @@ public class ComponentsView extends VerticalLayout {
                         .addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
         }
+
         private void refreshGrid() {
             grid.setItems(typeService.getAllDeviceTypes());
         }
