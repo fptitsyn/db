@@ -123,7 +123,8 @@ public class OrderForm extends VerticalLayout {
 
         add(new HorizontalLayout(createSaveButton(), createCancelButton(),
                         createAddServiceButton(), createAddComponentButton(),
-                        createSetWorkOrderButton(), createPayButton(), createSelectLocationButton(), createCancelOrderButton()),
+                        createSetWorkOrderButton(), createPayButton(), createSelectLocationButton(),
+                        createCancelOrderButton(), createShowInvoiceForPaymentButton()),
                 commentField, servicesGrid, componentsGrid,
                 new HorizontalLayout(new Span("Итоговая сумма по заказу к оплате: "), orderCost)
         );
@@ -345,6 +346,32 @@ public class OrderForm extends VerticalLayout {
         return btn;
     }
 
+    private Button createSelectLocationButton() {
+        Button btn = new Button("Где починить?", VaadinIcon.QUESTION_CIRCLE_O.create(), ignored -> openShowAvailableOffices());
+
+        // Устанавливаем видимость кнопки
+        btn.setVisible(showForNewOrder());
+
+        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        btn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        return btn;
+    }
+
+    private Button createShowInvoiceForPaymentButton() {
+        Button btn = new Button("Чек", VaadinIcon.INVOICE.create(), ignored -> openShowInvoice());
+
+        // Устанавливаем видимость кнопки
+        btn.setVisible(showForPaidOrder());
+
+        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        btn.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        return btn;
+    }
+
     private boolean showForNullOrder() {
         // Проверяем что заказ не сохранен (не создан в базе) или статус равен 1
         return order.getId() == null
@@ -360,10 +387,17 @@ public class OrderForm extends VerticalLayout {
     }
 
     private boolean showForPayOrder() {
-        // Проверяем что заказ сохранен и статус = 1 ('Создан')
+        // Проверяем что заказ сохранен и статус = Выполнен мастером ('Выполнен')
         return order.getId() != null
                 && order.getOrderStatus() != null
                 && order.getOrderStatus().getId().equals(3L);
+    }
+
+    private boolean showForPaidOrder() {
+        // Проверяем что заказ сохранен и статус = Оплачен ('Оплачен')
+        return order.getId() != null
+                && order.getOrderStatus() != null
+                && order.getOrderStatus().getId().equals(4L);
     }
 
     private void showCancelConfirmationDialog() {
@@ -397,18 +431,7 @@ public class OrderForm extends VerticalLayout {
         confirmDialog.open();
     }
 
-    private Button createSelectLocationButton() {
-        Button btn = new Button("Где починить?", VaadinIcon.QUESTION_CIRCLE_O.create(), ignored -> openAddComponentDialog());
 
-        // Устанавливаем видимость кнопки
-        btn.setVisible(showForNewOrder());
-
-        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        btn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-        return btn;
-    }
 
     private void save() {
         if (binder.writeBeanIfValid(order)) {
@@ -758,4 +781,59 @@ public class OrderForm extends VerticalLayout {
         dialog.open();
     }
 
+    private void openShowInvoice() {
+        // Получаем связанный счет
+        List<InvoiceForPayment> invoices = invoiceForPaymentService.findByOrderId(order.getId());
+        if (invoices.isEmpty()) {
+            Notification.show("Чек не найден для этого заказа", 3000, Notification.Position.TOP_CENTER);
+            return;
+        }
+        InvoiceForPayment invoice = invoices.get(invoices.size() - 1); // Берем последний чек
+
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Чек по заказу");
+        dialog.setWidth("450px");
+
+        // Форматируем дату заказа
+        String orderDate = order.getDateOfOrder().toString(); // Можно использовать DateTimeFormatter для красивого формата
+
+        // Создаем компоненты для отображения
+        VerticalLayout content = new VerticalLayout();
+        content.add(new Span(String.format("Чек по заказу № %s от %s",
+                order.getNumberOfOrder(), orderDate)));
+        content.add(new Span("---------------------------------------------------------"));
+        content.add(new Span("Описание работ: " + order.getComment()));
+        content.add(new Span("---------------------------------------------------------"));
+        content.add(new Span(String.format("Стоимость работ и комплектующих: %,.2f ₽",
+                invoice.getTotalCost())));
+        content.add(new Span(String.format("Оплачено рублями: %,.2f ₽",
+                invoice.getDiscountedCost())));
+        content.add(new Span(String.format("Оплачено бонусами: %,.2f ₽",
+                invoice.getDeductedBonuses())));
+        content.add(new Span("---------------------------------------------------------"));
+        content.add(new Span(String.format("Начислено бонусов: %,.2f ₽",
+                invoice.getAccruedBonuses())));
+        content.add(new Span("---------------------------------------------------------"));
+        content.add(new Span(String.format("Итоговая сумма: %,.2f ₽",
+                invoice.getDiscountedCost().add(invoice.getDeductedBonuses()))));
+
+        Button closeBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(),
+                e -> dialog.close());
+
+        dialog.add(content, closeBtn);
+        dialog.open();
+    }
+
+    private void openShowAvailableOffices(){
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Где можно починить");
+        dialog.setWidth("400px");
+
+        VerticalLayout layout = new VerticalLayout(
+                new Button("Закрыть", ignored -> dialog.close())
+        );
+        layout.setPadding(false);
+        dialog.add(layout);
+        dialog.open();
+    }
 }
