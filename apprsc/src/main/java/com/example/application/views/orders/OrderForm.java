@@ -163,15 +163,16 @@ public class OrderForm extends VerticalLayout {
 
 
         servicesGrid.addComponentColumn(os -> {
-            Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> deleteService(os));
+            Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), ignored -> deleteService(os));
             deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             deleteBtn.getStyle()
                     .set("margin-right", "1em")
                     .set("color", "var(--lumo-primary-text-color)");
+            deleteBtn.setVisible(showForNewOrder());
             return deleteBtn;
         }).setHeader("Действия");
         // Обновляем футеры при изменении данных
-        servicesGrid.getDataProvider().addDataProviderListener(event -> updateFooters());
+        servicesGrid.getDataProvider().addDataProviderListener(ignored -> updateFooters());
     }
 
     private void updateFooters() {
@@ -217,16 +218,17 @@ public class OrderForm extends VerticalLayout {
         costComponentsColumn.setFooter("Итого: 0.00 ₽");
 
         componentsGrid.addComponentColumn(oc -> {
-            Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> deleteComponent(oc));
+            Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), ignored -> deleteComponent(oc));
             deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             deleteBtn.getStyle()
                     .set("margin-right", "1em")
                     .set("color", "var(--lumo-primary-text-color)");
+            deleteBtn.setVisible(showForNewOrder());
             return deleteBtn;
         }).setHeader("Действия");
 
         // Обновляем футеры при изменении данных
-        componentsGrid.getDataProvider().addDataProviderListener(event -> updateComponentsFooters());
+        componentsGrid.getDataProvider().addDataProviderListener(ignored -> updateComponentsFooters());
     }
 
     private void updateComponentsFooters() {
@@ -251,7 +253,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createSaveButton() {
-        Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK.create(), e -> save());
+        Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK.create(), ignored -> save());
 
         // Устанавливаем видимость кнопки
         //saveBtn.setVisible(showForNewOrder());
@@ -264,7 +266,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createCancelButton() {
-        Button cancelBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), e -> onCancel.run());
+        Button cancelBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), ignored -> onCancel.run());
         cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         cancelBtn.getStyle()
                 .set("margin-right", "1em")
@@ -273,7 +275,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createAddServiceButton() {
-        Button btn = new Button("Добавить услугу", VaadinIcon.PLUS.create(), e -> openAddServiceDialog());
+        Button btn = new Button("Добавить услугу", VaadinIcon.PLUS.create(), ignored -> openAddServiceDialog());
 
         // Устанавливаем видимость кнопки
         btn.setVisible(showForNewOrder());
@@ -286,7 +288,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createAddComponentButton() {
-        Button btn = new Button("Добавить компонент", VaadinIcon.PLUS.create(), e -> openAddComponentDialog());
+        Button btn = new Button("Добавить компонент", VaadinIcon.PLUS.create(), ignored -> openAddComponentDialog());
 
         // Устанавливаем видимость кнопки
         btn.setVisible(showForNewOrder());
@@ -299,7 +301,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createSetWorkOrderButton() {
-        Button btn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), e -> openAddWorkOrderDialog());
+        Button btn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), ignored -> openAddWorkOrderDialog());
 
 
         // Устанавливаем видимость кнопки
@@ -313,7 +315,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createPayButton() {
-        Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), e -> openPayDialog());
+        Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), ignored -> openPayDialog());
 
         // Устанавливаем видимость кнопки
         btn.setVisible(showForPayOrder());
@@ -326,7 +328,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createCancelOrderButton() {
-        Button btn = new Button("Отменить заказ", VaadinIcon.FILE_REMOVE.create(), e -> {
+        Button btn = new Button("Отменить заказ", VaadinIcon.FILE_REMOVE.create(), ignored -> {
             // Проверяем статус заказа
             if (showForNewOrder()) {
                 showCancelConfirmationDialog();
@@ -361,7 +363,7 @@ public class OrderForm extends VerticalLayout {
         ConfirmDialog confirmDialog = new ConfirmDialog(
                 "Подтверждение отмены",
                 "Вы уверены, что хотите отменить заказ #" + order.getNumberOfOrder() + "?",
-                "Подтвердить отмену", confirmEvent -> {
+                "Подтвердить отмену", ignored -> {
             try {
                 order.setOrderStatusId(5L); // 5 - ID статуса "Отменен"
                 orderService.save(order);
@@ -373,7 +375,7 @@ public class OrderForm extends VerticalLayout {
                         5000, Notification.Position.TOP_CENTER);
             }
         },
-                "Отмена", cancelEvent -> {
+                "Отмена", ignored -> {
         }
         );
 
@@ -382,7 +384,7 @@ public class OrderForm extends VerticalLayout {
     }
 
     private Button createSelectLocationButton() {
-        Button btn = new Button("Где починить?", VaadinIcon.QUESTION_CIRCLE_O.create(), e -> openAddComponentDialog());
+        Button btn = new Button("Где починить?", VaadinIcon.QUESTION_CIRCLE_O.create(), ignored -> openAddComponentDialog());
 
         // Устанавливаем видимость кнопки
         btn.setVisible(showForNewOrder());
@@ -431,7 +433,7 @@ public class OrderForm extends VerticalLayout {
         combo.setItems(servicesService.findAll());
         combo.setItemLabelGenerator(Services::getServiceName);
 
-        Button addBtn = new Button("Добавить", e -> {
+        Button addBtn = new Button("Добавить", ignored -> {
             if (combo.getValue() != null) {
                 OrderServices os = new OrderServices();
                 os.setOrders(order);
@@ -444,7 +446,7 @@ public class OrderForm extends VerticalLayout {
 
         VerticalLayout layout = new VerticalLayout(
                 combo,
-                new HorizontalLayout(addBtn, new Button("Отмена", ev -> dialog.close()))
+                new HorizontalLayout(addBtn, new Button("Отмена", ignored -> dialog.close()))
         );
         layout.setPadding(false);
         dialog.add(layout);
@@ -475,7 +477,7 @@ public class OrderForm extends VerticalLayout {
                 c.getName() + " (" + c.getCategory().getTypeOfPartName() + ")"
         );
 
-        Button addBtn = new Button("Добавить", e -> {
+        Button addBtn = new Button("Добавить", ignored -> {
             if (combo.getValue() != null) {
                 OrderComponents oc = new OrderComponents();
                 oc.setOrders(order);
@@ -488,7 +490,7 @@ public class OrderForm extends VerticalLayout {
 
         VerticalLayout layout = new VerticalLayout(
                 combo,
-                new HorizontalLayout(addBtn, new Button("Отмена", ev -> dialog.close()))
+                new HorizontalLayout(addBtn, new Button("Отмена", ignored -> dialog.close()))
         );
         layout.setPadding(false);
         dialog.add(layout);
@@ -508,7 +510,7 @@ public class OrderForm extends VerticalLayout {
         dialog.setHeaderTitle("Передача в работу");
         dialog.setWidth("500px");
 
-        Button addBtn = new Button("Передать", e -> {
+        Button addBtn = new Button("Передать", ignored -> {
             try {
                 // Получаем сотрудника с ID = 1
                 Employees employee = employeesService.findById(1L)
@@ -537,7 +539,7 @@ public class OrderForm extends VerticalLayout {
         });
 
         VerticalLayout layout = new VerticalLayout(
-                new HorizontalLayout(addBtn, new Button("Отмена", ev -> dialog.close()))
+                new HorizontalLayout(addBtn, new Button("Отмена", ignored-> dialog.close()))
         );
         layout.setPadding(false);
         dialog.add(layout);
@@ -651,7 +653,7 @@ public class OrderForm extends VerticalLayout {
             deductedBonusesField.setReadOnly(false);
         }
 
-        Button addBtn = new Button("Оплатить", e -> {
+        Button addBtn = new Button("Оплатить", ignored -> {
             try {
                 // Проверка перед сохранением
                 BigDecimal deducted = deductedBonusesField.getValue() != null
@@ -720,7 +722,7 @@ public class OrderForm extends VerticalLayout {
                 radioGroup,
                 new HorizontalLayout(accruedBonusesField, bonusSpan),
                 new HorizontalLayout(deductedBonusesField, new Span(" - списать бонусы")),
-                new HorizontalLayout(addBtn, new Button("Отмена", ev -> dialog.close()))
+                new HorizontalLayout(addBtn, new Button("Отмена", ignored -> dialog.close()))
         );
         layout.setPadding(false);
         dialog.add(layout);

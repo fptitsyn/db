@@ -1,4 +1,3 @@
-
 package com.example.application.views.orders;
 
 import com.example.application.data.components.ComponentService;
@@ -6,8 +5,8 @@ import com.example.application.data.employees.*;
 import com.example.application.data.locations.Locations;
 import com.example.application.data.login.Users;
 import com.example.application.data.orders.*;
-import com.example.application.security.AuthenticatedUser;
 import com.example.application.data.services.ServicesService;
+import com.example.application.security.AuthenticatedUser;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -24,7 +23,7 @@ import jakarta.annotation.security.RolesAllowed;
 import java.util.Optional;
 
 @PageTitle("Заказы")
-@RolesAllowed({"SALES","GOD"})
+@RolesAllowed({"SALES", "GOD"})
 @Route(value = "orders/:clientID")
 
 public class OrderView extends VerticalLayout implements BeforeEnterObserver {
@@ -42,11 +41,10 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final BonusAccountOperationService bonusAccountOperationService;
     private final ClientStatusService clientStatusService;
     private final InvoiceForPaymentService invoiceForPaymentService;
-
-    private Clients currentClient;
     private final Grid<Orders> orderGrid = new Grid<>(Orders.class);
-    private final Span clientFullname = new Span();
+    private final Span clientFullName = new Span();
     private final Button backButton = new Button("Вернуться к списку клиентов");
+    private Clients currentClient;
 
     public OrderView(OrdersService orderService,
                      ClientsService clientService,
@@ -62,7 +60,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                      BonusAccountOperationService bonusAccountOperationService,
                      ClientStatusService clientStatusService,
                      InvoiceForPaymentService invoiceForPaymentService
-    )  {
+    ) {
         this.orderService = orderService;
         this.clientService = clientService;
         this.authenticatedUser = authenticatedUser;
@@ -106,18 +104,19 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         }).setHeader("Менеджер").setAutoWidth(true);
 
 
-        orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия").setWidth("250px");
+        orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия").setWidth("125px");
 
-        Button addOrderBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(), e -> showOrderForm(new Orders()));
+        Button addOrderBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(), ignored -> showOrderForm(new Orders()));
         addOrderBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         addOrderBtn.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
         setSizeFull();
-        add(clientFullname, addOrderBtn, orderGrid, backButton);
+        add(clientFullName, addOrderBtn, orderGrid, backButton);
 
 
     }
+
     private void configureBackButton() {
         backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
 
@@ -125,7 +124,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         backButton.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
-        backButton.addClickListener(e ->
+        backButton.addClickListener(ignored ->
                 getUI().ifPresent(ui -> ui.navigate(ClientsView.class))
         );
     }
@@ -140,8 +139,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             currentClient = clientService.findById(id)
                     .orElseThrow(() -> new NotFoundException("Client not found"));
             // Устанавливаем имя клиента
-            clientFullname.setText("Клиент: " + currentClient.getFullName());
-            clientFullname.addClassName("client-name");
+            clientFullName.setText("Клиент: " + currentClient.getFullName());
+            clientFullName.addClassName("client-name");
 
             updateGrid();
         } catch (NumberFormatException e) {
@@ -156,25 +155,14 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     }
 
     private HorizontalLayout createOrderActions(Orders order) {
-        Button editBtn = new Button("Открыть", VaadinIcon.EDIT.create(), e -> showOrderForm(order));
+        Button editBtn = new Button("Открыть", VaadinIcon.EDIT.create(), ignored -> showOrderForm(order));
         editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         editBtn.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
+        return new HorizontalLayout(editBtn);
 
-        Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> {
-            orderService.delete(order);
-            updateGrid();
-        });
-        deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        deleteBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-
-        return new HorizontalLayout(editBtn, deleteBtn);
-    }
-
-    private void showOrderForm(Orders order) {
+    }private void showOrderForm(Orders order) {
         // Проверки сотрудника и локации для новых заказов
         if (order.getId() == null) {
             Optional<Users> maybeUser = authenticatedUser.get();
@@ -208,17 +196,38 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             order.setLocation(location);
         }
 
-        // Создание диалога
+        // Создание и отображение диалога
+        Dialog dialog = createOrderDialog(order, currentClient);
+        dialog.open();
+    }
+
+    private Dialog createOrderDialog(Orders order, Clients client) {
         Dialog dialog = new Dialog();
         dialog.setModal(true);
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(false);
-        dialog.setHeaderTitle(order.getId() == null ? "Новый заказ"
-                : "Редактирование заказа #"+order.getNumberOfOrder()+" от "+order.getDateOfOrder()+", статус: "+order.getOrderStatusName());
+        dialog.setHeaderTitle(getDialogTitle(order));
 
-        OrderForm form = new OrderForm(
+        OrderForm form = createOrderForm(order, client, dialog);
+
+        dialog.setWidth("1500px");
+        dialog.add(form);
+        return dialog;
+    }
+
+    private String getDialogTitle(Orders order) {
+        return order.getId() == null
+                ? "Новый заказ"
+                : String.format("Редактирование заказа #%s от %s, статус: %s",
+                order.getNumberOfOrder(),
+                order.getDateOfOrder(),
+                order.getOrderStatusName());
+    }
+
+    private OrderForm createOrderForm(Orders order, Clients client, Dialog dialog) {
+        return new OrderForm(
                 order,
-                currentClient,
+                client,
                 orderService,
                 orderServicesService,
                 servicesService,
@@ -230,19 +239,24 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 bonusAccountOperationService,
                 clientStatusService,
                 invoiceForPaymentService,
-                () -> {
-                    updateGrid();               // Обновляем сетку
-                    dialog.close();             // Закрываем диалог
-                    Notification.show("Заказ сохранен", 3000, Notification.Position.TOP_CENTER);
-                },
-                () -> {
-                    updateGrid();               // Обновляем сетку
-                    dialog.close();              // Просто закрываем диалог при отмене
-                }
+                createSaveHandler(dialog),
+                createCancelHandler(dialog)
         );
-        dialog.setWidth("1500px");
-        dialog.add(form);
-        dialog.open();
+    }
+
+    private Runnable createSaveHandler(Dialog dialog) {
+        return () -> {
+            updateGrid();
+            dialog.close();
+            Notification.show("Заказ сохранен", 3000, Notification.Position.TOP_CENTER);
+        };
+    }
+
+    private Runnable createCancelHandler(Dialog dialog) {
+        return () -> {
+            updateGrid();
+            dialog.close();
+        };
     }
 }
 

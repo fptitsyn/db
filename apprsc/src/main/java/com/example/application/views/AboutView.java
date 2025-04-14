@@ -37,6 +37,7 @@ public class AboutView extends VerticalLayout {
         add(new H5("14.04"));
         add(new Span("OrdersForm при оплате контроль списание бонусов не больше чем накоплено."));
         add(new Span("OrderView Исправлено: не обновлялся Grid после возврата из заказа"));
+        add(new Span("OrdersForm скрыты кнопки удалить сервисы/компоненты после 1-го статуса."));
         add(new H5("12.04"));
         add(new Span("Оплата заказа. Формирование чека. Начисление/списание бонусов"));
         add(new Span("ClientForm при создание клиента, выбор м/ж из списка"));
