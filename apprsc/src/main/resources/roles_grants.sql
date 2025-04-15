@@ -16,6 +16,18 @@ GRANT SELECT ON TABLE public.work_order_status TO "WORKS";
 GRANT SELECT ON TABLE public.order_services TO "WORKS";
 GRANT SELECT ON TABLE public.order_components TO "WORKS";
 -------------------------------------------------------------------------------------------------------------------------------------------
+CREATE ROLE worker WITH
+  LOGIN
+  NOSUPERUSER
+  INHERIT
+  NOCREATEDB
+  NOCREATEROLE
+  NOREPLICATION
+  NOBYPASSRLS
+  ENCRYPTED PASSWORD 'SCRAM-SHA-256$4096:By6IvY3JKDCdNWJvIirQzw==$NVFpp0uuQU1IUG399IMOIimxn8iy/XW+2dfFfSpMda8=:87EwjPDkzrVEvr1g+EgyX8j37hStIN0xlTTplaTyKVU=';
+
+GRANT "WORKS" TO worker;
+-------------------------------------------------------------------------------------------------------------------------------------------
 -- Role: "ANALYSTS"
 CREATE ROLE "ANALYSTS" WITH
 	NOLOGIN
