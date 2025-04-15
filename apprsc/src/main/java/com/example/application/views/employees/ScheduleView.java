@@ -1,6 +1,6 @@
 package com.example.application.views.employees;
 
-import com.example.application.data.employees.Employees;
+import com.example.application.data.employees.EmployeeWithPositionDTO;
 import com.example.application.data.employees.EmployeesService;
 import com.example.application.data.locations.Locations;
 import com.example.application.data.locations.LocationsService;
@@ -34,13 +34,11 @@ import java.time.LocalDate;
 @RolesAllowed({"HR", "WORKS", "GOD"})
 public class ScheduleView extends VerticalLayout {
 
-    // Компоненты интерфейса
     private final DatePicker datePicker = new DatePicker("Дата");
     private final ComboBox<Locations> locationComboBox = new ComboBox<>("Офис");
     private final Grid<ScheduleData> grid = new Grid<>();
     private final Button addButton = new Button("Добавить/удалить график", VaadinIcon.PLUS.create());
 
-    // Сервисы
     private final LocationsService locationsService;
     private final EmployeesService employeesService;
     private final ScheduleService scheduleService;
@@ -65,17 +63,14 @@ public class ScheduleView extends VerticalLayout {
         setPadding(true);
         setSpacing(true);
 
-        // Настройка поля даты
         datePicker.setValue(LocalDate.now());
         datePicker.addValueChangeListener(ignored -> updateGrid());
 
-        // Настройка выбора офиса
         locationComboBox.setItemLabelGenerator(Locations::getName);
         locationComboBox.setItems(locationsService.findAll());
         locationComboBox.setPlaceholder("Выберите офис");
         locationComboBox.addValueChangeListener(ignored -> updateGrid());
 
-        // Стиль кнопки
         addButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         addButton.getStyle()
                 .set("margin-right", "1em")
@@ -83,7 +78,6 @@ public class ScheduleView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        // Настройка колонок
         grid.addColumn(ScheduleData::getEmployeeName)
                 .setHeader("Сотрудник")
                 .setWidth("250px")
@@ -102,7 +96,6 @@ public class ScheduleView extends VerticalLayout {
                 .setHeader("Занято часов")
                 .setTextAlign(ColumnTextAlign.CENTER);
 
-        // Общие настройки таблицы
         grid.setHeight("600px");
         grid.setMultiSort(true);
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_COLUMN_BORDERS);
@@ -127,24 +120,39 @@ public class ScheduleView extends VerticalLayout {
         Dialog dialog = new Dialog();
         FormLayout form = new FormLayout();
 
-        // Поля формы
         DatePicker dateField = new DatePicker("Дата");
         ComboBox<Locations> locationField = new ComboBox<>("Офис");
-        ComboBox<Employees> employeeField = new ComboBox<>("Сотрудник");
+        ComboBox<EmployeeWithPositionDTO> employeeField = new ComboBox<>("Сотрудник");
 
-        // Настройка полей
         dateField.setValue(LocalDate.now());
         locationField.setItemLabelGenerator(Locations::getName);
         locationField.setItems(locationsService.findAll());
-        employeeField.setItemLabelGenerator(Employees::getFullName);
-        employeeField.setItems(employeesService.findAll());
 
-        // Кнопки формы
+        locationField.addValueChangeListener(event -> {
+            Locations selectedLocation = event.getValue();
+            if (selectedLocation != null) {
+                employeeField.setItems(
+                        employeesService.findEmployeesWithPositionByLocation(selectedLocation.getId())
+                );
+            } else {
+                employeeField.clear();
+            }
+        });
+
+        employeeField.setItemLabelGenerator(EmployeeWithPositionDTO::getFullNameWithPosition);
+        employeeField.setEnabled(false);
+
+        locationField.addValueChangeListener(event -> {
+            employeeField.setEnabled(event.getValue() != null);
+            if (event.getValue() == null) {
+                employeeField.clear();
+            }
+        });
+
         Button addScheduleButton = new Button("Добавить график", VaadinIcon.PLUS.create());
         Button deleteScheduleButton = new Button("Удалить график", VaadinIcon.TRASH.create());
         Button cancelButton = new Button("Отмена", ignored -> dialog.close());
 
-        // Стили кнопок
         addScheduleButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         deleteScheduleButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -187,21 +195,21 @@ public class ScheduleView extends VerticalLayout {
         dialog.open();
     }
 
-    private void handleAddSchedule(LocalDate date, Locations location, Employees employee) {
+    private void handleAddSchedule(LocalDate date, Locations location, EmployeeWithPositionDTO employee) {
         if (date == null || location == null || employee == null) {
             throw new IllegalArgumentException("Все поля должны быть заполнены!");
         }
 
-        scheduleService.insertScheduleEntries(date, employee.getId(), location.getId());
+        scheduleService.insertScheduleEntries(date, employee.getEmployeeId(), location.getId());
         Notification.show("График успешно добавлен", 3000, Notification.Position.TOP_CENTER);
     }
 
-    private void handleDeleteSchedule(LocalDate date, Locations location, Employees employee) {
+    private void handleDeleteSchedule(LocalDate date, Locations location, EmployeeWithPositionDTO employee) {
         if (date == null || location == null || employee == null) {
             throw new IllegalArgumentException("Все поля должны быть заполнены!");
         }
 
-        scheduleService.deleteScheduleEntries(date, employee.getId(), location.getId());
+        scheduleService.deleteScheduleEntries(date, employee.getEmployeeId(), location.getId());
         Notification.show("График успешно удален", 3000, Notification.Position.TOP_CENTER);
     }
 

@@ -106,4 +106,7 @@ public class EmployeesService {
         return employeesRepository.findById(id);
     }
 
+    public List<EmployeeWithPositionDTO> findEmployeesWithPositionByLocation(Long locationId) {
+        return employeesRepository.findEmployeesWithPosition(locationId);
+    }
 }

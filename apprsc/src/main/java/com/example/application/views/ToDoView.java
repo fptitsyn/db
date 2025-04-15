@@ -45,7 +45,7 @@ public class ToDoView extends VerticalLayout {
         add(new Span("Сгорание бонусов???"));
 
         add(new H4("Бантики"));
-        add(new Span("ScheduleView при добавление/удаление графиков после выбор офиса показывать только сотрудников работающих в этих офисах"));
+
 
         setSizeFull();
     }
