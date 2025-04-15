@@ -589,3 +589,64 @@ BEGIN
         AND st.location_id = p_location_id;
 END;
 $$ LANGUAGE plpgsql;
+------------------------------------------------------------------------------------------------------------
+--функция на PL/pgSQL, которая возвращает список офисов и мастеров, способных выполнить все услуги указанного заказа.
+--Каждый офис выводится с его названием, адресом и контактами, а затем список мастеров этого офиса с их ФИО и должностью.
+--SELECT * FROM get_order_employees(123);
+CREATE OR REPLACE FUNCTION get_order_employees(input_orders_id bigint)
+RETURNS TABLE (
+    "Офис" text,
+    "Название" text,
+    "Адрес" text,
+    "Контакты" text,
+    "ФИО" text,
+    "Должность" text
+) AS $$
+BEGIN
+    RETURN QUERY
+    WITH required_services AS (
+        SELECT service_id
+        FROM order_services
+        WHERE orders_id = input_orders_id
+    ),
+    qualified_employees AS (
+        SELECT es.employee_id
+        FROM employee_service es
+        INNER JOIN required_services rs ON es.service_id = rs.service_id
+        GROUP BY es.employee_id
+        HAVING COUNT(DISTINCT es.service_id) = (SELECT COUNT(*) FROM required_services)
+    ),
+    active_employees AS (
+        SELECT qe.employee_id, em.staffing_table_id
+        FROM qualified_employees qe
+        INNER JOIN employees_moving em ON qe.employee_id = em.employee_id
+        WHERE em.date_of_dismissal IS NULL
+    ),
+    employee_details AS (
+        SELECT
+            ae.employee_id,
+            st.position,
+            st.location_id,
+            CONCAT(e.last_name, ' ', e.first_name, ' ', COALESCE(e.middle_name, '')) AS full_name
+        FROM active_employees ae
+        INNER JOIN staffing_table st ON ae.staffing_table_id = st.staffing_table_id
+        INNER JOIN employees e ON ae.employee_id = e.employee_id
+    )
+    SELECT
+        l.name::text,
+        l.name::text,
+        CONCAT(
+            COALESCE(l.street, ''), ', ',
+            COALESCE(l.building_number, ''), ', ',
+            COALESCE(l.city, ''), ', ',
+            COALESCE(l.country, '')
+        )::text,
+        l.phone_number::text,
+        ed.full_name::text,
+        ed.position::text
+    FROM employee_details ed
+    INNER JOIN locations l ON ed.location_id = l.location_id
+    ORDER BY l.name, ed.full_name;
+END;
+$$ LANGUAGE plpgsql;
+------------------------------------------------------------------------------------------------------------

@@ -1,8 +1,12 @@
 package com.example.application.data.employees;
 
+import com.example.application.data.orders.OfficeMasterDto;
 import com.example.application.data.services.Services;
 import com.example.application.data.services.ServicesRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,18 +17,24 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @CacheConfig(cacheNames = "employees")
 public class EmployeesService {
-
     private final EmployeesRepository employeesRepository;
-
     private final ServicesRepository servicesRepository;
+    private final EntityManager entityManager;
 
-    public EmployeesService(EmployeesRepository employeesRepository, ServicesRepository servicesRepository) {
-        this.servicesRepository = servicesRepository;
+    @Autowired
+    public EmployeesService(
+            EmployeesRepository employeesRepository,
+            ServicesRepository servicesRepository,
+            EntityManager entityManager
+    ) {
         this.employeesRepository = employeesRepository;
+        this.servicesRepository = servicesRepository;
+        this.entityManager = entityManager;
     }
 
     @Cacheable
@@ -108,5 +118,30 @@ public class EmployeesService {
 
     public List<EmployeeWithPositionDTO> findEmployeesWithPositionByLocation(Long locationId) {
         return employeesRepository.findEmployeesWithPosition(locationId);
+    }
+
+    public List<OfficeMasterDto> getOrderEmployees(Long orderId) {
+        try {
+            List<Object[]> results = entityManager.createNativeQuery(
+                            "SELECT * FROM get_order_employees(?1)")
+                    .setParameter(1, orderId)
+                    .getResultList();
+
+            return results.stream()
+                    .map(row -> new OfficeMasterDto(
+                            getStringSafe(row[0]), // Офис
+                            getStringSafe(row[2]), // Адрес
+                            getStringSafe(row[3]), // Контакты
+                            getStringSafe(row[4]), // ФИО
+                            getStringSafe(row[5])  // Должность
+                    ))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching order employees", e);
+        }
+    }
+
+    private String getStringSafe(Object value) {
+        return value != null ? value.toString().trim() : "";
     }
 }

@@ -835,16 +835,47 @@ public class OrderForm extends VerticalLayout {
         dialog.open();
     }
 
-    private void openShowAvailableOffices(){
-        Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Где можно починить");
-        dialog.setWidth("400px");
+    private void openShowAvailableOffices() {
+        if (order.getId() == null) {
+            Notification.show("Сначала сохраните заказ");
+            return;
+        }
 
-        VerticalLayout layout = new VerticalLayout(
-                new Button("Закрыть", ignored -> dialog.close())
-        );
-        layout.setPadding(false);
-        dialog.add(layout);
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Доступные офисы и мастера");
+        dialog.setWidth("1200px");
+
+        Grid<OfficeMasterDto> grid = new Grid<>(OfficeMasterDto.class);
+        grid.removeAllColumns();
+
+        grid.addColumn(dto -> dto.getOfficeName() != null ? dto.getOfficeName() : "")
+                .setHeader("Офис").setAutoWidth(true);
+
+        grid.addColumn(dto -> dto.getAddress() != null ? dto.getAddress() : "")
+                .setHeader("Адрес").setAutoWidth(true);
+
+        grid.addColumn(dto -> dto.getContacts() != null ? dto.getContacts() : "")
+                .setHeader("Контакты").setAutoWidth(true);
+
+        grid.addColumn(dto -> dto.getEmployeeName() != null ? dto.getEmployeeName() : "")
+                .setHeader("Мастер").setAutoWidth(true);
+
+        grid.addColumn(dto -> dto.getPosition() != null ? dto.getPosition() : "")
+                .setHeader("Должность").setAutoWidth(true);
+
+        try {
+            List<OfficeMasterDto> data = employeesService.getOrderEmployees(order.getId());
+            if (data.isEmpty()) {
+                dialog.add(new Span("Нет доступных мастеров для выполнения услуг в этом заказе"));
+            } else {
+                grid.setItems(data);
+                dialog.add(grid);
+            }
+        } catch (Exception e) {
+            Notification.show("Ошибка загрузки данных: " + e.getMessage());
+        }
+
+        dialog.add(new Button("Закрыть", e -> dialog.close()));
         dialog.open();
     }
 }
