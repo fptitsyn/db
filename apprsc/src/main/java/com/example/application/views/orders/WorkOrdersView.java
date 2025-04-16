@@ -134,6 +134,12 @@ public class WorkOrdersView extends VerticalLayout {
         dialog.setHeaderTitle(workOrder.getId() == null ? "Новый заказ"
                 : "Редактирование заказа #" + workOrder.getNumberOfWorkOrder() + " от " + workOrder.getDateOfWorkOrder() + ", статус: " + workOrder.getWorkOrderStatusName());
 
+//        String notificationText = switch (workOrder.getWorkOrderStatus().getId().intValue()) {
+//            case 2 -> "Наряд принят в работу";
+//            case 3 -> "Наряд выполнен";
+//            default -> "Ошибка!!!";
+//        };
+
         WorkOrderForm form = new WorkOrderForm(
                 workOrder,
                 orderService,
@@ -144,18 +150,39 @@ public class WorkOrdersView extends VerticalLayout {
                 workOrdersService,
                 employeesService,
                 () -> {
+                    updateWorkOrderStatus(workOrder);
                     updateGrid();               // Обновляем сетку
                     dialog.close();             // Закрываем диалог
-                    Notification.show("Наряд сохранен", 3000, Notification.Position.TOP_CENTER);
+                    Notification.show(createNotificationText(workOrder), 3000, Notification.Position.TOP_CENTER);
                 },
                 () -> {
                     dialog.close();              // Просто закрываем диалог при отмене
                 }
 
-
         );
         dialog.setWidth("1500px");
         dialog.add(form);
         dialog.open();
+    }
+
+    private void updateWorkOrderStatus(WorkOrders workOrder) {
+        if (workOrder.getWorkOrderStatus().getId().intValue() == 3) {
+            return;
+        }
+
+        WorkOrderStatus newStatus = workOrder.getWorkOrderStatus();
+
+        newStatus.setId(newStatus.getId() + 1);
+        System.out.println(newStatus.getId());
+        workOrder.setWorkOrderStatus(newStatus);
+        workOrdersService.save(workOrder);
+    }
+
+    private String createNotificationText(WorkOrders workOrder) {
+        return switch (workOrder.getWorkOrderStatus().getId().intValue()) {
+            case 2 -> "Наряд принят в работу";
+            case 3 -> "Наряд выполнен";
+            default -> "Ошибка!!!";
+        };
     }
 }

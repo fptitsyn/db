@@ -162,7 +162,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 .set("color", "var(--lumo-primary-text-color)");
         return new HorizontalLayout(editBtn);
 
-    }private void showOrderForm(Orders order) {
+    }
+    private void showOrderForm(Orders order) {
         // Проверки сотрудника и локации для новых заказов
         if (order.getId() == null) {
             Optional<Users> maybeUser = authenticatedUser.get();
