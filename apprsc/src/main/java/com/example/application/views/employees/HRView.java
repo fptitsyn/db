@@ -1,5 +1,6 @@
 package com.example.application.views.employees;
 
+import com.example.application.data.services.Services;
 import com.example.application.reports.employees.EmployeeInfoDTO;
 import com.example.application.reports.employees.EmployeeInfoService;
 import com.example.application.views.locations.LocationsForm;
@@ -8,9 +9,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -19,6 +22,7 @@ import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
 @PageTitle("Персонал")
@@ -55,10 +59,9 @@ public class HRView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Офис");
-        grid.addColumn(EmployeeInfoDTO::department).setHeader("Подразделение");
-        grid.addColumn(EmployeeInfoDTO::position).setHeader("Должность");
-
+        Grid.Column<EmployeeInfoDTO> locationColumn = grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Офис");
+        Grid.Column<EmployeeInfoDTO> departmentColumn = grid.addColumn(EmployeeInfoDTO::department).setHeader("Подразделение");
+        Grid.Column<EmployeeInfoDTO> positionColumn = grid.addColumn(EmployeeInfoDTO::position).setHeader("Должность");
         grid.addColumn(
                         new NumberRenderer<>(
                                 EmployeeInfoDTO::salary,
@@ -70,6 +73,14 @@ public class HRView extends VerticalLayout {
         grid.addColumn(EmployeeInfoDTO::firstName).setHeader("Имя");
         grid.addColumn(EmployeeInfoDTO::middleName).setHeader("Отчество");
         grid.addColumn(EmployeeInfoDTO::age).setHeader("Возраст");
+
+        // Устанавливаем сортировку по умолчанию
+        grid.setMultiSort(true);
+        grid.sort(List.of(
+                new GridSortOrder<>(locationColumn, SortDirection.ASCENDING),
+                new GridSortOrder<>(departmentColumn, SortDirection.ASCENDING),
+                new GridSortOrder<>(positionColumn, SortDirection.ASCENDING)
+        ));
 
         grid.setSizeFull();
         grid.getStyle().set("flex-grow", "1");

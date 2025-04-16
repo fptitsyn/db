@@ -93,6 +93,7 @@ public class ServicesView extends VerticalLayout {
                 .setHeader("Время выполнения").setTextAlign(ColumnTextAlign.END);
 
         // Устанавливаем сортировку по умолчанию
+        grid.setMultiSort(true);
         grid.sort(List.of(
                 new GridSortOrder<>(typeColumn, SortDirection.ASCENDING),
                 new GridSortOrder<>(nameColumn, SortDirection.ASCENDING)

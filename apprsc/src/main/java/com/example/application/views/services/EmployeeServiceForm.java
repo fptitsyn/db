@@ -2,6 +2,7 @@ package com.example.application.views.services;
 
 import com.example.application.data.employees.Employees;
 import com.example.application.data.employees.EmployeesService;
+import com.example.application.data.employees.StaffingTable;
 import com.example.application.data.services.Services;
 import com.example.application.data.services.ServicesService;
 import com.example.application.views.employees.HRView;
@@ -11,8 +12,10 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -22,6 +25,8 @@ import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -78,8 +83,6 @@ public class EmployeeServiceForm extends VerticalLayout {
 
         Grid.Column<Services> nameColumn = grid.addColumn(Services::getServiceName)
                 .setHeader("Название").setSortable(true);
-
-        // Остальные колонки без изменений
         grid.addColumn(
                         new NumberRenderer<>(
                                 Services::getCost,
@@ -108,6 +111,13 @@ public class EmployeeServiceForm extends VerticalLayout {
             });
             return checkbox;
         }).setHeader("Назначено");
+        List<GridSortOrder<Services>> sortOrder = Arrays.asList(
+                new GridSortOrder<>(typeColumn, SortDirection.ASCENDING),
+                new GridSortOrder<>(nameColumn, SortDirection.ASCENDING)
+
+        );
+        grid.setMultiSort(true);
+        grid.sort(sortOrder);
     }
 
     private void updateList() {

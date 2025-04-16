@@ -127,7 +127,7 @@ public class StaffingTableForm extends VerticalLayout {
                 new GridSortOrder<>(departmentColumn, SortDirection.ASCENDING),
                 new GridSortOrder<>(positionColumn, SortDirection.ASCENDING)
         );
-
+        grid.setMultiSort(true);
         grid.sort(sortOrder);
     }
 
