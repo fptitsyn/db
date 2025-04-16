@@ -23,10 +23,9 @@ public class ToDoView extends VerticalLayout {
         add(new Span("WorkOrderForm. Графики"));
 
         add(new Span("WorkOrderForm. Кнопка Сменить исполнителя - Выбрать другого исполнителя, заполнить ему график, старому очистить график"));
-        
-        add(new Span("Отчетность по Orders (Офис, Менеджер, номер, дата, сумма тотал, сумма сучетом скидки, начисленно бонусов, списано бонусов, Статус)"));
 
-        add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity. Например order_services нет fk на order_id"));
+        add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity."));
+
         add(new Span("Доработать roles_grants.sql - Добавить права для продавцов и аналитиков"));
 
         add(new Span("В перемещениях добавить ограничения на привязку к должности в другом городе."));

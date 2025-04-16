@@ -717,3 +717,88 @@ CREATE OR REPLACE TRIGGER update_client_status_on_invoice
     AFTER INSERT ON invoice_for_payment
     FOR EACH ROW
 EXECUTE FUNCTION update_client_status_on_invoice();
+------------------------------------------------------------------------------------------------------------
+--Отчет по нарядам
+DROP FUNCTION IF EXISTS public.get_workOrder_info();
+
+CREATE OR REPLACE FUNCTION public.get_workOrder_info()
+    RETURNS TABLE(
+        full_name character varying,
+        number_of_work_order bigint,
+        date_of_work_order date,
+        services_amount integer,
+        hours_amount integer,
+        order_status character varying
+    )
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    SELECT
+        CONCAT(e.last_name, ' ', e.first_name, COALESCE(' ' || e.middle_name, ''))::varchar(255) AS full_name,
+        wo.number_of_work_order::bigint,
+        wo.date_of_work_order,
+        (SELECT COUNT(*) FROM order_services os WHERE o.orders_id = os.orders_id)::integer AS services_amount,
+		(SELECT COUNT(*) FROM schedule sc WHERE wo.work_orders_id = sc.work_orders_id)::integer AS hours_amount,
+		wos.status::varchar(50) AS order_status
+    FROM
+        work_orders wo
+        JOIN employees e ON wo.employee_id = e.employee_id
+		JOIN work_order_status wos ON wo.work_order_status_id = wos.work_order_status_id
+		JOIN orders o ON wo.orders_id = o.orders_id;
+END;
+$BODY$;
+
+ALTER FUNCTION public.get_workOrder_info()
+    OWNER TO postgres;
+------------------------------------------------------------------------------------------------------------
+--Отчет по заказам
+DROP FUNCTION IF EXISTS public.get_order_info();
+
+CREATE OR REPLACE FUNCTION public.get_order_info()
+    RETURNS TABLE(
+		location_name character varying,
+        full_name character varying,
+        number_of_order bigint,
+        date_of_work_order date,
+        total_cost numeric,
+        discounted_cost numeric,
+        deducted_bonuses numeric,
+		accrued_bonuses numeric,
+		order_status character varying
+    )
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    SELECT
+		l.name AS location_name,
+        CONCAT(e.last_name, ' ', e.first_name, COALESCE(' ' || e.middle_name, ''))::varchar(255) AS full_name,
+        o.number_of_order::bigint,
+        o.date_of_order,
+		ifp.total_cost,
+		ifp.discounted_cost,
+		ifp.deducted_bonuses,
+		ifp.accrued_bonuses,
+		os.status::varchar(50) AS order_status
+    FROM
+        orders o
+        JOIN locations l ON l.location_id = o.location_id
+		JOIN employees e ON e.employee_id = o.employee_id
+		LEFT JOIN invoice_for_payment ifp ON o.orders_id = ifp.orders_id
+		JOIN order_status os ON os.order_status_id = o.order_status_id;
+END;
+$BODY$;
+
+ALTER FUNCTION public.get_order_info()
+    OWNER TO postgres;
+------------------------------------------------------------------------------------------------------------
+--
