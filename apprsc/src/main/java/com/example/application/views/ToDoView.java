@@ -37,7 +37,6 @@ public class ToDoView extends VerticalLayout {
         add(new Span("В перемещениях добавить контроль - один человек на место (берем нового, старому проставляем дату увольнения)."));
 
         add(new H4("Нужное. Сложное"));
-        add(new Span("Привязка услуг к Рабочему"));
         add(new Span("OrderForm Распределение в работу"));
 
         add(new Span("Склад"));

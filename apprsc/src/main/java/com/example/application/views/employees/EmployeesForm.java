@@ -6,7 +6,6 @@ import com.example.application.data.services.Services;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -53,7 +52,6 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
     private final Button autoFillButton = new Button("Автозаполнение", VaadinIcon.MAGIC.create());
     private final BeanValidationBinder<Employees> binder;
     private final EmployeesService employeesService;
-    private final MultiSelectComboBox<Services> servicesComboBox = new MultiSelectComboBox<>("Services");
     private final Button backButton = new Button("Вернуться назад");
     private TextField firstName;
     private TextField lastName;
@@ -111,10 +109,6 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
                 }
                 binder.writeBean(this.samplePerson);
 
-                // Обновляем связи с услугами
-                this.samplePerson.getServices().clear();
-                this.samplePerson.getServices().addAll(servicesComboBox.getSelectedItems());
-
                 employeesService.save(this.samplePerson);
                 clearForm();
                 refreshGrid();
@@ -156,9 +150,6 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
         editorDiv.setClassName("editor");
         editorLayoutDiv.add(editorDiv);
 
-        servicesComboBox.setItems(employeesService.findAllServices());
-        servicesComboBox.setItemLabelGenerator(Services::getServiceName);
-
         FormLayout formLayout = new FormLayout();
         firstName = new TextField("First Name");
         middleName = new TextField("Отчество");
@@ -170,7 +161,7 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
         comment = new TextField("Комментарий");
 
 
-        formLayout.add(firstName, middleName, lastName, email, phone, dateOfBirth, gender, comment, servicesComboBox);
+        formLayout.add(firstName, middleName, lastName, email, phone, dateOfBirth, gender, comment);
 
         editorDiv.add(formLayout);
         createButtonLayout(editorLayoutDiv);
@@ -245,14 +236,6 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
     private void populateForm(Employees value) {
         this.samplePerson = value;
         binder.readBean(this.samplePerson);
-
-        // Обновляем выбранные услуги
-        if (value != null) {
-            servicesComboBox.clear();
-            servicesComboBox.select(value.getServices());
-        } else {
-            servicesComboBox.clear();
-        }
     }
 
     private void configureGrid() {

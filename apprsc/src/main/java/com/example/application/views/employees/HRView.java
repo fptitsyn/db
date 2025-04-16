@@ -3,6 +3,7 @@ package com.example.application.views.employees;
 import com.example.application.reports.employees.EmployeeInfoDTO;
 import com.example.application.reports.employees.EmployeeInfoService;
 import com.example.application.views.locations.LocationsForm;
+import com.example.application.views.services.EmployeeServiceForm;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -31,13 +32,14 @@ public class HRView extends VerticalLayout {
     private final Button button2 = new Button("Приём/Увольнение", VaadinIcon.REFRESH.create(), ignored -> showEmployeesMovingForm());
     private final Button button3 = new Button("Штатное расписание", VaadinIcon.FILE_CODE.create(), ignored -> showStaffingTableForm());
     private final Button button4 = new Button("Офисы", VaadinIcon.WORKPLACE.create(), ignored -> showLocationsForm());
+    private final Button button5 = new Button("Привязать услуги", VaadinIcon.LAPTOP.create(), ignored -> showEmployeeServiceForm());
 
     public HRView(EmployeeInfoService service) {
         this.service = service;
         configureGrid();
         configureBackButton();
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(button1, button2, button3, button4);
+        HorizontalLayout buttonLayout = new HorizontalLayout(button1, button5, button2, button3, button4);
         buttonLayout.setWidthFull();
 
         // Основной контейнер
@@ -93,6 +95,10 @@ public class HRView extends VerticalLayout {
         getUI().ifPresent(ui -> ui.navigate(LocationsForm.class));
     }
 
+    private void showEmployeeServiceForm() {
+        getUI().ifPresent(ui -> ui.navigate(EmployeeServiceForm.class));
+    }
+
     private void configureBackButton() {
         button1.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         button1.getStyle()
@@ -108,6 +114,10 @@ public class HRView extends VerticalLayout {
                 .set("color", "var(--lumo-primary-text-color)");
         button4.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         button4.getStyle()
+                .set("margin-right", "1em")
+                .set("color", "var(--lumo-primary-text-color)");
+        button5.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        button5.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
     }
