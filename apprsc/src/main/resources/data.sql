@@ -507,24 +507,49 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER client_created
     BEFORE INSERT ON clients
     FOR EACH ROW
-EXECUTE FUNCTION set_client_default_status()
+EXECUTE FUNCTION set_client_default_status();
 ------------------------------------------------------------------------------------------------------------
 -- InvoiceForPayment, создать триггер после вставки: Вставить запись в BonusAccountOperation (списать (с минусом) или зачислить)
 CREATE OR REPLACE FUNCTION process_bonus_operations()
     RETURNS TRIGGER AS $$
+DECLARE
+    v_client_id bigint;
+    v_bonus_account_id bigint;
 BEGIN
+    -- Получаем client_id из связанного заказа
+    SELECT client_id INTO v_client_id
+    FROM orders
+    WHERE orders_id = NEW.orders_id;
+
+    -- Если клиент не найден, выходим
+    IF v_client_id IS NULL THEN
+        RETURN NEW;
+    END IF;
+
+    -- Получаем bonus_account_id для этого клиента
+    SELECT bonus_account_id INTO v_bonus_account_id
+    FROM bonus_account
+    WHERE client_id = v_client_id;
+
+    -- Если бонусный счет не найден, выходим
+    IF v_bonus_account_id IS NULL THEN
+        RETURN NEW;
+    END IF;
+
     -- Добавляем запись о начисленных бонусах, если они есть
     IF NEW.accrued_bonuses > 0 THEN
         INSERT INTO bonus_account_operation (
             operation_date,
             operation_summ,
             operation_type,
-            order_id
+            order_id,
+            bonus_account_id
         ) VALUES (
                              CURRENT_DATE,
                              NEW.accrued_bonuses,
                              'Начисление',
-                             NEW.orders_id
+                             NEW.orders_id,
+                             v_bonus_account_id
                  );
     END IF;
 
@@ -534,12 +559,14 @@ BEGIN
             operation_date,
             operation_summ,
             operation_type,
-            order_id
+            order_id,
+            bonus_account_id
         ) VALUES (
                              CURRENT_DATE,
-                             -NEW.deducted_bonuses,
+                             NEW.deducted_bonuses,
                              'Списание',
-                             NEW.orders_id
+                             NEW.orders_id,
+                             v_bonus_account_id
                  );
     END IF;
 
@@ -547,7 +574,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Создаем триггер, который будет вызывать функцию после вставки в invoice_for_payment
 CREATE OR REPLACE TRIGGER after_invoice_insert
     AFTER INSERT ON invoice_for_payment
     FOR EACH ROW
@@ -650,3 +676,44 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 ------------------------------------------------------------------------------------------------------------
+-- Функция и триггер для обновления статуса клиента по totalCost
+CREATE OR REPLACE FUNCTION get_clients_sum_of_total_cost(id bigint)
+    RETURNS numeric AS $$
+DECLARE
+    total_sum numeric(10, 2) := 0;
+BEGIN
+    SELECT COALESCE(SUM(ifp.total_cost), 0) INTO total_sum
+    FROM invoice_for_payment ifp
+             JOIN orders o ON ifp.orders_id = o.orders_id
+    WHERE o.client_id = id;
+
+    RETURN total_sum;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION update_client_status_on_invoice()
+    RETURNS TRIGGER as $$
+DECLARE
+    v_client_id bigint;
+    total_sum numeric;
+BEGIN
+    SELECT client_id INTO v_client_id
+    FROM orders
+    WHERE orders_id = NEW.orders_id;
+
+    SELECT get_clients_sum_of_total_cost(v_client_id) INTO total_sum;
+
+    IF total_sum >= 100000 AND total_sum < 500000 THEN
+        UPDATE clients SET client_status_id = 2 WHERE client_id = v_client_id AND client_status_id <> 2;
+    ELSIF total_sum >= 500000 THEN
+        UPDATE clients SET client_status_id = 3 WHERE client_id = v_client_id AND client_status_id <> 3;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER update_client_status_on_invoice
+    AFTER INSERT ON invoice_for_payment
+    FOR EACH ROW
+EXECUTE FUNCTION update_client_status_on_invoice();

@@ -19,8 +19,8 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
-        add(new Span("InvoiceForPayment, доработать триггер. Вставить запись в BonusAccountOperation (bonus_account_id)"));
-        add(new Span("InvoiceForPayment, доработать триггер. Client Статус логика изменения (Постоянный - сумма totalCost = 100К и Премиум - сумма totalCost = 500К )"));
+//        add(new Span("InvoiceForPayment, доработать триггер. Вставить запись в BonusAccountOperation (bonus_account_id)"));
+//        add(new Span("InvoiceForPayment, доработать триггер. Client Статус логика изменения (Постоянный - сумма totalCost = 100К и Премиум - сумма totalCost = 500К )"));
 
         add(new Span("WorkOrders. Права: Кнопка открыть доступна мастеру и GOD - все"));
         add(new Span("WorkOrderForm. Добавить Номер, Дата, Графики, два Grid'а для отображения Услуг и Компонент"));
