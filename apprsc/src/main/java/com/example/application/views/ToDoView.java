@@ -23,7 +23,7 @@ public class ToDoView extends VerticalLayout {
         add(new Span("InvoiceForPayment, доработать триггер. Client Статус логика изменения (Постоянный - сумма totalCost = 100К и Премиум - сумма totalCost = 500К )"));
 
         add(new Span("WorkOrders. Права: Кнопка открыть доступна мастеру и GOD - все"));
-        add(new Span("WorkOrderForm. Добавить Номер, Дата, Графики, два Grid'а для отображения Услуг и Компонент"));
+        add(new Span("WorkOrderForm. Графики"));
         add(new Span("WorkOrderForm. добавить кнопки (Закрыть, Взять в работу (видна в 1 статусе, ставит статус 2), Наряд выполнен(видна в 2 статусе, ставит статус 3), Сменить исполнителя)"));
         add(new Span("WorkOrderForm. Кнопка Сменить исполнителя - Выбрать другого исполнителя, заполнить ему график, старому очистить график"));
 

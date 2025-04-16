@@ -19,8 +19,11 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Route(value = "work-orders-view")
@@ -92,6 +95,11 @@ public class WorkOrdersView extends VerticalLayout {
 
     private HorizontalLayout createWorkOrderActions(WorkOrders workOrder) {
         Button editBtn = new Button("Открыть", VaadinIcon.EDIT.create(), e -> showWorkOrderForm(workOrder));
+
+        Optional<Users> maybeUser = authenticatedUser.get();
+        Users user = maybeUser.get();
+        editBtn.setVisible(Objects.equals(user.getUsername(), "su") || Objects.equals(user.getUsername(), "worker"));
+
         editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         editBtn.getStyle()
                 .set("margin-right", "1em")
