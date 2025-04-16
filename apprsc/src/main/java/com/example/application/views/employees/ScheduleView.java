@@ -31,7 +31,7 @@ import java.time.LocalDate;
 @Route(value = "schedule-view")
 @PageTitle("График работы")
 @Menu(order = 43, icon = LineAwesomeIconUrl.BUSINESS_TIME_SOLID)
-@RolesAllowed({"HR", "WORKS", "GOD"})
+@RolesAllowed({"HR", "SALES", "WORKS", "GOD"})
 public class ScheduleView extends VerticalLayout {
 
     private final DatePicker datePicker = new DatePicker("Дата");
