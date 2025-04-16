@@ -6,6 +6,7 @@ import com.example.application.data.employees.EmployeesService;
 import com.example.application.data.login.Users;
 import com.example.application.data.orders.*;
 import com.example.application.data.services.ServicesService;
+import com.example.application.reports.schedule.ScheduleService;
 import com.example.application.security.AuthenticatedUser;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -36,6 +37,7 @@ public class WorkOrdersView extends VerticalLayout {
     private final OrdersService orderService;
     private final OrderServicesService orderServicesService; // Добавлено
     private final ServicesService servicesService;
+    private final ScheduleService scheduleService;
     private final OrderComponentsService orderComponentsService; // Добавлено
     private final ComponentService componentService;
     private final WorkOrdersService workOrdersService;
@@ -46,7 +48,7 @@ public class WorkOrdersView extends VerticalLayout {
     public WorkOrdersView(OrdersService orderService,
                           AuthenticatedUser authenticatedUser,
                           OrderServicesService orderServicesService,
-                          ServicesService servicesService,
+                          ServicesService servicesService, ScheduleService scheduleService,
                           OrderComponentsService orderComponentsService,
                           ComponentService componentService,
                           WorkOrdersService workOrdersService,
@@ -55,6 +57,7 @@ public class WorkOrdersView extends VerticalLayout {
         this.authenticatedUser = authenticatedUser;
         this.orderServicesService = orderServicesService;
         this.servicesService = servicesService;
+        this.scheduleService = scheduleService;
         this.orderComponentsService = orderComponentsService;
         this.componentService = componentService;
         this.workOrdersService = workOrdersService;
@@ -143,6 +146,7 @@ public class WorkOrdersView extends VerticalLayout {
         WorkOrderForm form = new WorkOrderForm(
                 workOrder,
                 orderService,
+                scheduleService,
                 orderServicesService,
                 servicesService,
                 orderComponentsService,

@@ -801,4 +801,98 @@ $BODY$;
 ALTER FUNCTION public.get_order_info()
     OWNER TO postgres;
 ------------------------------------------------------------------------------------------------------------
---
+-- Функция для получения графика для отдельного наряда
+CREATE OR REPLACE FUNCTION public.get_schedule_by_work_order_filtered(
+    p_work_orders_id bigint
+)
+    RETURNS TABLE (
+                      employee_name text,
+                      "09:00 - 10:00" int,
+                      "10:00 - 11:00" int,
+                      "11:00 - 12:00" int,
+                      "12:00 - 13:00" int,
+                      "14:00 - 15:00" int,
+                      "15:00 - 16:00" int,
+                      "16:00 - 17:00" int,
+                      "17:00 - 18:00" int,
+                      total_hours int
+                  )
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+        WITH schedule_data AS (
+            SELECT
+                e.last_name || ' ' || e.first_name::text AS emp_name,
+                COALESCE(ct."09:00 - 10:00", 0) AS h09_10,
+                COALESCE(ct."10:00 - 11:00", 0) AS h10_11,
+                COALESCE(ct."11:00 - 12:00", 0) AS h11_12,
+                COALESCE(ct."12:00 - 13:00", 0) AS h12_13,
+                COALESCE(ct."14:00 - 15:00", 0) AS h14_15,
+                COALESCE(ct."15:00 - 16:00", 0) AS h15_16,
+                COALESCE(ct."16:00 - 17:00", 0) AS h16_17,
+                COALESCE(ct."17:00 - 18:00", 0) AS h17_18,
+                COALESCE(ct."09:00 - 10:00", 0) +
+                COALESCE(ct."10:00 - 11:00", 0) +
+                COALESCE(ct."11:00 - 12:00", 0) +
+                COALESCE(ct."12:00 - 13:00", 0) +
+                COALESCE(ct."14:00 - 15:00", 0) +
+                COALESCE(ct."15:00 - 16:00", 0) +
+                COALESCE(ct."16:00 - 17:00", 0) +
+                COALESCE(ct."17:00 - 18:00", 0) AS calc_total
+            FROM crosstab(
+                         format(
+                                 $QUERY$
+                SELECT
+                    e.employee_id,
+                    s.time_interval,
+                    CASE WHEN s.work_orders_id IS NULL THEN 0 ELSE 1 END
+                FROM public.schedule s
+                JOIN public.employees e ON s.employee_id = e.employee_id
+                WHERE
+                    s.work_orders_id = %s
+                ORDER BY e.employee_id, s.time_interval
+                $QUERY$,
+                                 p_work_orders_id
+                         ),
+                         $CATEGORIES$
+            VALUES
+                ('09:00 - 10:00'),
+                ('10:00 - 11:00'),
+                ('11:00 - 12:00'),
+                ('12:00 - 13:00'),
+                ('14:00 - 15:00'),
+                ('15:00 - 16:00'),
+                ('16:00 - 17:00'),
+                ('17:00 - 18:00')
+            $CATEGORIES$
+                 ) AS ct(
+                         employee_id bigint,
+                         "09:00 - 10:00" int,
+                         "10:00 - 11:00" int,
+                         "11:00 - 12:00" int,
+                         "12:00 - 13:00" int,
+                         "14:00 - 15:00" int,
+                         "15:00 - 16:00" int,
+                         "16:00 - 17:00" int,
+                         "17:00 - 18:00" int
+                )
+                     JOIN public.employees e ON ct.employee_id = e.employee_id
+        )
+        SELECT
+            emp_name AS employee_name,
+            h09_10 AS "09:00 - 10:00",
+            h10_11 AS "10:00 - 11:00",
+            h11_12 AS "11:00 - 12:00",
+            h12_13 AS "12:00 - 13:00",
+            h14_15 AS "14:00 - 15:00",
+            h15_16 AS "15:00 - 16:00",
+            h16_17 AS "16:00 - 17:00",
+            h17_18 AS "17:00 - 18:00",
+            calc_total AS total_hours
+        FROM schedule_data
+        WHERE calc_total > 0
+        ORDER BY emp_name;
+END;
+$$;
+------------------------------------------------------------------------------------------------------------

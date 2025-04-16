@@ -3,13 +3,17 @@ package com.example.application.views.orders;
 import com.example.application.data.components.Component;
 import com.example.application.data.components.ComponentService;
 import com.example.application.data.employees.EmployeesService;
+import com.example.application.data.employees.Schedule;
 import com.example.application.data.orders.*;
 import com.example.application.data.services.Services;
 import com.example.application.data.services.ServicesService;
+import com.example.application.reports.schedule.ScheduleData;
+import com.example.application.reports.schedule.ScheduleService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -17,12 +21,14 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.function.ValueProvider;
 
 import java.util.List;
 
 public class WorkOrderForm extends VerticalLayout {
     private final WorkOrders workOrder;
     private final OrdersService orderService;
+    private final ScheduleService scheduleService;
     private final OrderServicesService orderServicesService;
     private final ServicesService servicesService;
     private final OrderComponentsService orderComponentsService;
@@ -33,7 +39,7 @@ public class WorkOrderForm extends VerticalLayout {
     private final Runnable onCancel;
 
     public WorkOrderForm(WorkOrders workOrder,
-                         OrdersService orderService,
+                         OrdersService orderService, ScheduleService scheduleService,
                          OrderServicesService orderServicesService,
                          ServicesService servicesService,
                          OrderComponentsService orderComponentsService,
@@ -44,6 +50,7 @@ public class WorkOrderForm extends VerticalLayout {
                          Runnable onCancel) {
         this.workOrder = workOrder;
         this.orderService = orderService;
+        this.scheduleService = scheduleService;
         this.orderServicesService = orderServicesService;
         this.servicesService = servicesService;
         this.orderComponentsService = orderComponentsService;
@@ -92,6 +99,13 @@ public class WorkOrderForm extends VerticalLayout {
         componentsContainer.add(new Span("Компоненты"));
         componentsContainer.add(componentsGrid);
 
+        // Schedule grid
+        Grid<ScheduleData> scheduleGrid = createScheduleGrid();
+        Div scheduleContainer = new Div();
+        scheduleContainer.setWidthFull();
+        scheduleContainer.add(new Span("График"));
+        scheduleContainer.add(scheduleGrid);
+
         // Buttons
         HorizontalLayout buttonsLayout = new HorizontalLayout();
         buttonsLayout.setWidthFull();
@@ -118,7 +132,7 @@ public class WorkOrderForm extends VerticalLayout {
         }
 
         // Main layout
-        add(buttonsLayout, headerLayout, servicesContainer, componentsContainer);
+        add(buttonsLayout, headerLayout, scheduleContainer, servicesContainer, componentsContainer);
         setFlexGrow(1, servicesContainer, componentsContainer);
     }
 
@@ -202,5 +216,60 @@ public class WorkOrderForm extends VerticalLayout {
         }
 
         return grid;
+    }
+
+    private Grid<ScheduleData> createScheduleGrid() {
+        Grid<ScheduleData> grid = new Grid<>(ScheduleData.class);
+        grid.removeAllColumns();
+        grid.setWidthFull();
+        grid.setHeight("150px");
+
+        // Получаем данные расписания
+        List<ScheduleData> scheduleData = scheduleService.getScheduleByWorkOrderId(workOrder.getId());
+
+        // Добавляем колонку с именем сотрудника
+        grid.addColumn(ScheduleData::getEmployeeName)
+                .setHeader("Сотрудник")
+                .setWidth("250px")
+                .setResizable(true);
+
+        // Динамически добавляем только занятые интервалы
+        addTimeColumnIfOccupied(grid, "09:00 - 10:00", ScheduleData::getTime09_10, scheduleData);
+        addTimeColumnIfOccupied(grid, "10:00 - 11:00", ScheduleData::getTime10_11, scheduleData);
+        addTimeColumnIfOccupied(grid, "11:00 - 12:00", ScheduleData::getTime11_12, scheduleData);
+        addTimeColumnIfOccupied(grid, "12:00 - 13:00", ScheduleData::getTime12_13, scheduleData);
+        addTimeColumnIfOccupied(grid, "14:00 - 15:00", ScheduleData::getTime14_15, scheduleData);
+        addTimeColumnIfOccupied(grid, "15:00 - 16:00", ScheduleData::getTime15_16, scheduleData);
+        addTimeColumnIfOccupied(grid, "16:00 - 17:00", ScheduleData::getTime16_17, scheduleData);
+        addTimeColumnIfOccupied(grid, "17:00 - 18:00", ScheduleData::getTime17_18, scheduleData);
+
+        // Добавляем колонку с общим количеством занятых часов
+        grid.addColumn(ScheduleData::getTotal)
+                .setHeader("Занято часов")
+                .setTextAlign(ColumnTextAlign.CENTER);
+
+        grid.setMultiSort(true);
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_COLUMN_BORDERS);
+        grid.setItems(scheduleData);
+
+        return grid;
+    }
+
+    private void addTimeColumnIfOccupied(Grid<ScheduleData> grid, String header,
+                                         ValueProvider<ScheduleData, Integer> valueProvider,
+                                         List<ScheduleData> scheduleData) {
+        // Проверяем, есть ли хотя бы одна запись с занятым временем в этом интервале
+        boolean isOccupied = scheduleData.stream()
+                .anyMatch(data -> valueProvider.apply(data) == 1);
+
+        if (isOccupied) {
+            grid.addColumn(item -> convertStatus(valueProvider.apply(item)))
+                    .setHeader(header)
+                    .setTextAlign(ColumnTextAlign.CENTER);
+        }
+    }
+
+    private String convertStatus(int status) {
+        return status == 0 ? "Свободно" : "Занято";
     }
 }

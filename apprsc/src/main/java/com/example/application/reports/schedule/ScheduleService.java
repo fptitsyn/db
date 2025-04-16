@@ -23,6 +23,11 @@ public class ScheduleService {
         return jdbcTemplate.query(sql, new ScheduleDataRowMapper(), workDay, locationId);
     }
 
+    public List<ScheduleData> getScheduleByWorkOrderId(Long workOrderId) {
+        String sql = "SELECT * FROM get_schedule_by_work_order_filtered(?)";
+        return jdbcTemplate.query(sql, new ScheduleDataRowMapper(), workOrderId);
+    }
+
     private static class ScheduleDataRowMapper implements RowMapper<ScheduleData> {
         @Override
         public ScheduleData mapRow(ResultSet rs, int rowNum) throws SQLException {

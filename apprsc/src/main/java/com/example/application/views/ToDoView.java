@@ -20,8 +20,6 @@ public class ToDoView extends VerticalLayout {
 
         add(new H4("Нужное. Простое"));
 
-        add(new Span("WorkOrderForm. Графики"));
-
         add(new Span("WorkOrderForm. Кнопка Сменить исполнителя - Выбрать другого исполнителя, заполнить ему график, старому очистить график"));
 
         add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity."));
