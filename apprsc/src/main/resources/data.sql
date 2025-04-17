@@ -802,23 +802,19 @@ ALTER FUNCTION public.get_order_info()
     OWNER TO postgres;
 ------------------------------------------------------------------------------------------------------------
 -- Функция для получения графика для отдельного наряда
+-- FUNCTION: public.get_schedule_by_work_order_filtered(bigint)
+
+-- DROP FUNCTION IF EXISTS public.get_schedule_by_work_order_filtered(bigint);
+
 CREATE OR REPLACE FUNCTION public.get_schedule_by_work_order_filtered(
-    p_work_orders_id bigint
-)
-    RETURNS TABLE (
-                      employee_name text,
-                      "09:00 - 10:00" int,
-                      "10:00 - 11:00" int,
-                      "11:00 - 12:00" int,
-                      "12:00 - 13:00" int,
-                      "14:00 - 15:00" int,
-                      "15:00 - 16:00" int,
-                      "16:00 - 17:00" int,
-                      "17:00 - 18:00" int,
-                      total_hours int
-                  )
-    LANGUAGE plpgsql
-AS $$
+	p_work_orders_id bigint)
+    RETURNS TABLE(employee_name text, "09:00 - 10:00" integer, "10:00 - 11:00" integer, "11:00 - 12:00" integer, "12:00 - 13:00" integer, "14:00 - 15:00" integer, "15:00 - 16:00" integer, "16:00 - 17:00" integer, "17:00 - 18:00" integer, total integer)
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
 BEGIN
     RETURN QUERY
         WITH schedule_data AS (
@@ -889,10 +885,14 @@ BEGIN
             h15_16 AS "15:00 - 16:00",
             h16_17 AS "16:00 - 17:00",
             h17_18 AS "17:00 - 18:00",
-            calc_total AS total_hours
+            calc_total AS total
         FROM schedule_data
         WHERE calc_total > 0
         ORDER BY emp_name;
 END;
-$$;
+$BODY$;
+
+ALTER FUNCTION public.get_schedule_by_work_order_filtered(bigint)
+    OWNER TO postgres;
+
 ------------------------------------------------------------------------------------------------------------
