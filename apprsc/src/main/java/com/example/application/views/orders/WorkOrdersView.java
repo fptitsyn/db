@@ -1,6 +1,8 @@
 package com.example.application.views.orders;
 
 import com.example.application.data.employees.Employees;
+import com.example.application.data.employees.EmployeesService;
+import com.example.application.data.locations.LocationsService;
 import com.example.application.data.login.Users;
 import com.example.application.data.orders.*;
 import com.example.application.reports.schedule.ScheduleService;
@@ -36,6 +38,8 @@ public class WorkOrdersView extends VerticalLayout {
     private final ScheduleService scheduleService;
     private final OrderComponentsService orderComponentsService; // Добавлено
     private final WorkOrdersService workOrdersService;
+    private final LocationsService locationsService;
+    private final EmployeesService employeesService;
 
     private final Grid<WorkOrders> workOrderGrid = new Grid<>(WorkOrders.class);
 
@@ -44,13 +48,17 @@ public class WorkOrdersView extends VerticalLayout {
                           OrderServicesService orderServicesService,
                           ScheduleService scheduleService,
                           OrderComponentsService orderComponentsService,
-                          WorkOrdersService workOrdersService) {
+                          WorkOrdersService workOrdersService,
+                          LocationsService locationsService,
+                          EmployeesService employeesService)    {
         this.orderService = orderService;
         this.authenticatedUser = authenticatedUser;
         this.orderServicesService = orderServicesService;
         this.scheduleService = scheduleService;
         this.orderComponentsService = orderComponentsService;
         this.workOrdersService = workOrdersService;
+        this.locationsService = locationsService;
+        this.employeesService = employeesService;
 
         initView();
     }
@@ -149,6 +157,8 @@ public class WorkOrdersView extends VerticalLayout {
                 scheduleService,
                 orderServicesService,
                 orderComponentsService,
+                locationsService,
+                employeesService,
                 () -> {
                     updateWorkOrderStatus(workOrder);
                     updateGrid();               // Обновляем сетку

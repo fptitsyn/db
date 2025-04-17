@@ -1,25 +1,37 @@
 package com.example.application.views.orders;
 
 import com.example.application.data.components.Component;
+import com.example.application.data.employees.Employees;
+import com.example.application.data.employees.EmployeesService;
+import com.example.application.data.employees.Schedule;
+import com.example.application.data.locations.Locations;
+import com.example.application.data.locations.LocationsService;
 import com.example.application.data.orders.*;
 import com.example.application.data.services.Services;
 import com.example.application.reports.schedule.ScheduleData;
 import com.example.application.reports.schedule.ScheduleService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.ValueProvider;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 public class WorkOrderForm extends VerticalLayout {
     private final WorkOrders workOrder;
@@ -27,6 +39,8 @@ public class WorkOrderForm extends VerticalLayout {
     private final ScheduleService scheduleService;
     private final OrderServicesService orderServicesService;
     private final OrderComponentsService orderComponentsService;
+    private final LocationsService locationsService;
+    private final EmployeesService employeesService;
     private final Runnable onProceed;
     private final Runnable onCancel;
 
@@ -34,6 +48,8 @@ public class WorkOrderForm extends VerticalLayout {
                          OrdersService orderService, ScheduleService scheduleService,
                          OrderServicesService orderServicesService,
                          OrderComponentsService orderComponentsService,
+                         LocationsService locationsService,
+                         EmployeesService employeesService,
                          Runnable onProceed,
                          Runnable onCancel) {
         this.workOrder = workOrder;
@@ -41,7 +57,8 @@ public class WorkOrderForm extends VerticalLayout {
         this.scheduleService = scheduleService;
         this.orderServicesService = orderServicesService;
         this.orderComponentsService = orderComponentsService;
-
+        this.locationsService = locationsService;
+        this.employeesService = employeesService;
         this.onProceed = onProceed;
         this.onCancel = onCancel;
 
@@ -110,10 +127,13 @@ public class WorkOrderForm extends VerticalLayout {
         Button cancelBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), ignored -> onCancel.run());
         styleButton(cancelBtn, "error");
 
+        Button ChangeMasterBtn = new Button("Сменить мастера", VaadinIcon.REFRESH.create(), ignored -> openChangeMasterDialog());
+        styleButton(saveBtn, "primary");
+
         if (buttonText.equals("Ошибка!")) {
             buttonsLayout.add(cancelBtn);
         } else {
-            buttonsLayout.add(saveBtn, cancelBtn);
+            buttonsLayout.add(ChangeMasterBtn, saveBtn, cancelBtn);
         }
 
         // Main layout
@@ -260,5 +280,121 @@ public class WorkOrderForm extends VerticalLayout {
 
     private String convertStatus(int status) {
         return status == 0 ? "Свободно" : "Занято";
+    }
+
+    // Методы смены мастера
+    private void openChangeMasterDialog() {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Смена мастера");
+        dialog.setWidth("800px");
+
+        // Элементы управления
+        ComboBox<Locations> locationComboBox = new ComboBox<>("Офис");
+        ComboBox<Employees> employeeComboBox = new ComboBox<>("Сотрудник");
+        DatePicker datePicker = new DatePicker("Дата работ");
+        Grid<Schedule> scheduleChangeGrid = new Grid<>(Schedule.class);
+        Button transferButton = new Button("Передать");
+        Span warningSpan = new Span(); // Добавляем Span для сообщения
+        warningSpan.getStyle().setColor("red");
+        warningSpan.setVisible(false);
+
+        // Настройка компонентов
+        locationComboBox.setItems(locationsService.findAll());
+        locationComboBox.setItemLabelGenerator(Locations::getName);
+
+        employeeComboBox.setEnabled(false);
+        employeeComboBox.setItemLabelGenerator(e -> e.getLastName() + " " + e.getFirstName());
+
+        datePicker.setEnabled(false);
+        datePicker.setMin(LocalDate.now());
+
+        // Настройка Grid
+        scheduleChangeGrid.removeAllColumns();
+        scheduleChangeGrid.addColumn(Schedule::getTimeInterval).setHeader("Временной интервал");
+        scheduleChangeGrid.addColumn(s -> s.getLocation().getName()).setHeader("Локация");
+        scheduleChangeGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        scheduleChangeGrid.setEmptyStateText("Нет свободного времени");
+
+        // Логика взаимодействия
+        locationComboBox.addValueChangeListener(e -> {
+            Locations loc = e.getValue();
+            employeeComboBox.setEnabled(loc != null);
+            employeeComboBox.setItems(employeesService.getOrderEmployeesByLocation(workOrder.getOrders().getId(), loc.getId()));
+        });
+
+        employeeComboBox.addValueChangeListener(e -> {
+            datePicker.setEnabled(e.getValue() != null);
+        });
+
+        datePicker.addValueChangeListener(e -> {
+            if (e.getValue() != null && employeeComboBox.getValue() != null) {
+                List<Schedule> slots = scheduleService.findAvailableSlots(
+                        employeeComboBox.getValue().getId(),
+                        e.getValue()
+                );
+                scheduleChangeGrid.setItems(slots);
+            }
+        });
+
+        // Обработчик выбора слотов
+        /*
+        scheduleChangeGrid.addSelectionListener(event -> {
+            int selectedCount = event.getAllSelectedItems().size();
+            if (totalTime > 0 && selectedCount < totalTime) {
+                warningSpan.setText("Необходимо выбрать слотов на " + totalTime + " часа");
+                warningSpan.setVisible(true);
+            } else {
+                warningSpan.setVisible(false);
+            }
+        });
+
+         */
+
+        transferButton.addClickListener(e -> {
+            Set<Schedule> selectedSlots = scheduleChangeGrid.getSelectedItems();
+
+            // Проверка на минимальное количество слотов
+            /*
+            if (totalTime > 0 && selectedSlots.size() < totalTime) {
+                Notification.show("Требуется выбрать минимум " + totalTime + " слотов!",
+                        3000, Notification.Position.MIDDLE);
+                return;
+            }
+
+             */
+
+            if (selectedSlots.isEmpty()) {
+                Notification.show("Выберите хотя бы один временной слот!");
+                return;
+            }
+
+            try {
+                // Обновляем выбранные слоты расписания
+                selectedSlots.forEach(slot -> {
+                    slot.setWorkOrders(workOrder);
+                    scheduleService.save(slot);
+                });
+
+                Notification.show("Заказ передан в работу! Выбрано слотов: " + selectedSlots.size());
+                dialog.close();
+            } catch (Exception ex) {
+                Notification.show("Ошибка: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        });
+
+        // Компоновка с добавлением предупреждения
+        VerticalLayout layout = new VerticalLayout(
+                new H2("Текущий Мастер:"),
+                new Span("---Тут могла быть ваша реклама---"),
+                new H2("Новый Мастер:"),
+                new HorizontalLayout(locationComboBox, employeeComboBox, datePicker),
+                scheduleChangeGrid,
+                warningSpan, // Сообщение под Grid
+                new HorizontalLayout(transferButton, new Button("Отмена", ev -> dialog.close()))
+        );
+
+        dialog.add(layout);
+        dialog.open();
     }
 }
