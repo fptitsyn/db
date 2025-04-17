@@ -1,9 +1,11 @@
 package com.example.application.data.orders;
 
 import com.example.application.data.employees.Employees;
+import com.example.application.data.employees.Schedule;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "work_orders")
@@ -29,6 +31,9 @@ public class WorkOrders {
     @ManyToOne
     @JoinColumn(name = "work_order_status_id")
     private WorkOrderStatus workOrderStatus;
+
+    @OneToMany(mappedBy = "workOrders")
+    private List<Schedule> schedules;
 
     public Long getId() {
         return work_orders_id;

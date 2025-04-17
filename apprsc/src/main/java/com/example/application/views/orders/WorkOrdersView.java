@@ -9,16 +9,19 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
+import java.util.List;
 import java.util.Optional;
 
 @Route(value = "work-orders-view")
@@ -56,20 +59,35 @@ public class WorkOrdersView extends VerticalLayout {
         workOrderGrid.removeAllColumns();
         workOrderGrid.addColumn(WorkOrders::getDateOfWorkOrder).setHeader("Дата наряда");
         workOrderGrid.addColumn(WorkOrders::getNumberOfWorkOrder).setHeader("Номер");
-        workOrderGrid.addColumn(WorkOrders::getWorkOrderStatusName).setHeader("Статус");
+
+        Grid.Column<WorkOrders> statusColumn = workOrderGrid.addColumn(WorkOrders::getWorkOrderStatusName)
+                .setHeader("Статус")
+                .setSortable(true);
+
         workOrderGrid.addColumn(workOrder -> {
             if (workOrder.getOrders() != null) {
                 return workOrder.getOrders().getNumberOfOrder();
             }
             return "Не указано";
         }).setHeader("Заказ").setAutoWidth(true);
+
         workOrderGrid.addColumn(workOrder -> {
             if (workOrder.getEmployee() != null) {
                 return workOrder.getEmployee().getFullName();
             }
             return "Не указан";
         }).setHeader("Мастер").setAutoWidth(true);
-        workOrderGrid.addComponentColumn(this::createWorkOrderActions).setHeader("Действия").setWidth("250px");
+
+        workOrderGrid.addComponentColumn(this::createWorkOrderActions)
+                .setHeader("Действия")
+                .setWidth("250px");
+
+        // Настройка сортировки по умолчанию
+        List<GridSortOrder<WorkOrders>> sortOrder = List.of(
+                new GridSortOrder<>(statusColumn, SortDirection.ASCENDING)
+        );
+        workOrderGrid.sort(sortOrder);
+
 
         updateGrid();
         setSizeFull();
@@ -143,6 +161,7 @@ public class WorkOrdersView extends VerticalLayout {
 
         );
         dialog.setWidth("1500px");
+        dialog.setHeight("1000px");
         dialog.add(form);
         dialog.open();
     }

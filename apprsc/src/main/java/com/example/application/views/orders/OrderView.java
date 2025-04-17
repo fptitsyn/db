@@ -3,9 +3,11 @@ package com.example.application.views.orders;
 import com.example.application.data.components.ComponentService;
 import com.example.application.data.employees.*;
 import com.example.application.data.locations.Locations;
+import com.example.application.data.locations.LocationsService;
 import com.example.application.data.login.Users;
 import com.example.application.data.orders.*;
 import com.example.application.data.services.ServicesService;
+import com.example.application.reports.schedule.ScheduleService;
 import com.example.application.security.AuthenticatedUser;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -41,6 +43,9 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final BonusAccountOperationService bonusAccountOperationService;
     private final ClientStatusService clientStatusService;
     private final InvoiceForPaymentService invoiceForPaymentService;
+    private final LocationsService locationsService;
+    private final ScheduleService scheduleService;
+
     private final Grid<Orders> orderGrid = new Grid<>(Orders.class);
     private final Span clientFullName = new Span();
     private final Button backButton = new Button("Вернуться к списку клиентов");
@@ -59,7 +64,9 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                      BonusAccountService bonusAccountService,
                      BonusAccountOperationService bonusAccountOperationService,
                      ClientStatusService clientStatusService,
-                     InvoiceForPaymentService invoiceForPaymentService
+                     InvoiceForPaymentService invoiceForPaymentService,
+                     LocationsService locationsService,
+                     ScheduleService scheduleService
     ) {
         this.orderService = orderService;
         this.clientService = clientService;
@@ -75,7 +82,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         this.bonusAccountOperationService = bonusAccountOperationService;
         this.clientStatusService = clientStatusService;
         this.invoiceForPaymentService = invoiceForPaymentService;
-
+        this.locationsService = locationsService;
+        this.scheduleService = scheduleService;
         initView();
     }
 
@@ -240,6 +248,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 bonusAccountOperationService,
                 clientStatusService,
                 invoiceForPaymentService,
+                locationsService,
+                scheduleService,
                 createCloseDialogOrderFormHandler(dialog)
         );
     }

@@ -1,5 +1,6 @@
 package com.example.application.reports.schedule;
 
+import com.example.application.data.employees.Schedule;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -13,9 +14,17 @@ import java.util.List;
 @Service
 public class ScheduleService {
     private final JdbcTemplate jdbcTemplate;
+    private final ScheduleRepository scheduleRepository;
 
-    public ScheduleService(JdbcTemplate jdbcTemplate) {
+
+
+    public ScheduleService(JdbcTemplate jdbcTemplate, ScheduleRepository scheduleRepository) {
         this.jdbcTemplate = jdbcTemplate;
+        this.scheduleRepository = scheduleRepository;
+    }
+
+    public void save(Schedule schedule) {
+        scheduleRepository.save(schedule);
     }
 
     public List<ScheduleData> getSchedule(LocalDate workDay, Long locationId) {
@@ -65,5 +74,9 @@ public class ScheduleService {
         } catch (DataAccessException ex) {
             throw new RuntimeException(ex.getMostSpecificCause().getMessage());
         }
+    }
+
+    public List<Schedule> findAvailableSlots(Long employeeId, LocalDate date) {
+        return scheduleRepository.findAvailableSlots(employeeId, date);
     }
 }

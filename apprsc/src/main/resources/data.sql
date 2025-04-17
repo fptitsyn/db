@@ -684,7 +684,7 @@ CREATE OR REPLACE FUNCTION public.get_order_employees_by_location(
     input_orders_id bigint,
     input_location_id bigint
 )
-    RETURNS TABLE("ФИО" text, "Должность" text)
+    RETURNS TABLE(employee_id bigint, "ФИО" text, "Должность" text)
     LANGUAGE 'plpgsql'
 AS $BODY$
 BEGIN
@@ -709,16 +709,18 @@ BEGIN
     ),
     employee_details AS (
         SELECT
+            e.employee_id,
             CONCAT(e.last_name, ' ', e.first_name, ' ', COALESCE(e.middle_name, '')) AS full_name,
             st.position
         FROM active_employees ae
         INNER JOIN staffing_table st
             ON ae.staffing_table_id = st.staffing_table_id
-            AND st.location_id = input_location_id  -- Фильтр по локации
+            AND st.location_id = input_location_id
         INNER JOIN employees e
             ON ae.employee_id = e.employee_id
     )
     SELECT
+        ed.employee_id::bigint,
         ed.full_name::text,
         ed.position::text
     FROM employee_details ed

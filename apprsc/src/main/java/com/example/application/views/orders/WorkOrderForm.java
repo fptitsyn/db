@@ -74,14 +74,14 @@ public class WorkOrderForm extends VerticalLayout {
         Grid<Services> servicesGrid = createServicesGrid();
         Div servicesContainer = new Div();
         servicesContainer.setWidthFull();
-        servicesContainer.add(new Span("Услуги"));
+        servicesContainer.add(new Span("Работы"));
         servicesContainer.add(servicesGrid);
 
         // Components Grid
         Grid<Component> componentsGrid = createComponentsGrid();
         Div componentsContainer = new Div();
         componentsContainer.setWidthFull();
-        componentsContainer.add(new Span("Компоненты"));
+        componentsContainer.add(new Span("Комплектующие"));
         componentsContainer.add(componentsGrid);
 
         // Schedule grid
@@ -90,6 +90,7 @@ public class WorkOrderForm extends VerticalLayout {
         scheduleContainer.setWidthFull();
         scheduleContainer.add(new Span("График"));
         scheduleContainer.add(scheduleGrid);
+
 
         // Buttons
         HorizontalLayout buttonsLayout = new HorizontalLayout();
@@ -142,10 +143,15 @@ public class WorkOrderForm extends VerticalLayout {
         Grid<Services> grid = new Grid<>(Services.class);
         grid.removeAllColumns();
         grid.setWidthFull();
-        grid.setHeight("300px");
+        grid.setHeight("250px");
 
         grid.addColumn(Services::getServiceName)
                 .setHeader("Наименование")
+                .setAutoWidth(true)
+                .setFlexGrow(1);
+
+        grid.addColumn(Services::getTimeToCompleteHours)
+                .setHeader("Время выполнения")
                 .setAutoWidth(true)
                 .setFlexGrow(1);
 
@@ -169,20 +175,19 @@ public class WorkOrderForm extends VerticalLayout {
         Grid<Component> grid = new Grid<>(Component.class);
         grid.removeAllColumns();
         grid.setWidthFull();
-        grid.setHeight("300px");
+        grid.setHeight("200px");
 
-        grid.addColumn(Component::getName)
-                .setHeader("Наименование")
+        grid.addColumn(c -> c.getCategory().getTypeOfDevice().getTypeOfDeviceName())
+                .setHeader("Устройство")
                 .setAutoWidth(true)
                 .setFlexGrow(1);
-
         grid.addColumn(c -> c.getCategory().getTypeOfPartName())
                 .setHeader("Тип")
                 .setAutoWidth(true)
                 .setFlexGrow(1);
 
-        grid.addColumn(c -> c.getCategory().getTypeOfDevice().getTypeOfDeviceName())
-                .setHeader("Устройство")
+        grid.addColumn(Component::getName)
+                .setHeader("Наименование")
                 .setAutoWidth(true)
                 .setFlexGrow(1);
 
@@ -206,7 +211,7 @@ public class WorkOrderForm extends VerticalLayout {
         Grid<ScheduleData> grid = new Grid<>(ScheduleData.class);
         grid.removeAllColumns();
         grid.setWidthFull();
-        grid.setHeight("150px");
+        grid.setHeight("100px");
 
         // Получаем данные расписания
         List<ScheduleData> scheduleData = scheduleService.getScheduleByWorkOrderId(workOrder.getId());

@@ -13,6 +13,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -139,6 +140,15 @@ public class EmployeesService {
         } catch (Exception e) {
             throw new RuntimeException("Error fetching order employees", e);
         }
+    }
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    public List<Employees> getOrderEmployeesByLocation(Long orderId, Long locationId) {
+        String sql = "SELECT employee_id FROM get_order_employees_by_location(?, ?)";
+        List<Long> employeeIds = jdbcTemplate.queryForList(sql, new Object[]{orderId, locationId}, Long.class);
+        return employeesRepository.findAllById(employeeIds);
     }
 
     private String getStringSafe(Object value) {

@@ -4,13 +4,18 @@ import com.example.application.data.components.Component;
 import com.example.application.data.components.ComponentService;
 import com.example.application.data.employees.Employees;
 import com.example.application.data.employees.EmployeesService;
+import com.example.application.data.employees.Schedule;
+import com.example.application.data.locations.Locations;
+import com.example.application.data.locations.LocationsService;
 import com.example.application.data.orders.*;
 import com.example.application.data.services.Services;
 import com.example.application.data.services.ServicesService;
+import com.example.application.reports.schedule.ScheduleService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -31,7 +36,9 @@ import com.vaadin.flow.data.provider.Query;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 public class OrderForm extends VerticalLayout {
     private final Orders order;
@@ -47,6 +54,8 @@ public class OrderForm extends VerticalLayout {
     private final BonusAccountOperationService bonusAccountOperationService;
     private final ClientStatusService clientStatusService;
     private final InvoiceForPaymentService invoiceForPaymentService;
+    private final LocationsService locationsService;
+    private final ScheduleService scheduleService;
 
     //private final Runnable onSave;
     private final Runnable onCloseDialogOrderForm;
@@ -62,6 +71,7 @@ public class OrderForm extends VerticalLayout {
     private Grid.Column<OrderComponents> costComponentsColumn;
     private BigDecimal totalServicesCost = BigDecimal.ZERO;
     private BigDecimal totalComponentsCost = BigDecimal.ZERO;
+    private int totalTime = 0;
 
     // Grid для услуг
     private final Grid<OrderServices> servicesGrid = new Grid<>(OrderServices.class);
@@ -81,7 +91,8 @@ public class OrderForm extends VerticalLayout {
                      BonusAccountOperationService bonusAccountOperationService,
                      ClientStatusService clientStatusService,
                      InvoiceForPaymentService invoiceForPaymentService,
-                     //Runnable onSave,
+                     LocationsService locationsService,
+                     ScheduleService scheduleService,
                      Runnable onCloseDialogOrderForm) {
         this.order = order;
         this.currentClient = currentClient;
@@ -96,7 +107,8 @@ public class OrderForm extends VerticalLayout {
         this.bonusAccountOperationService = bonusAccountOperationService;
         this.clientStatusService = clientStatusService;
         this.invoiceForPaymentService = invoiceForPaymentService;
-        //this.onSave = onSave;
+        this.locationsService = locationsService;
+        this.scheduleService = scheduleService;
         this.onCloseDialogOrderForm = onCloseDialogOrderForm;
 
         initForm();
@@ -182,7 +194,8 @@ public class OrderForm extends VerticalLayout {
                 .map(os -> os.getServices().getCost())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        int totalTime = servicesGrid.getDataProvider().fetch(new Query<>())
+        // Обновляем поле класса totalTime
+        this.totalTime = servicesGrid.getDataProvider().fetch(new Query<>())
                 .mapToInt(os -> os.getServices().getTimeToCompleteHours())
                 .sum();
 
@@ -546,48 +559,122 @@ public class OrderForm extends VerticalLayout {
     // Методы для передачи в работу
     private void openAddWorkOrderDialog() {
         if (!binder.writeBeanIfValid(order)) {
-        Notification.show("Заполните все обязательные поля");
-        return;
+            Notification.show("Заполните все обязательные поля");
+            return;
         }
 
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Передача в работу");
-        dialog.setWidth("500px");
+        dialog.setWidth("800px");
 
-        Button addBtn = new Button("Передать", ignored -> {
+        // Элементы управления
+        ComboBox<Locations> locationComboBox = new ComboBox<>("Офис");
+        ComboBox<Employees> employeeComboBox = new ComboBox<>("Сотрудник");
+        DatePicker datePicker = new DatePicker("Дата работ");
+        Grid<Schedule> scheduleGrid = new Grid<>(Schedule.class);
+        Button transferButton = new Button("Передать");
+        Span warningSpan = new Span(); // Добавляем Span для сообщения
+        warningSpan.getStyle().setColor("red");
+        warningSpan.setVisible(false);
+
+        // Настройка компонентов
+        locationComboBox.setItems(locationsService.findAll());
+        locationComboBox.setItemLabelGenerator(Locations::getName);
+
+        employeeComboBox.setEnabled(false);
+        employeeComboBox.setItemLabelGenerator(e -> e.getLastName() + " " + e.getFirstName());
+
+        datePicker.setEnabled(false);
+        datePicker.setMin(LocalDate.now());
+
+        // Настройка Grid
+        scheduleGrid.removeAllColumns();
+        scheduleGrid.addColumn(Schedule::getTimeInterval).setHeader("Временной интервал");
+        scheduleGrid.addColumn(s -> s.getLocation().getName()).setHeader("Локация");
+        scheduleGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        scheduleGrid.setEmptyStateText("Нет свободного времени");
+
+        // Логика взаимодействия
+        locationComboBox.addValueChangeListener(e -> {
+            Locations loc = e.getValue();
+            employeeComboBox.setEnabled(loc != null);
+            employeeComboBox.setItems(employeesService.getOrderEmployeesByLocation(order.getId(), loc.getId()));
+        });
+
+        employeeComboBox.addValueChangeListener(e -> {
+            datePicker.setEnabled(e.getValue() != null);
+        });
+
+        datePicker.addValueChangeListener(e -> {
+            if (e.getValue() != null && employeeComboBox.getValue() != null) {
+                List<Schedule> slots = scheduleService.findAvailableSlots(
+                        employeeComboBox.getValue().getId(),
+                        e.getValue()
+                );
+                scheduleGrid.setItems(slots);
+            }
+        });
+
+        // Обработчик выбора слотов
+        scheduleGrid.addSelectionListener(event -> {
+            int selectedCount = event.getAllSelectedItems().size();
+            if (totalTime > 0 && selectedCount < totalTime) {
+                warningSpan.setText("Необходимо выбрать слотов на " + totalTime + " часа");
+                warningSpan.setVisible(true);
+            } else {
+                warningSpan.setVisible(false);
+            }
+        });
+
+        transferButton.addClickListener(e -> {
+            Set<Schedule> selectedSlots = scheduleGrid.getSelectedItems();
+
+            // Проверка на минимальное количество слотов
+            if (totalTime > 0 && selectedSlots.size() < totalTime) {
+                Notification.show("Требуется выбрать минимум " + totalTime + " слотов!",
+                        3000, Notification.Position.MIDDLE);
+                return;
+            }
+
+            if (selectedSlots.isEmpty()) {
+                Notification.show("Выберите хотя бы один временной слот!");
+                return;
+            }
+
             try {
-                orderService.save(order);  // <-- Сохраняем изменения из формы
-
-                // Получаем сотрудника с ID = 1
-                Employees employee = employeesService.findById(1L)
-                        .orElseThrow(() -> new RuntimeException("Сотрудник не найден"));
-
-                // Создаем новое рабочее задание
+                // Создаем рабочее задание
                 WorkOrders workOrder = new WorkOrders();
                 workOrder.setOrders(order);
-                workOrder.setEmployee(employee);
-
-                // Сохраняем рабочее задание (дата и статус установятся триггером)
+                workOrder.setEmployee(employeeComboBox.getValue());
                 workOrdersService.save(workOrder);
+
+                // Обновляем выбранные слоты расписания
+                selectedSlots.forEach(slot -> {
+                    slot.setWorkOrders(workOrder);
+                    scheduleService.save(slot);
+                });
 
                 // Обновляем статус заказа
                 order.setOrderStatusId(2L);
                 orderService.save(order);
 
-                Notification.show("Заказ #" + order.getNumberOfOrder() + " передан в работу",
-                        3000, Notification.Position.TOP_CENTER);
-                onCloseDialogOrderForm.run();
+                Notification.show("Заказ передан в работу! Выбрано слотов: " + selectedSlots.size());
                 dialog.close();
+                onCloseDialogOrderForm.run();
             } catch (Exception ex) {
-                Notification.show("Ошибка: " + ex.getMessage(),
-                        5000, Notification.Position.TOP_CENTER);
+                Notification.show("Ошибка: " + ex.getMessage());
+                ex.printStackTrace();
             }
         });
 
+        // Компоновка с добавлением предупреждения
         VerticalLayout layout = new VerticalLayout(
-                new HorizontalLayout(addBtn, new Button("Отмена", ignored-> dialog.close()))
+                new HorizontalLayout(locationComboBox, employeeComboBox, datePicker),
+                scheduleGrid,
+                warningSpan, // Сообщение под Grid
+                new HorizontalLayout(transferButton, new Button("Отмена", ev -> dialog.close()))
         );
-        layout.setPadding(false);
+
         dialog.add(layout);
         dialog.open();
     }
