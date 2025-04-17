@@ -24,6 +24,7 @@ import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Route(value = "work-orders-view")
@@ -114,9 +115,8 @@ public class WorkOrdersView extends VerticalLayout {
         Optional<Users> maybeUser = authenticatedUser.get();
         // Безопасная проверка наличия пользователя и установка видимости кнопки
         editBtn.setVisible(maybeUser.map(user ->
-                        "su".equals(user.getUsername()) || "worker".equals(user.getUsername()))
+                        "su".equals(user.getUsername()) || workOrder.getEmployee().getId().equals(user.getEmployee().getId()))
                 .orElse(false));
-
         editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         editBtn.getStyle()
                 .set("margin-right", "1em")
@@ -184,9 +184,18 @@ public class WorkOrdersView extends VerticalLayout {
         WorkOrderStatus newStatus = workOrder.getWorkOrderStatus();
 
         newStatus.setId(newStatus.getId() + 1);
-        System.out.println(newStatus.getId());
         workOrder.setWorkOrderStatus(newStatus);
         workOrdersService.save(workOrder);
+
+        if (newStatus.getId().intValue() == 3) {
+            Orders order = workOrder.getOrders();
+            if (order.getOrderStatus().getId().intValue() == 3) {
+                return;
+            }
+
+            order.setOrderStatusId(3L);
+            orderService.save(order);
+        }
     }
 
     private String createNotificationText(WorkOrders workOrder) {

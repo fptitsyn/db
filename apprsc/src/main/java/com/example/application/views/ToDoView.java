@@ -19,8 +19,6 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
-        add(new Span("WorkOrders. Права: Кнопка открыть доступна мастеру (тому кто указан как мастер в наряде) и GOD (те у кого роль - GOD) - все"));
-        add(new Span("WorkOrderForm. Кнопка Выполнено - проставлять в связанном Заказе - статус 3."));
         add(new Span("WorkOrderForm. Добавить дату в графики после ФИО"));
         add(new Span("WorkOrderForm. Кнопка Сменить исполнителя - Выбрать другого исполнителя, заполнить ему график, старому очистить график"));
 
