@@ -19,11 +19,11 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
 
         add(new H4("Нужное. Простое"));
-
+        add(new Span("WorkOrders. Права: Кнопка открыть доступна мастеру (тому кто указан как мастер в наряде) и GOD (те у кого роль - GOD) - все"));
+        add(new Span("WorkOrderForm. Кнопка Выполнено - проставлять в связанном Заказе - статус 3."));
         add(new Span("WorkOrderForm. Кнопка Сменить исполнителя - Выбрать другого исполнителя, заполнить ему график, старому очистить график"));
 
         add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity."));
-
         add(new Span("Доработать roles_grants.sql - Добавить права для продавцов и аналитиков"));
 
         add(new Span("В перемещениях добавить ограничения на привязку к должности в другом городе."));

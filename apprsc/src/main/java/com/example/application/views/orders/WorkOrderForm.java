@@ -1,12 +1,8 @@
 package com.example.application.views.orders;
 
 import com.example.application.data.components.Component;
-import com.example.application.data.components.ComponentService;
-import com.example.application.data.employees.EmployeesService;
-import com.example.application.data.employees.Schedule;
 import com.example.application.data.orders.*;
 import com.example.application.data.services.Services;
-import com.example.application.data.services.ServicesService;
 import com.example.application.reports.schedule.ScheduleData;
 import com.example.application.reports.schedule.ScheduleService;
 import com.vaadin.flow.component.button.Button;
@@ -30,33 +26,22 @@ public class WorkOrderForm extends VerticalLayout {
     private final OrdersService orderService;
     private final ScheduleService scheduleService;
     private final OrderServicesService orderServicesService;
-    private final ServicesService servicesService;
     private final OrderComponentsService orderComponentsService;
-    private final ComponentService componentService;
-    private final WorkOrdersService workOrdersService;
-    private final EmployeesService employeesService;
     private final Runnable onProceed;
     private final Runnable onCancel;
 
     public WorkOrderForm(WorkOrders workOrder,
                          OrdersService orderService, ScheduleService scheduleService,
                          OrderServicesService orderServicesService,
-                         ServicesService servicesService,
                          OrderComponentsService orderComponentsService,
-                         ComponentService componentService,
-                         WorkOrdersService workOrdersService,
-                         EmployeesService employeesService,
                          Runnable onProceed,
                          Runnable onCancel) {
         this.workOrder = workOrder;
         this.orderService = orderService;
         this.scheduleService = scheduleService;
         this.orderServicesService = orderServicesService;
-        this.servicesService = servicesService;
         this.orderComponentsService = orderComponentsService;
-        this.componentService = componentService;
-        this.workOrdersService = workOrdersService;
-        this.employeesService = employeesService;
+
         this.onProceed = onProceed;
         this.onCancel = onCancel;
 
@@ -118,16 +103,15 @@ public class WorkOrderForm extends VerticalLayout {
             default -> "Ошибка!";
         };
 
-        Button saveBtn = new Button(buttonText, VaadinIcon.CHECK.create(), e -> onProceed.run());
+        Button saveBtn = new Button(buttonText, VaadinIcon.CHECK.create(), ignored -> onProceed.run());
         styleButton(saveBtn, "primary");
 
-        Button cancelBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), e -> onCancel.run());
+        Button cancelBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), ignored -> onCancel.run());
         styleButton(cancelBtn, "error");
 
         if (buttonText.equals("Ошибка!")) {
             buttonsLayout.add(cancelBtn);
-        }
-        else {
+        } else {
             buttonsLayout.add(saveBtn, cancelBtn);
         }
 

@@ -1,11 +1,8 @@
 package com.example.application.views.orders;
 
-import com.example.application.data.components.ComponentService;
 import com.example.application.data.employees.Employees;
-import com.example.application.data.employees.EmployeesService;
 import com.example.application.data.login.Users;
 import com.example.application.data.orders.*;
-import com.example.application.data.services.ServicesService;
 import com.example.application.reports.schedule.ScheduleService;
 import com.example.application.security.AuthenticatedUser;
 import com.vaadin.flow.component.button.Button;
@@ -20,11 +17,8 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Route(value = "work-orders-view")
@@ -36,32 +30,24 @@ public class WorkOrdersView extends VerticalLayout {
     private final AuthenticatedUser authenticatedUser;
     private final OrdersService orderService;
     private final OrderServicesService orderServicesService; // Добавлено
-    private final ServicesService servicesService;
     private final ScheduleService scheduleService;
     private final OrderComponentsService orderComponentsService; // Добавлено
-    private final ComponentService componentService;
     private final WorkOrdersService workOrdersService;
-    private final EmployeesService employeesService;
 
     private final Grid<WorkOrders> workOrderGrid = new Grid<>(WorkOrders.class);
 
     public WorkOrdersView(OrdersService orderService,
                           AuthenticatedUser authenticatedUser,
                           OrderServicesService orderServicesService,
-                          ServicesService servicesService, ScheduleService scheduleService,
+                          ScheduleService scheduleService,
                           OrderComponentsService orderComponentsService,
-                          ComponentService componentService,
-                          WorkOrdersService workOrdersService,
-                          EmployeesService employeesService) {
+                          WorkOrdersService workOrdersService) {
         this.orderService = orderService;
         this.authenticatedUser = authenticatedUser;
         this.orderServicesService = orderServicesService;
-        this.servicesService = servicesService;
         this.scheduleService = scheduleService;
         this.orderComponentsService = orderComponentsService;
-        this.componentService = componentService;
         this.workOrdersService = workOrdersService;
-        this.employeesService = employeesService;
 
         initView();
     }
@@ -97,11 +83,13 @@ public class WorkOrdersView extends VerticalLayout {
 
 
     private HorizontalLayout createWorkOrderActions(WorkOrders workOrder) {
-        Button editBtn = new Button("Открыть", VaadinIcon.EDIT.create(), e -> showWorkOrderForm(workOrder));
+        Button editBtn = new Button("Открыть", VaadinIcon.EDIT.create(), ignored -> showWorkOrderForm(workOrder));
 
         Optional<Users> maybeUser = authenticatedUser.get();
-        Users user = maybeUser.get();
-        editBtn.setVisible(Objects.equals(user.getUsername(), "su") || Objects.equals(user.getUsername(), "worker"));
+        // Безопасная проверка наличия пользователя и установка видимости кнопки
+        editBtn.setVisible(maybeUser.map(user ->
+                        "su".equals(user.getUsername()) || "worker".equals(user.getUsername()))
+                .orElse(false));
 
         editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         editBtn.getStyle()
@@ -137,22 +125,12 @@ public class WorkOrdersView extends VerticalLayout {
         dialog.setHeaderTitle(workOrder.getId() == null ? "Новый заказ"
                 : "Редактирование заказа #" + workOrder.getNumberOfWorkOrder() + " от " + workOrder.getDateOfWorkOrder() + ", статус: " + workOrder.getWorkOrderStatusName());
 
-//        String notificationText = switch (workOrder.getWorkOrderStatus().getId().intValue()) {
-//            case 2 -> "Наряд принят в работу";
-//            case 3 -> "Наряд выполнен";
-//            default -> "Ошибка!!!";
-//        };
-
         WorkOrderForm form = new WorkOrderForm(
                 workOrder,
                 orderService,
                 scheduleService,
                 orderServicesService,
-                servicesService,
                 orderComponentsService,
-                componentService,
-                workOrdersService,
-                employeesService,
                 () -> {
                     updateWorkOrderStatus(workOrder);
                     updateGrid();               // Обновляем сетку
