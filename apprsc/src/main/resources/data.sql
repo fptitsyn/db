@@ -676,6 +676,59 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 ------------------------------------------------------------------------------------------------------------
+--функция на PL/pgSQL, которая возвращает список мастеров в офисе способных выполнить все услуги указанного заказа.
+--FUNCTION: public.get_order_employees_by_location(bigint, bigint)
+--DROP FUNCTION IF EXISTS public.get_order_employees_by_location(bigint,bigint);
+
+CREATE OR REPLACE FUNCTION public.get_order_employees_by_location(
+    input_orders_id bigint,
+    input_location_id bigint
+)
+    RETURNS TABLE("ФИО" text, "Должность" text)
+    LANGUAGE 'plpgsql'
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    WITH required_services AS (
+        SELECT service_id
+        FROM order_services
+        WHERE orders_id = input_orders_id
+    ),
+    qualified_employees AS (
+        SELECT es.employee_id
+        FROM employee_service es
+        INNER JOIN required_services rs ON es.service_id = rs.service_id
+        GROUP BY es.employee_id
+        HAVING COUNT(DISTINCT es.service_id) = (SELECT COUNT(*) FROM required_services)
+    ),
+    active_employees AS (
+        SELECT qe.employee_id, em.staffing_table_id
+        FROM qualified_employees qe
+        INNER JOIN employees_moving em ON qe.employee_id = em.employee_id
+        WHERE em.date_of_dismissal IS NULL
+    ),
+    employee_details AS (
+        SELECT
+            CONCAT(e.last_name, ' ', e.first_name, ' ', COALESCE(e.middle_name, '')) AS full_name,
+            st.position
+        FROM active_employees ae
+        INNER JOIN staffing_table st
+            ON ae.staffing_table_id = st.staffing_table_id
+            AND st.location_id = input_location_id  -- Фильтр по локации
+        INNER JOIN employees e
+            ON ae.employee_id = e.employee_id
+    )
+    SELECT
+        ed.full_name::text,
+        ed.position::text
+    FROM employee_details ed
+    ORDER BY ed.full_name;
+END;
+$BODY$;
+
+ALTER FUNCTION public.get_order_employees_by_location(bigint, bigint)
+    OWNER TO postgres;
+------------------------------------------------------------------------------------------------------------
 -- Функция и триггер для обновления статуса клиента по totalCost
 CREATE OR REPLACE FUNCTION get_clients_sum_of_total_cost(id bigint)
     RETURNS numeric AS $$
