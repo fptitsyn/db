@@ -5,6 +5,8 @@ import com.example.application.data.components.ComponentService;
 import com.example.application.data.employees.Employees;
 import com.example.application.data.employees.EmployeesService;
 import com.example.application.data.employees.Schedule;
+import com.example.application.data.inventory.InventoryException;
+import com.example.application.data.inventory.InventoryIssueService;
 import com.example.application.data.locations.Locations;
 import com.example.application.data.locations.LocationsService;
 import com.example.application.data.orders.*;
@@ -56,8 +58,7 @@ public class OrderForm extends VerticalLayout {
     private final InvoiceForPaymentService invoiceForPaymentService;
     private final LocationsService locationsService;
     private final ScheduleService scheduleService;
-
-    //private final Runnable onSave;
+    private final InventoryIssueService inventoryIssueService;
     private final Runnable onCloseDialogOrderForm;
 
     // Основные поля формы
@@ -93,6 +94,7 @@ public class OrderForm extends VerticalLayout {
                      InvoiceForPaymentService invoiceForPaymentService,
                      LocationsService locationsService,
                      ScheduleService scheduleService,
+                     InventoryIssueService inventoryIssueService,
                      Runnable onCloseDialogOrderForm) {
         this.order = order;
         this.currentClient = currentClient;
@@ -109,6 +111,7 @@ public class OrderForm extends VerticalLayout {
         this.invoiceForPaymentService = invoiceForPaymentService;
         this.locationsService = locationsService;
         this.scheduleService = scheduleService;
+        this.inventoryIssueService = inventoryIssueService;
         this.onCloseDialogOrderForm = onCloseDialogOrderForm;
 
         initForm();
@@ -627,43 +630,31 @@ public class OrderForm extends VerticalLayout {
         });
 
         transferButton.addClickListener(e -> {
-            Set<Schedule> selectedSlots = scheduleGrid.getSelectedItems();
-
-            // Проверка на минимальное количество слотов
-            if (totalTime > 0 && selectedSlots.size() < totalTime) {
-                Notification.show("Требуется выбрать минимум " + totalTime + " слотов!",
-                        3000, Notification.Position.MIDDLE);
-                return;
-            }
-
-            if (selectedSlots.isEmpty()) {
-                Notification.show("Выберите хотя бы один временной слот!");
-                return;
-            }
-
             try {
-                // Создаем рабочее задание
-                WorkOrders workOrder = new WorkOrders();
-                workOrder.setOrders(order);
-                workOrder.setEmployee(employeeComboBox.getValue());
-                workOrdersService.save(workOrder);
+                workOrdersService.createWorkOrderWithInventoryIssue(
+                        order,
+                        employeeComboBox.getValue(),
+                        scheduleGrid.getSelectedItems(),
+                        locationComboBox.getValue()
+                );
 
-                // Обновляем выбранные слоты расписания
-                selectedSlots.forEach(slot -> {
-                    slot.setWorkOrders(workOrder);
-                    scheduleService.save(slot);
-                });
-
-                // Обновляем статус заказа
                 order.setOrderStatusId(2L);
                 orderService.save(order);
 
-                Notification.show("Заказ передан в работу! Выбрано слотов: " + selectedSlots.size());
+                Notification.show("Заказ передан в работу!");
                 dialog.close();
                 onCloseDialogOrderForm.run();
+
+            } catch (InventoryException ex) {
+                String message = String.format(
+                        "Недостаточно '%s'. Требуется еще: %d шт.",
+                        ex.getComponentName(),
+                        ex.getRequiredQuantity()
+                );
+                Notification.show(message, 5000, Notification.Position.MIDDLE);
+
             } catch (Exception ex) {
-                Notification.show("Ошибка: " + ex.getMessage());
-                ex.printStackTrace();
+                Notification.show("Ошибка: " + ex.getMessage(), 5000, Notification.Position.MIDDLE);
             }
         });
 
@@ -671,7 +662,7 @@ public class OrderForm extends VerticalLayout {
         VerticalLayout layout = new VerticalLayout(
                 new HorizontalLayout(locationComboBox, employeeComboBox, datePicker),
                 scheduleGrid,
-                warningSpan, // Сообщение под Grid
+                warningSpan,
                 new HorizontalLayout(transferButton, new Button("Отмена", ev -> dialog.close()))
         );
 

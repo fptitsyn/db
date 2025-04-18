@@ -18,15 +18,11 @@ public class TypeOfDevice {
     public Long getTypeOfDeviceId() {
         return typeOfDeviceId;
     }
-
-    public void setTypeOfDeviceId(Long typeOfDeviceId) {
-        this.typeOfDeviceId = typeOfDeviceId;
-    }
-
     public String getTypeOfDeviceName() {
         return typeOfDeviceName;
     }
 
+    public void setTypeOfDeviceId(Long typeOfDeviceId) {this.typeOfDeviceId = typeOfDeviceId;  }
     public void setTypeOfDeviceName(String typeOfDeviceName) {
         this.typeOfDeviceName = typeOfDeviceName;
     }

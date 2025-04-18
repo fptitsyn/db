@@ -34,6 +34,9 @@ public class AboutView extends VerticalLayout {
         add(new H2("Список изменений"));
         add(new Paragraph("=============================================================================="));
 
+        add(new H5("18.04"));
+        add(new Span("OrderForm. Списание со склада. Контроль наличия на складе."));
+        add(new Span("Склад"));
         add(new H5("17.04"));
         add(new Span("OrderForm Распределение в работу"));
         add(new Span("WorkOrders. Права: Кнопка открыть доступна мастеру (тому кто указан как мастер в наряде) и GOD (те у кого роль - GOD) - все"));

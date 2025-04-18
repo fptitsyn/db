@@ -23,24 +23,21 @@ public class CategoryOfComponent {
     public Long getCategoryOfComponentId() {
         return categoryOfComponentId;
     }
-
-    public void setCategoryOfComponentId(Long categoryOfComponentId) {
-        this.categoryOfComponentId = categoryOfComponentId;
-    }
-
     public TypeOfDevice getTypeOfDevice() {
         return typeOfDevice;
     }
-
-    public void setTypeOfDevice(TypeOfDevice typeOfDevice) {
-        this.typeOfDevice = typeOfDevice;
-    }
-
     public String getTypeOfPartName() {
         return typeOfPartName;
     }
 
+    public String getComponentTypeCategory() { return typeOfDevice.getTypeOfDeviceName() + ">"+typeOfPartName;}
+
+    public void setTypeOfDevice(TypeOfDevice typeOfDevice) {
+        this.typeOfDevice = typeOfDevice;
+    }
     public void setTypeOfPartName(String typeOfPartName) {
         this.typeOfPartName = typeOfPartName;
     }
+
+
 }

@@ -28,31 +28,28 @@ public class Component {
         return componentId;
     }
 
-    public void setComponentId(Long componentId) {
-        this.componentId = componentId;
-    }
 
     public String getName() {
         return name;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public CategoryOfComponent getCategory() {
         return category;
     }
-
-    public void setCategory(CategoryOfComponent category) {
-        this.category = category;
-    }
-
     public BigDecimal getCost() {
         return cost;
     }
 
+    public String getComponentCategoryName() { return category.getComponentTypeCategory() + ">"+name;}
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setCategory(CategoryOfComponent category) {
+        this.category = category;
+    }
     public void setCost(BigDecimal cost) {
         this.cost = cost;
     }
+
+
 }

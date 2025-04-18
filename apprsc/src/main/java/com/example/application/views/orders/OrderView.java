@@ -2,6 +2,7 @@ package com.example.application.views.orders;
 
 import com.example.application.data.components.ComponentService;
 import com.example.application.data.employees.*;
+import com.example.application.data.inventory.InventoryIssueService;
 import com.example.application.data.locations.Locations;
 import com.example.application.data.locations.LocationsService;
 import com.example.application.data.login.Users;
@@ -45,6 +46,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final InvoiceForPaymentService invoiceForPaymentService;
     private final LocationsService locationsService;
     private final ScheduleService scheduleService;
+    private final InventoryIssueService inventoryIssueService;
 
     private final Grid<Orders> orderGrid = new Grid<>(Orders.class);
     private final Span clientFullName = new Span();
@@ -66,7 +68,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                      ClientStatusService clientStatusService,
                      InvoiceForPaymentService invoiceForPaymentService,
                      LocationsService locationsService,
-                     ScheduleService scheduleService
+                     ScheduleService scheduleService,
+                     InventoryIssueService inventoryIssueService
     ) {
         this.orderService = orderService;
         this.clientService = clientService;
@@ -84,6 +87,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         this.invoiceForPaymentService = invoiceForPaymentService;
         this.locationsService = locationsService;
         this.scheduleService = scheduleService;
+        this.inventoryIssueService = inventoryIssueService;
         initView();
     }
 
@@ -250,6 +254,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 invoiceForPaymentService,
                 locationsService,
                 scheduleService,
+                inventoryIssueService,
                 createCloseDialogOrderFormHandler(dialog)
         );
     }
