@@ -22,6 +22,8 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
+import java.util.Comparator;
+
 @Route(value = "inventory")
 @PageTitle("Склад")
 @Menu(order = 44, icon = LineAwesomeIconUrl.USER_FRIENDS_SOLID)
@@ -92,15 +94,25 @@ public class InventoryView extends VerticalLayout {
 
     private class ReceiptForm extends Dialog {
         private ReceiptForm() {
+            setWidth("600px");
+
             ComboBox<Component> componentCombo = new ComboBox<>("Комплектующая");
-            componentCombo.setItems(componentRepo.findAll());
+            componentCombo.setItems(componentRepo.findAll()
+                    .stream()
+                    .sorted(Comparator.comparing(Component::getComponentCategoryName)) // Сортировка по имени
+                    .toList()
+            );
             componentCombo.setItemLabelGenerator(Component::getComponentCategoryName);
+            componentCombo.setWidthFull();
 
             ComboBox<Locations> locationCombo = new ComboBox<>("Офис");
             locationCombo.setItems(locationsRepo.findAll());
             locationCombo.setItemLabelGenerator(Locations::getName);
+            locationCombo.setWidthFull();
 
             IntegerField quantityField = new IntegerField("Количество");
+            quantityField.setWidthFull();
+
             Button submit = new Button("Принять на склад", VaadinIcon.PLUS_SQUARE_O.create(), event -> {
                 try {
                     inventoryReceiptService.receiveComponent(
@@ -121,14 +133,23 @@ public class InventoryView extends VerticalLayout {
             styleButton(submit, "primary");
             styleButton(closeBtn, "error");
 
+            // Настройка лейаута
             VerticalLayout layout = new VerticalLayout(
                     new H3("Приём на склад"),
-                    componentCombo, locationCombo, quantityField,
-                    new HorizontalLayout(submit, closeBtn)
+                    componentCombo,
+                    locationCombo,
+                    quantityField,
+                    new HorizontalLayout(submit, closeBtn) {{
+                        setWidthFull();
+                        setJustifyContentMode(JustifyContentMode.END);
+                    }}
             );
+            layout.setPadding(true);
+            layout.setSpacing(true);
+            layout.setWidthFull();
+
             add(layout);
         }
-
     }
 
     private class ReceiptInventoryForm extends Dialog {
@@ -143,7 +164,10 @@ public class InventoryView extends VerticalLayout {
             VerticalLayout layout = new VerticalLayout(
                     new H3("Принято на склад"),
                     gridReceipt,
-                    closeBtn
+                    new HorizontalLayout(closeBtn) {{
+                        setWidthFull();
+                        setJustifyContentMode(JustifyContentMode.END);
+                    }}
             );
 
             add(layout);
@@ -172,7 +196,10 @@ public class InventoryView extends VerticalLayout {
             VerticalLayout layout = new VerticalLayout(
                     new H3("Выдано со склада"),
                     gridIssue,
-                    closeBtn
+                    new HorizontalLayout(closeBtn) {{
+                        setWidthFull();
+                        setJustifyContentMode(JustifyContentMode.END);
+                    }}
             );
 
             add(layout);

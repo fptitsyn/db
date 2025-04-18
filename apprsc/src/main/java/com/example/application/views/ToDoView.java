@@ -21,11 +21,10 @@ public class ToDoView extends VerticalLayout {
         add(new H4("Нужное. Простое"));
         add(new Span("WorkOrderForm. Добавить дату в графики после ФИО"));
         add(new Span("WorkOrderForm. Кнопка Сменить исполнителя - Выбрать другого исполнителя, заполнить ему график, старому очистить график"));
-        add(new Span(" ???? Orders. Права: Кнопка открыть доступна менеджеру (тому кто указан как мастер в наряде) и GOD (те у кого роль - GOD) - все"));
-
+        add(new Span("Orders. Права: Кнопка открыть доступна менеджеру (тому кто указан как мастер в наряде) и GOD (те у кого роль - GOD) - все"));
+        add(new Span("Склад. Добавить order_id при списание (в Issue)"));
 
         add(new Span("ERD for Database. Проверить схему на отсутствие ForeignKey - исправить Entity."));
-
         add(new Span("Доработать roles_grants.sql - Добавить права для продавцов и аналитиков"));
 
         add(new Span("В перемещениях добавить ограничения на привязку к должности в другом городе."));
@@ -35,6 +34,7 @@ public class ToDoView extends VerticalLayout {
         add(new Span("Сгорание бонусов???"));
 
         add(new H4("Бантики"));
+
 
 
         setSizeFull();
