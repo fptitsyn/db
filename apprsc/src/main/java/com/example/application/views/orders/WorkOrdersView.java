@@ -3,6 +3,7 @@ package com.example.application.views.orders;
 import com.example.application.data.employees.Employees;
 import com.example.application.data.employees.EmployeesService;
 import com.example.application.data.locations.LocationsService;
+import com.example.application.data.login.Role;
 import com.example.application.data.login.Users;
 import com.example.application.data.orders.*;
 import com.example.application.reports.schedule.ScheduleService;
@@ -115,7 +116,10 @@ public class WorkOrdersView extends VerticalLayout {
         Optional<Users> maybeUser = authenticatedUser.get();
         // Безопасная проверка наличия пользователя и установка видимости кнопки
         editBtn.setVisible(maybeUser.map(user ->
-                        "su".equals(user.getUsername()) || workOrder.getEmployee().getId().equals(user.getEmployee().getId()))
+                        user.getRoles().contains(Role.GOD) ||
+                                (workOrder.getEmployee() != null &&
+                                        user.getEmployee() != null &&
+                                        workOrder.getEmployee().getId().equals(user.getEmployee().getId())))
                 .orElse(false));
         editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         editBtn.getStyle()
