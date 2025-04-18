@@ -563,7 +563,7 @@ BEGIN
             bonus_account_id
         ) VALUES (
                              CURRENT_DATE,
-                             NEW.deducted_bonuses,
+                             -NEW.deducted_bonuses,
                              'Списание',
                              NEW.orders_id,
                              v_bonus_account_id
