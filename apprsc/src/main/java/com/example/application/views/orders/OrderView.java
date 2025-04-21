@@ -17,14 +17,17 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.util.List;
 import java.util.Optional;
 
 @PageTitle("Заказы")
@@ -120,8 +123,10 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             return "Не указан";
         }).setHeader("Менеджер").setAutoWidth(true);
 
+        Grid.Column<Orders> lastModifiedCol = orderGrid.addColumn(Orders::getLastModified).setHeader("Дата изменения").setSortable(true).setWidth("220px");
+        orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия").setWidth("100px");
 
-        orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия").setWidth("125px");
+        orderGrid.sort(List.of(new GridSortOrder<>(lastModifiedCol, SortDirection.DESCENDING)));
 
         Button addOrderBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(), ignored -> showOrderForm(new Orders()));
         styleButton(addOrderBtn, "primary");

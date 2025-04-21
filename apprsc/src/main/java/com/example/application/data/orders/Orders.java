@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "orders")
@@ -24,6 +25,9 @@ public class Orders {
     private BigDecimal totalCost;
 
     private String comment;
+
+    @Column(name = "last_modified")
+    private LocalDateTime lastModified;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
@@ -70,6 +74,7 @@ public class Orders {
     public OrderStatus getOrderStatus() {
         return orderStatus;
     }
+    public LocalDateTime getLastModified() {return lastModified;}
 
     // Добавляем метод для получения названия статуса
     public String getOrderStatusName() {

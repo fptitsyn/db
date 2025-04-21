@@ -949,5 +949,38 @@ $BODY$;
 
 ALTER FUNCTION public.get_schedule_by_work_order_filtered(bigint)
     OWNER TO postgres;
+------------------------------------------------------------------------------------------------------------
+--Триггер и функция для отслеживания времени последнего изменения в таблице Orders, Work_orders
+-- FUNCTION: public.set_last_modified()
+-- DROP FUNCTION IF EXISTS public.set_last_modified();
+CREATE OR REPLACE FUNCTION public.set_last_modified()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 50
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+BEGIN
+    NEW.last_modified := NOW(); -- Используем NOW() для даты и времени
+    RETURN NEW;
+END;
+$BODY$;
 
+ALTER FUNCTION public.set_last_modified()
+    OWNER TO postgres;
+
+-- Trigger: set_work_order_last_modified
+-- DROP TRIGGER IF EXISTS set_work_order_last_modified ON public.work_orders;
+CREATE OR REPLACE TRIGGER set_work_order_last_modified
+    BEFORE INSERT OR UPDATE
+    ON public.work_orders
+    FOR EACH ROW
+    EXECUTE FUNCTION public.set__last_modified();
+
+-- Trigger: set_order_last_modified
+-- DROP TRIGGER IF EXISTS set_order_last_modified ON public.orders;
+CREATE OR REPLACE TRIGGER set_order_last_modified
+    BEFORE INSERT OR UPDATE
+    ON public.orders
+    FOR EACH ROW
+    EXECUTE FUNCTION public.set_last_modified();
 ------------------------------------------------------------------------------------------------------------

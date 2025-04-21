@@ -5,6 +5,7 @@ import com.example.application.data.employees.Schedule;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -19,6 +20,9 @@ public class WorkOrders {
 
     @Column(name = "date_of_work_order")
     private LocalDate dateOfWorkOrder;
+
+    @Column(name = "last_modified")
+    private LocalDateTime lastModified;
 
     @ManyToOne
     @JoinColumn(name = "orders_id")
@@ -53,6 +57,8 @@ public class WorkOrders {
     public WorkOrderStatus getWorkOrderStatus() {
         return workOrderStatus;
     }
+    public LocalDateTime getLastModified() {return lastModified;}
+
     // Добавляем метод для получения названия статуса
     public String getWorkOrderStatusName() {
         return workOrderStatus != null ? workOrderStatus.getStatus() : "";

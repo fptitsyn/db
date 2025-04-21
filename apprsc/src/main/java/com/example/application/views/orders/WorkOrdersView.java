@@ -88,13 +88,14 @@ public class WorkOrdersView extends VerticalLayout {
             return "Не указан";
         }).setHeader("Мастер").setAutoWidth(true);
 
-        workOrderGrid.addComponentColumn(this::createWorkOrderActions)
+        Grid.Column<WorkOrders> lastModifiedCol = workOrderGrid.addColumn(WorkOrders::getLastModified).setHeader("Дата изменения").setSortable(true).setWidth("220px");
+workOrderGrid.addComponentColumn(this::createWorkOrderActions)
                 .setHeader("Действия")
-                .setWidth("250px");
+                .setWidth("100px");
 
         // Настройка сортировки по умолчанию
         List<GridSortOrder<WorkOrders>> sortOrder = List.of(
-                new GridSortOrder<>(statusColumn, SortDirection.ASCENDING)
+                new GridSortOrder<>(lastModifiedCol, SortDirection.DESCENDING)
         );
         workOrderGrid.sort(sortOrder);
 
