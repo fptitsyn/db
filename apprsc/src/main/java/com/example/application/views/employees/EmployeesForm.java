@@ -61,6 +61,7 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
     private TextField gender;
     private DatePicker dateOfBirth;
     private TextField comment;
+    private TextField city;
     private Employees samplePerson;
 
     public EmployeesForm(EmployeesService employeesService) {
@@ -156,12 +157,13 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
         lastName = new TextField("Last Name");
         email = new TextField("Email");
         phone = new TextField("Phone");
+        city = new TextField("Город проживания");
         dateOfBirth = new DatePicker("Date Of Birth");
         gender = new TextField("Пол");
         comment = new TextField("Комментарий");
 
 
-        formLayout.add(firstName, middleName, lastName, email, phone, dateOfBirth, gender, comment);
+        formLayout.add(firstName, middleName, lastName, email, phone, city, dateOfBirth, gender, comment);
 
         editorDiv.add(formLayout);
         createButtonLayout(editorLayoutDiv);
@@ -188,6 +190,7 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
             email.setValue(faker.internet().emailAddress());
             phone.setValue("+7" + faker.phoneNumber().subscriberNumber(10));
             comment.setValue(faker.lorem().sentence(3));
+            city.setValue(faker.address().city());
             dateOfBirth.setValue(LocalDate.now()
                     .minusYears(faker.random().nextInt(18, 65))
                     .minusMonths(faker.random().nextInt(0, 12))
@@ -247,6 +250,7 @@ public class EmployeesForm extends Div implements BeforeEnterObserver {
         grid.addColumn("middleName").setAutoWidth(true);
         grid.addColumn("email").setAutoWidth(true);
         grid.addColumn("phone").setAutoWidth(true);
+        grid.addColumn("city").setAutoWidth(true);
         grid.addColumn("dateOfBirth").setAutoWidth(true);
         grid.addColumn(e -> e.getServices().stream()
                 .map(Services::getServiceName)
