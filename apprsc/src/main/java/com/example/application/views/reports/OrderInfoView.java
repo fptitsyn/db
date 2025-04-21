@@ -1,13 +1,15 @@
-package com.example.application.views.orders;
+package com.example.application.views.reports;
 
 import com.example.application.reports.orders.OrderInfoDTO;
 import com.example.application.reports.orders.OrderInfoService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
@@ -42,8 +44,19 @@ public class OrderInfoView extends VerticalLayout {
 
     public OrderInfoView(OrderInfoService service) {
         this.service = service;
+        initForm();
+    }
+
+    private void initForm() {
+        Button exportBtn = new Button("Открыть в Excel", VaadinIcon.TABLE.create(), ignored -> exportToExcel());
+        styleButton(exportBtn, "primary");
         configureGrid();
-        add(grid, createExportButton());
+        setSizeFull();
+        add(grid,
+                new HorizontalLayout(exportBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }});
         refreshGrid();
     }
 
@@ -77,8 +90,14 @@ public class OrderInfoView extends VerticalLayout {
         grid.addColumn(OrderInfoDTO::orderStatus).setHeader("Статус заказа");
     }
 
-    private Button createExportButton() {
-        return new Button("Экспортировать в Excel", VaadinIcon.FILE_TABLE.create(), ignored -> exportToExcel());
+    private void styleButton(Button button, String theme) {
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        if ("primary".equals(theme)) {
+            button.getStyle().set("color", "var(--lumo-primary-text-color)");
+        } else {
+            button.getStyle().set("color", "var(--lumo-error-text-color)");
+        }
+        button.getStyle().set("margin-right", "1em");
     }
 
     private void exportToExcel() {
@@ -144,10 +163,21 @@ public class OrderInfoView extends VerticalLayout {
             row.createCell(1).setCellValue(order.fullName());
             row.createCell(2).setCellValue(order.orderNumber());
             row.createCell(3).setCellValue(order.orderDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-            row.createCell(4).setCellValue(order.totalCost().doubleValue());
-            row.createCell(5).setCellValue(order.discountedCost().doubleValue());
-            row.createCell(6).setCellValue(order.deductedBonuses().doubleValue());
-            row.createCell(7).setCellValue(order.accruedBonuses().doubleValue());
+            // Handle totalCost with null check
+            BigDecimal totalCost = order.totalCost();
+            row.createCell(4).setCellValue(totalCost != null ? totalCost.doubleValue() : 0.0);
+
+            // Handle discountedCost with null check
+            BigDecimal discountedCost = order.discountedCost();
+            row.createCell(5).setCellValue(discountedCost != null ? discountedCost.doubleValue() : 0.0);
+
+            // Handle deductedBonuses with null check
+            BigDecimal deductedBonuses = order.deductedBonuses();
+            row.createCell(6).setCellValue(deductedBonuses != null ? deductedBonuses.doubleValue() : 0.0);
+
+            // Handle accruedBonuses with null check
+            BigDecimal accruedBonuses = order.accruedBonuses();
+            row.createCell(7).setCellValue(accruedBonuses != null ? accruedBonuses.doubleValue() : 0.0);
             row.createCell(8).setCellValue(order.orderStatus());
         }
     }

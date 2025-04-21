@@ -13,13 +13,11 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
-//@RolesAllowed({"SALES","GOD"})
 public class ClientForm extends FormLayout {
     private final Clients client;
     private final ClientsService clientService;
     private final Runnable refreshCallback;
 
-    // Поля формы должны быть объявлены как instance-переменные
     private final TextField firstName = new TextField("Имя клиента");
     private final TextField lastName = new TextField("Фамилия клиента");
     private final TextField middleName = new TextField("Отчество клиента");
@@ -69,13 +67,13 @@ public class ClientForm extends FormLayout {
 
         binder.readBean(client); // Загрузка данных
 
-        Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create(), e -> save());
+        Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create(), ignored -> save());
         saveBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         saveBtn.getStyle()
                 .set("margin-right", "1em")
                 .set("color", "var(--lumo-primary-text-color)");
 
-        Button cancelBtn = new Button("Отмена", VaadinIcon.CLOSE_CIRCLE_O.create(), e -> this.setVisible(false));
+        Button cancelBtn = new Button("Отмена", VaadinIcon.CLOSE_CIRCLE_O.create(), ignored -> this.setVisible(false));
         cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         cancelBtn.getStyle()
                 .set("margin-right", "1em")

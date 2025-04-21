@@ -1,14 +1,14 @@
-package com.example.application.views.locations;
+package com.example.application.views.reports;
 
-import com.example.application.reports.employees.EmployeeInfoDTO;
-import com.example.application.reports.employees.EmployeeInfoService;
 import com.example.application.reports.locations.LocationsInfoDTO;
 import com.example.application.reports.locations.LocationsInfoService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -36,8 +36,19 @@ public class LocationsInfoView extends VerticalLayout {
 
     public LocationsInfoView(LocationsInfoService service) {
         this.service = service;
+        initForm();
+    }
+
+    private void initForm() {
+        Button exportBtn = new Button("Открыть в Excel", VaadinIcon.TABLE.create(), ignored -> exportToExcel());
+        styleButton(exportBtn, "primary");
         configureGrid();
-        add(grid, createExportButton());
+        setSizeFull();
+        add(grid,
+                new HorizontalLayout(exportBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }});
         refreshGrid();
     }
 
@@ -53,8 +64,14 @@ public class LocationsInfoView extends VerticalLayout {
         grid.addColumn(LocationsInfoDTO::employee_amount).setHeader("Количество сотрудников");
     }
 
-    private Button createExportButton() {
-        return new Button("Открыть в Excel", VaadinIcon.BAR_CHART.create(), event -> exportToExcel());
+    private void styleButton(Button button, String theme) {
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        if ("primary".equals(theme)) {
+            button.getStyle().set("color", "var(--lumo-primary-text-color)");
+        } else {
+            button.getStyle().set("color", "var(--lumo-error-text-color)");
+        }
+        button.getStyle().set("margin-right", "1em");
     }
 
     private void exportToExcel() {

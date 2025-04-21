@@ -1,13 +1,15 @@
-package com.example.application.views.employees;
+package com.example.application.views.reports;
 
 import com.example.application.reports.employees.EmployeeInfoDTO;
 import com.example.application.reports.employees.EmployeeInfoService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.router.Menu;
@@ -41,35 +43,53 @@ public class EmployeeInfoView extends VerticalLayout {
 
     public EmployeeInfoView(EmployeeInfoService service) {
         this.service = service;
+
+        initForm();
+    }
+
+    private void initForm() {
+        Button exportBtn = new Button("Открыть в Excel", VaadinIcon.TABLE.create(), ignored -> exportToExcel());
+        styleButton(exportBtn, "primary");
         configureGrid();
-        add(grid, createExportButton());
+        setSizeFull();
+        add(grid,
+                new HorizontalLayout(exportBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }});
         refreshGrid();
     }
 
     private void configureGrid() {
-        grid.addColumn(EmployeeInfoDTO::lastName).setHeader("Last Name");
-        grid.addColumn(EmployeeInfoDTO::firstName).setHeader("First Name");
-        grid.addColumn(EmployeeInfoDTO::middleName).setHeader("Middle Name");
-        grid.addColumn(EmployeeInfoDTO::dateOfBirth).setHeader("Birth Date");
-        grid.addColumn(EmployeeInfoDTO::phoneNumber).setHeader("Phone");
-        grid.addColumn(EmployeeInfoDTO::email).setHeader("Email");
-        grid.addColumn(EmployeeInfoDTO::age).setHeader("Age");
-        grid.addColumn(EmployeeInfoDTO::department).setHeader("Department");
-        grid.addColumn(EmployeeInfoDTO::position).setHeader("Position");
+        grid.addColumn(EmployeeInfoDTO::lastName).setHeader("Фамилия");
+        grid.addColumn(EmployeeInfoDTO::firstName).setHeader("Имя");
+        grid.addColumn(EmployeeInfoDTO::middleName).setHeader("Отчество");
+        grid.addColumn(EmployeeInfoDTO::dateOfBirth).setHeader("Дата рождения");
+        grid.addColumn(EmployeeInfoDTO::phoneNumber).setHeader("Телефон");
+        grid.addColumn(EmployeeInfoDTO::email).setHeader("e-mail");
+        grid.addColumn(EmployeeInfoDTO::age).setHeader("Возраст");
+        grid.addColumn(EmployeeInfoDTO::department).setHeader("Подразделение");
+        grid.addColumn(EmployeeInfoDTO::position).setHeader("Должность");
 
         grid.addColumn(
                         new NumberRenderer<>(
                                 EmployeeInfoDTO::salary,
                                 NumberFormat.getCurrencyInstance(Locale.of("ru", "RU"))
                         ))
-                .setHeader("Salary").setTextAlign(ColumnTextAlign.END);
+                .setHeader("Зарплата").setTextAlign(ColumnTextAlign.END);
 
-        grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Workplace");
-        grid.addColumn(EmployeeInfoDTO::experience).setHeader("Experience (years)");
+        grid.addColumn(EmployeeInfoDTO::workplace).setHeader("Офис");
+        grid.addColumn(EmployeeInfoDTO::experience).setHeader("Стаж (лет)");
     }
 
-    private Button createExportButton() {
-        return new Button("Открыть в Excel", VaadinIcon.BAR_CHART.create(), ignored -> exportToExcel());
+    private void styleButton(Button button, String theme) {
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        if ("primary".equals(theme)) {
+            button.getStyle().set("color", "var(--lumo-primary-text-color)");
+        } else {
+            button.getStyle().set("color", "var(--lumo-error-text-color)");
+        }
+        button.getStyle().set("margin-right", "1em");
     }
 
     private void exportToExcel() {
@@ -117,8 +137,8 @@ public class EmployeeInfoView extends VerticalLayout {
     private void createHeaderRow(Sheet sheet) {
         Row headerRow = sheet.createRow(0);
         String[] headers = {
-                "Last Name", "First Name", "Middle Name", "Birth Date", "Phone",
-                "Email", "Age", "Department", "Position", "Salary", "Workplace", "Experience"
+                "Фамилия", "Имя", "Отчество", "Дата рождения", "Телефон",
+                "e-mail", "Возраст", "Подразделение", "Должность", "Зарплата", "Офис", "Стаж"
         };
 
         for (int i = 0; i < headers.length; i++) {

@@ -37,7 +37,7 @@ public class ScheduleView extends VerticalLayout {
     private final DatePicker datePicker = new DatePicker("Дата");
     private final ComboBox<Locations> locationComboBox = new ComboBox<>("Офис");
     private final Grid<ScheduleData> grid = new Grid<>();
-    private final Button addButton = new Button("Добавить/удалить график", VaadinIcon.PLUS.create());
+    private final Button addButton = new Button("Добавить/удалить график", VaadinIcon.PLUS_SQUARE_O.create());
 
     private final LocationsService locationsService;
     private final EmployeesService employeesService;
@@ -70,11 +70,7 @@ public class ScheduleView extends VerticalLayout {
         locationComboBox.setItems(locationsService.findAll());
         locationComboBox.setPlaceholder("Выберите офис");
         locationComboBox.addValueChangeListener(ignored -> updateGrid());
-
-        addButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        addButton.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(addButton, "primary");
     }
 
     private void configureGrid() {
@@ -151,11 +147,11 @@ public class ScheduleView extends VerticalLayout {
 
         Button addScheduleButton = new Button("Добавить график", VaadinIcon.PLUS.create());
         Button deleteScheduleButton = new Button("Удалить график", VaadinIcon.TRASH.create());
-        Button cancelButton = new Button("Отмена", ignored -> dialog.close());
+        Button cancelButton = new Button("Отмена", VaadinIcon.CLOSE_CIRCLE_O.create(), ignored -> dialog.close());
 
-        addScheduleButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        deleteScheduleButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        styleButton(addScheduleButton, "primary");
+        styleButton(deleteScheduleButton, "primary");
+        styleButton(cancelButton, "error");
 
         addScheduleButton.addClickListener(ignored -> {
             try {
@@ -186,12 +182,11 @@ public class ScheduleView extends VerticalLayout {
         });
 
         form.add(dateField, locationField, employeeField);
-        HorizontalLayout buttonsLayout = new HorizontalLayout(
-                addScheduleButton, deleteScheduleButton, cancelButton
-        );
-        buttonsLayout.setSpacing(true);
-
-        dialog.add(form, buttonsLayout);
+        dialog.add(form,
+                new HorizontalLayout(addScheduleButton, deleteScheduleButton, cancelButton) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+        }});
         dialog.open();
     }
 
@@ -241,5 +236,14 @@ public class ScheduleView extends VerticalLayout {
                     scheduleService.getSchedule(selectedDate, selectedLocation.getId())
             );
         }
+    }
+    private void styleButton(Button button, String theme) {
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        if ("primary".equals(theme)) {
+            button.getStyle().set("color", "var(--lumo-primary-text-color)");
+        } else {
+            button.getStyle().set("color", "var(--lumo-error-text-color)");
+        }
+        button.getStyle().set("margin-right", "1em");
     }
 }
