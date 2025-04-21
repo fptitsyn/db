@@ -988,7 +988,7 @@ CREATE OR REPLACE TRIGGER set_work_order_last_modified
     BEFORE INSERT OR UPDATE
     ON public.work_orders
     FOR EACH ROW
-    EXECUTE FUNCTION public.set__last_modified();
+    EXECUTE FUNCTION public.set_last_modified();
 
 -- Trigger: set_order_last_modified
 -- DROP TRIGGER IF EXISTS set_order_last_modified ON public.orders;

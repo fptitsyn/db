@@ -64,6 +64,7 @@ public class WorkOrdersService {
             inventoryIssueService.issueComponent(
                     oc.getComponent().getComponentId(),
                     location.getId(),
+                    order.getId(),
                     1
             );
         }

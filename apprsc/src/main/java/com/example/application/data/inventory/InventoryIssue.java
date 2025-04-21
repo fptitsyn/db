@@ -3,6 +3,7 @@ package com.example.application.data.inventory;
 import com.example.application.data.components.Component;
 import com.example.application.data.locations.Locations;
 
+import com.example.application.data.orders.Orders;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -18,11 +19,20 @@ public class InventoryIssue {
     private Component component;
 
     @ManyToOne
+    @JoinColumn(name = "orders_id")
+    private Orders order;
+
+
+    @ManyToOne
     @JoinColumn(name = "location_id")
     private Locations locations;
 
     private int quantity;
     private LocalDate issueDate;
+
+    public Orders getOrder() {return order;}
+
+    public void setOrder(Orders order) {this.order = order;}
 
     public Long getId() {
         return issue_id;

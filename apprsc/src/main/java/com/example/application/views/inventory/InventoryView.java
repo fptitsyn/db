@@ -210,6 +210,7 @@ public class InventoryView extends VerticalLayout {
             gridIssue.addColumn(inv -> inv.getLocations().getName()).setHeader("Офис");
             gridIssue.addColumn(inv -> inv.getComponent().getName()).setHeader("Комплектующая");
             gridIssue.addColumn(InventoryIssue::getQuantity).setHeader("Количество");
+            gridIssue.addColumn(InventoryIssue::getOrder).setHeader("Номер заказа");
             gridIssue.setItems(inventoryIssueService.getAllInventoryIssueItems());
 
             gridIssue.setWidth("800px");
