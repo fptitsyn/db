@@ -242,6 +242,11 @@ public class WorkOrderForm extends VerticalLayout {
                 .setWidth("250px")
                 .setResizable(true);
 
+        grid.addColumn(ScheduleData::getWork_day)
+                .setHeader("Дата")
+                .setWidth("50px")
+                .setResizable(true);
+
         // Динамически добавляем только занятые интервалы
         addTimeColumnIfOccupied(grid, "09:00 - 10:00", ScheduleData::getTime09_10, scheduleData);
         addTimeColumnIfOccupied(grid, "10:00 - 11:00", ScheduleData::getTime10_11, scheduleData);

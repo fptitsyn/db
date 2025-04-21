@@ -862,19 +862,29 @@ ALTER FUNCTION public.get_order_info()
 -- DROP FUNCTION IF EXISTS public.get_schedule_by_work_order_filtered(bigint);
 
 CREATE OR REPLACE FUNCTION public.get_schedule_by_work_order_filtered(
-	p_work_orders_id bigint)
-    RETURNS TABLE(employee_name text, "09:00 - 10:00" integer, "10:00 - 11:00" integer, "11:00 - 12:00" integer, "12:00 - 13:00" integer, "14:00 - 15:00" integer, "15:00 - 16:00" integer, "16:00 - 17:00" integer, "17:00 - 18:00" integer, total integer)
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-    ROWS 1000
-
-AS $BODY$
+    p_work_orders_id bigint
+)
+    RETURNS TABLE (
+                      employee_name text,
+                      work_day date,
+                      "09:00 - 10:00" int,
+                      "10:00 - 11:00" int,
+                      "11:00 - 12:00" int,
+                      "12:00 - 13:00" int,
+                      "14:00 - 15:00" int,
+                      "15:00 - 16:00" int,
+                      "16:00 - 17:00" int,
+                      "17:00 - 18:00" int,
+                      total int
+                  )
+    LANGUAGE plpgsql
+AS $$
 BEGIN
     RETURN QUERY
         WITH schedule_data AS (
             SELECT
                 e.last_name || ' ' || e.first_name::text AS emp_name,
+                MIN(s.work_day) AS work_date,  -- Берем дату из расписания
                 COALESCE(ct."09:00 - 10:00", 0) AS h09_10,
                 COALESCE(ct."10:00 - 11:00", 0) AS h10_11,
                 COALESCE(ct."11:00 - 12:00", 0) AS h11_12,
@@ -929,9 +939,13 @@ BEGIN
                          "17:00 - 18:00" int
                 )
                      JOIN public.employees e ON ct.employee_id = e.employee_id
+                     JOIN public.schedule s ON e.employee_id = s.employee_id AND s.work_orders_id = p_work_orders_id
+            GROUP BY e.employee_id, e.last_name, e.first_name,
+                     h09_10, h10_11, h11_12, h12_13, h14_15, h15_16, h16_17, h17_18, calc_total
         )
         SELECT
             emp_name AS employee_name,
+            work_date AS work_day,
             h09_10 AS "09:00 - 10:00",
             h10_11 AS "10:00 - 11:00",
             h11_12 AS "11:00 - 12:00",
@@ -943,9 +957,9 @@ BEGIN
             calc_total AS total
         FROM schedule_data
         WHERE calc_total > 0
-        ORDER BY emp_name;
+        ORDER BY work_date, emp_name;
 END;
-$BODY$;
+$$;
 
 ALTER FUNCTION public.get_schedule_by_work_order_filtered(bigint)
     OWNER TO postgres;

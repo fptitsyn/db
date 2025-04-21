@@ -1,7 +1,10 @@
 package com.example.application.reports.schedule;
 
+import java.time.LocalDate;
+
 public class ScheduleData {
     private String employeeName;
+    private LocalDate work_day;
     private int time09_10;
     private int time10_11;
     private int time11_12;
@@ -13,6 +16,22 @@ public class ScheduleData {
     private int total;
 
     // Конструктор, геттеры и сеттеры
+    public ScheduleData(String employeeName, LocalDate work_day, int time09_10, int time10_11, int time11_12,
+                        int time12_13, int time14_15, int time15_16, int time16_17,
+                        int time17_18, int total) {
+        this.employeeName = employeeName;
+        this.work_day = work_day;
+        this.time09_10 = time09_10;
+        this.time10_11 = time10_11;
+        this.time11_12 = time11_12;
+        this.time12_13 = time12_13;
+        this.time14_15 = time14_15;
+        this.time15_16 = time15_16;
+        this.time16_17 = time16_17;
+        this.time17_18 = time17_18;
+        this.total = total;
+    }
+
     public ScheduleData(String employeeName, int time09_10, int time10_11, int time11_12,
                         int time12_13, int time14_15, int time15_16, int time16_17,
                         int time17_18, int total) {
@@ -68,5 +87,9 @@ public class ScheduleData {
 
     public int getTotal() {
         return total;
+    }
+
+    public LocalDate getWork_day() {
+        return work_day;
     }
 }

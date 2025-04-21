@@ -17,7 +17,6 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 public class ToDoView extends VerticalLayout {
     public ToDoView() {
         setSpacing(false);
-        add(new Span("WorkOrderForm. Добавить дату в графики после ФИО"));
         add(new Span("WorkOrderForm. Кнопка Сменить исполнителя - Выбрать другого исполнителя, заполнить ему график, старому очистить график"));
         add(new Span("Склад. Добавить order_id при списание (в Issue)"));
 

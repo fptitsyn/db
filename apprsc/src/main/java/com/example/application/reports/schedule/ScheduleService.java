@@ -34,7 +34,7 @@ public class ScheduleService {
 
     public List<ScheduleData> getScheduleByWorkOrderId(Long workOrderId) {
         String sql = "SELECT * FROM get_schedule_by_work_order_filtered(?)";
-        return jdbcTemplate.query(sql, new ScheduleDataRowMapper(), workOrderId);
+        return jdbcTemplate.query(sql, new ScheduleDataWithDateRowMapper(), workOrderId);
     }
 
     private static class ScheduleDataRowMapper implements RowMapper<ScheduleData> {
@@ -54,6 +54,26 @@ public class ScheduleService {
             );
         }
     }
+
+    private static class ScheduleDataWithDateRowMapper implements RowMapper<ScheduleData> {
+        @Override
+        public ScheduleData mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new ScheduleData(
+                    rs.getString("employee_name"),
+                    rs.getDate("work_day").toLocalDate(),
+                    rs.getInt("09:00 - 10:00"),
+                    rs.getInt("10:00 - 11:00"),
+                    rs.getInt("11:00 - 12:00"),
+                    rs.getInt("12:00 - 13:00"),
+                    rs.getInt("14:00 - 15:00"),
+                    rs.getInt("15:00 - 16:00"),
+                    rs.getInt("16:00 - 17:00"),
+                    rs.getInt("17:00 - 18:00"),
+                    rs.getInt("total")
+            );
+        }
+    }
+
     public void insertScheduleEntries(LocalDate workDay, Long employeeId, Long locationId) {
         jdbcTemplate.update(
                 "CALL insert_schedule_entries(?, ?, ?)",
