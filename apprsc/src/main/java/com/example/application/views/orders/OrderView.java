@@ -5,6 +5,7 @@ import com.example.application.data.employees.*;
 import com.example.application.data.inventory.InventoryIssueService;
 import com.example.application.data.locations.Locations;
 import com.example.application.data.locations.LocationsService;
+import com.example.application.data.login.Role;
 import com.example.application.data.login.Users;
 import com.example.application.data.orders.*;
 import com.example.application.data.services.ServicesService;
@@ -125,8 +126,6 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 .set("color", "var(--lumo-primary-text-color)");
         setSizeFull();
         add(clientFullName, addOrderBtn, orderGrid, backButton);
-
-
     }
 
     private void configureBackButton() {
@@ -168,6 +167,13 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
 
     private HorizontalLayout createOrderActions(Orders order) {
         Button editBtn = new Button("Открыть", VaadinIcon.EDIT.create(), ignored -> showOrderForm(order));
+        Optional<Users> maybeUser = authenticatedUser.get();
+        editBtn.setVisible(maybeUser.map(user ->
+                        user.getRoles().contains(Role.GOD) ||
+                                (order.getEmployee() != null &&
+                                        user.getEmployee() != null &&
+                                        order.getEmployee().getId().equals(user.getEmployee().getId())))
+                .orElse(false));
         editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         editBtn.getStyle()
                 .set("margin-right", "1em")
