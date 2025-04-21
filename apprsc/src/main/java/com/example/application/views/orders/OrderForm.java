@@ -1,6 +1,7 @@
 package com.example.application.views.orders;
 
 import com.example.application.data.components.Component;
+import com.example.application.data.components.ComponentRepository;
 import com.example.application.data.components.ComponentService;
 import com.example.application.data.employees.Employees;
 import com.example.application.data.employees.EmployeesService;
@@ -25,7 +26,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -39,8 +39,8 @@ import com.vaadin.flow.data.provider.Query;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 public class OrderForm extends VerticalLayout {
     private final Orders order;
@@ -59,25 +59,36 @@ public class OrderForm extends VerticalLayout {
     private final LocationsService locationsService;
     private final ScheduleService scheduleService;
     private final InventoryIssueService inventoryIssueService;
+    private final ComponentRepository componentRepo;
     private final Runnable onCloseDialogOrderForm;
 
+    private final TextArea commentField = new TextArea("Комментарий к заказу");
+    private final Binder<Orders> binder = new Binder<>(Orders.class);
+    // Grid для услуг
+    private final Grid<OrderServices> servicesGrid = new Grid<>(OrderServices.class);
+    // Grid для компонентов
+    private final Grid<OrderComponents> componentsGrid = new Grid<>(OrderComponents.class);
+    private final Button cancelOrderBtn = new Button("Отменить заказ", VaadinIcon.FILE_REMOVE.create(), ignored -> {
+        if (showForNewOrder()) {
+            showCancelConfirmationDialog();
+        }
+    });     // Проверяем статус заказа
+    private final Button selectLocationBtn = new Button("Где починить?", VaadinIcon.QUESTION_CIRCLE_O.create(), ignored -> openShowAvailableOffices());
+    private final Button showInvoiceForPaymentBtn = new Button("Чек", VaadinIcon.INVOICE.create(), ignored -> openShowInvoice());
     // Основные поля формы
     BigDecimalField orderCost = new BigDecimalField();
-    private final TextArea commentField = new TextArea("Комментарий к заказу");
-
-    private final Binder<Orders> binder = new Binder<>(Orders.class);
+    private final Button payBtn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), ignored -> openPayDialog());
     // Добавляем переменные для колонок (суммы итого)
     private Grid.Column<OrderServices> costColumn;
     private Grid.Column<OrderServices> timeColumn;
     private Grid.Column<OrderComponents> costComponentsColumn;
     private BigDecimal totalServicesCost = BigDecimal.ZERO;
     private BigDecimal totalComponentsCost = BigDecimal.ZERO;
+    private final Button addComponentBtn = new Button("Добавить компонент", VaadinIcon.PLUS.create(), ignored -> openAddComponentDialog());
     private int totalTime = 0;
-
-    // Grid для услуг
-    private final Grid<OrderServices> servicesGrid = new Grid<>(OrderServices.class);
-    // Grid для компонентов
-    private final Grid<OrderComponents> componentsGrid = new Grid<>(OrderComponents.class);
+    private final Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK.create(), ignored -> save());
+    private final Button addServiceBtn = new Button("Добавить услугу", VaadinIcon.PLUS.create(), ignored -> openAddServiceDialog());
+    private final Button setWorkOrderBtn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), ignored -> openAddWorkOrderDialog());
 
     public OrderForm(Orders order,
                      Clients currentClient,
@@ -95,6 +106,7 @@ public class OrderForm extends VerticalLayout {
                      LocationsService locationsService,
                      ScheduleService scheduleService,
                      InventoryIssueService inventoryIssueService,
+                     ComponentRepository componentRepo,
                      Runnable onCloseDialogOrderForm) {
         this.order = order;
         this.currentClient = currentClient;
@@ -112,6 +124,7 @@ public class OrderForm extends VerticalLayout {
         this.locationsService = locationsService;
         this.scheduleService = scheduleService;
         this.inventoryIssueService = inventoryIssueService;
+        this.componentRepo = componentRepo;
         this.onCloseDialogOrderForm = onCloseDialogOrderForm;
 
         initForm();
@@ -136,13 +149,17 @@ public class OrderForm extends VerticalLayout {
         commentField.setWidthFull();
 
         refreshGrids();
-
-        add(new HorizontalLayout(createSaveButton(), createCancelButton(),
-                        createAddServiceButton(), createAddComponentButton(),
-                        createSetWorkOrderButton(), createPayButton(), createSelectLocationButton(),
-                        createCancelOrderButton(), createShowInvoiceForPaymentButton()),
+        configureButtons();
+        add(new HorizontalLayout(
+                        addServiceBtn, addComponentBtn,
+                        setWorkOrderBtn, payBtn, selectLocationBtn,
+                        cancelOrderBtn, showInvoiceForPaymentBtn),
                 commentField, servicesGrid, componentsGrid,
-                new HorizontalLayout(new Span("Итоговая сумма по заказу к оплате: "), orderCost)
+                new HorizontalLayout(new Span("Итоговая сумма по заказу к оплате: "), orderCost),
+                new HorizontalLayout(saveBtn, createCancelButton()) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }}
         );
 
 
@@ -181,10 +198,7 @@ public class OrderForm extends VerticalLayout {
 
         servicesGrid.addComponentColumn(os -> {
             Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), ignored -> deleteService(os));
-            deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            deleteBtn.getStyle()
-                    .set("margin-right", "1em")
-                    .set("color", "var(--lumo-primary-text-color)");
+            styleButton(deleteBtn, "primary");
             deleteBtn.setVisible(showForNewOrder());
             return deleteBtn;
         }).setHeader("Действия");
@@ -218,29 +232,20 @@ public class OrderForm extends VerticalLayout {
     private void configureComponentsGrid() {
         componentsGrid.removeAllColumns();
         componentsGrid.setWidthFull();
-
         componentsGrid.addColumn(oc -> oc.getComponent().getCategory().getTypeOfDevice().getTypeOfDeviceName())
                 .setHeader("Тип устройства");
-
         componentsGrid.addColumn(oc -> oc.getComponent().getCategory().getTypeOfPartName())
                 .setHeader("Категория компонента");
-
         componentsGrid.addColumn(oc -> oc.getComponent().getName())
                 .setHeader("Название");
-
         // Сохраняем ссылку на колонку
         costComponentsColumn = componentsGrid.addColumn(oc -> oc.getComponent().getCost())
                 .setHeader("Стоимость")
                 .setTextAlign(ColumnTextAlign.END);
-
         costComponentsColumn.setFooter("Итого: 0.00 ₽");
-
         componentsGrid.addComponentColumn(oc -> {
             Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), ignored -> deleteComponent(oc));
-            deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            deleteBtn.getStyle()
-                    .set("margin-right", "1em")
-                    .set("color", "var(--lumo-primary-text-color)");
+            styleButton(deleteBtn, "primary");
             deleteBtn.setVisible(showForNewOrder());
             return deleteBtn;
         }).setHeader("Действия");
@@ -270,123 +275,36 @@ public class OrderForm extends VerticalLayout {
         orderCost.setValue(totalCost);
     }
 
-    private Button createSaveButton() {
-        Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK.create(), ignored -> save());
+    private void configureButtons() {
+        saveBtn.setVisible(showForNullOrder()); // Устанавливаем видимость кнопки
+        styleButton(saveBtn, "primary");
 
-        // Устанавливаем видимость кнопки
-        saveBtn.setVisible(showForNullOrder());
+        addServiceBtn.setVisible(showForNewOrder());
+        styleButton(addServiceBtn, "primary");
 
-        saveBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        saveBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-        return saveBtn;
+        addComponentBtn.setVisible(showForNewOrder());
+        styleButton(addComponentBtn, "primary");
+
+        setWorkOrderBtn.setVisible(showForNewOrder());
+        styleButton(setWorkOrderBtn, "primary");
+
+        payBtn.setVisible(showForPayOrder());
+        styleButton(payBtn, "primary");
+
+        cancelOrderBtn.setVisible(showForNewOrder());
+        styleButton(cancelOrderBtn, "error");
+
+        selectLocationBtn.setVisible(showForNewOrder());
+        styleButton(selectLocationBtn, "primary");
+
+        showInvoiceForPaymentBtn.setVisible(showForPaidOrder());
+        styleButton(showInvoiceForPaymentBtn, "primary");
     }
 
     private Button createCancelButton() {
         Button cancelBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), ignored -> onCloseDialogOrderForm.run());
-        cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        cancelBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(cancelBtn, "error");
         return cancelBtn;
-    }
-
-    private Button createAddServiceButton() {
-        Button btn = new Button("Добавить услугу", VaadinIcon.PLUS.create(), ignored -> openAddServiceDialog());
-
-        // Устанавливаем видимость кнопки
-        btn.setVisible(showForNewOrder());
-
-        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        btn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-        return btn;
-    }
-
-    private Button createAddComponentButton() {
-        Button btn = new Button("Добавить компонент", VaadinIcon.PLUS.create(), ignored -> openAddComponentDialog());
-
-        // Устанавливаем видимость кнопки
-        btn.setVisible(showForNewOrder());
-
-        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        btn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-        return btn;
-    }
-
-    private Button createSetWorkOrderButton() {
-        Button btn = new Button("Передать в работу", VaadinIcon.TOOLS.create(), ignored -> openAddWorkOrderDialog());
-
-
-        // Устанавливаем видимость кнопки
-        btn.setVisible(showForNewOrder());
-
-        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        btn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-        return btn;
-    }
-
-    private Button createPayButton() {
-        Button btn = new Button("Оплатить заказ", VaadinIcon.MONEY.create(), ignored -> openPayDialog());
-
-        // Устанавливаем видимость кнопки
-        btn.setVisible(showForPayOrder());
-
-        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        btn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-        return btn;
-    }
-
-    private Button createCancelOrderButton() {
-        Button btn = new Button("Отменить заказ", VaadinIcon.FILE_REMOVE.create(), ignored -> {
-            // Проверяем статус заказа
-            if (showForNewOrder()) {
-                showCancelConfirmationDialog();
-            }
-        });
-
-        // Устанавливаем видимость кнопки
-        btn.setVisible(showForNewOrder());
-
-        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        btn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-error-color)");
-        return btn;
-    }
-
-    private Button createSelectLocationButton() {
-        Button btn = new Button("Где починить?", VaadinIcon.QUESTION_CIRCLE_O.create(), ignored -> openShowAvailableOffices());
-
-        // Устанавливаем видимость кнопки
-        btn.setVisible(showForNewOrder());
-
-        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        btn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-        return btn;
-    }
-
-    private Button createShowInvoiceForPaymentButton() {
-        Button btn = new Button("Чек", VaadinIcon.INVOICE.create(), ignored -> openShowInvoice());
-
-        // Устанавливаем видимость кнопки
-        btn.setVisible(showForPaidOrder());
-
-        btn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        btn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-        return btn;
     }
 
     private boolean showForNullOrder() {
@@ -449,7 +367,6 @@ public class OrderForm extends VerticalLayout {
     }
 
 
-
     private void save() {
         if (binder.writeBeanIfValid(order)) {
             try {
@@ -498,10 +415,15 @@ public class OrderForm extends VerticalLayout {
                 dialog.close();
             }
         });
-
+        Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), ignored -> dialog.close());
+        styleButton(closeBtn, "error");
+        styleButton(addBtn, "primary");
         VerticalLayout layout = new VerticalLayout(
                 combo,
-                new HorizontalLayout(addBtn, new Button("Отмена", ignored -> dialog.close()))
+                new HorizontalLayout(addBtn, closeBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }}
         );
         layout.setPadding(false);
         dialog.add(layout);
@@ -527,12 +449,14 @@ public class OrderForm extends VerticalLayout {
         dialog.setWidth("500px");
         ComboBox<Component> combo = new ComboBox<>("Выберите компонент");
         combo.setWidthFull(); // Растягиваем на всю ширину диалога
-        combo.setItems(componentService.findAll());
-        combo.setItemLabelGenerator(c ->
-                c.getName() + " (" + c.getCategory().getTypeOfPartName() + ")"
+        combo.setItems(componentRepo.findAll()
+                .stream()
+                .sorted(Comparator.comparing(Component::getComponentCategoryName)) // Сортировка по имени
+                .toList()
         );
+        combo.setItemLabelGenerator(Component::getComponentCategoryName);
 
-        Button addBtn = new Button("Добавить", ignored -> {
+        Button addBtn = new Button("Добавить", VaadinIcon.PLUS.create(), ignored -> {
             if (combo.getValue() != null) {
                 OrderComponents oc = new OrderComponents();
                 oc.setOrders(order);
@@ -542,10 +466,16 @@ public class OrderForm extends VerticalLayout {
                 dialog.close();
             }
         });
+        Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), ignored -> dialog.close());
+        styleButton(closeBtn, "error");
+        styleButton(addBtn, "primary");
 
         VerticalLayout layout = new VerticalLayout(
                 combo,
-                new HorizontalLayout(addBtn, new Button("Отмена", ignored -> dialog.close()))
+                new HorizontalLayout(addBtn, closeBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }}
         );
         layout.setPadding(false);
         dialog.add(layout);
@@ -575,7 +505,7 @@ public class OrderForm extends VerticalLayout {
         ComboBox<Employees> employeeComboBox = new ComboBox<>("Сотрудник");
         DatePicker datePicker = new DatePicker("Дата работ");
         Grid<Schedule> scheduleGrid = new Grid<>(Schedule.class);
-        Button transferButton = new Button("Передать");
+        Button transferButton = new Button("Назначить", VaadinIcon.TOOLS.create());
         Span warningSpan = new Span(); // Добавляем Span для сообщения
         warningSpan.getStyle().setColor("red");
         warningSpan.setVisible(false);
@@ -658,12 +588,17 @@ public class OrderForm extends VerticalLayout {
             }
         });
 
-        // Компоновка с добавлением предупреждения
+        Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), ev -> dialog.close());
+        styleButton(closeBtn, "error");
+        styleButton(transferButton, "primary");
         VerticalLayout layout = new VerticalLayout(
                 new HorizontalLayout(locationComboBox, employeeComboBox, datePicker),
                 scheduleGrid,
                 warningSpan,
-                new HorizontalLayout(transferButton, new Button("Отмена", ev -> dialog.close()))
+                new HorizontalLayout(transferButton, closeBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }}
         );
 
         dialog.add(layout);
@@ -782,7 +717,7 @@ public class OrderForm extends VerticalLayout {
             deductedBonusesField.setReadOnly(false);
         }
 
-        Button addBtn = new Button("Оплатить", ignored -> {
+        Button addBtn = new Button("Оплатить", VaadinIcon.MONEY.create(), ignored -> {
             try {
                 orderService.save(order);  // <-- Сохраняем изменения из формы
 
@@ -846,6 +781,9 @@ public class OrderForm extends VerticalLayout {
                 ex.printStackTrace();
             }
         });
+        Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), ignored -> dialog.close());
+        styleButton(closeBtn, "error");
+        styleButton(addBtn, "primary");
 
         VerticalLayout layout = new VerticalLayout(
                 new HorizontalLayout(orderCost, new Span(" - сумма к оплате")),
@@ -853,7 +791,10 @@ public class OrderForm extends VerticalLayout {
                 radioGroup,
                 new HorizontalLayout(accruedBonusesField, bonusSpan),
                 new HorizontalLayout(deductedBonusesField, new Span(" - списать бонусы")),
-                new HorizontalLayout(addBtn, new Button("Отмена", ignored -> dialog.close()))
+                new HorizontalLayout(addBtn, closeBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }}
         );
         layout.setPadding(false);
         dialog.add(layout);
@@ -891,24 +832,15 @@ public class OrderForm extends VerticalLayout {
         content.add(new Span(String.format("Итоговая сумма: %,.2f ₽",
                 invoice.getDiscountedCost().add(invoice.getDeductedBonuses()))));
 
-        // Контейнер для кнопки
-        HorizontalLayout buttonLayout = new HorizontalLayout();
-        buttonLayout.setWidthFull();
-        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-        buttonLayout.setPadding(true);
-
         Button closeBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(),
-                e -> dialog.close());
-        closeBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
-        closeBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
-
-        buttonLayout.add(closeBtn);
-        content.add(buttonLayout);
-        content.setHorizontalComponentAlignment(Alignment.CENTER, buttonLayout);
-
+                ignored -> dialog.close());
+        styleButton(closeBtn, "error");
+        content.add(
+                new HorizontalLayout(closeBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }}
+        );
         dialog.add(content);
         dialog.open();
     }
@@ -952,8 +884,24 @@ public class OrderForm extends VerticalLayout {
         } catch (Exception e) {
             Notification.show("Ошибка загрузки данных: " + e.getMessage());
         }
+        Button closeBtn = new Button("Закрыть", VaadinIcon.CLOSE.create(), e -> dialog.close());
+        styleButton(closeBtn, "error");
 
-        dialog.add(new Button("Закрыть", e -> dialog.close()));
+        dialog.add(
+                new HorizontalLayout(closeBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }});
         dialog.open();
+    }
+
+    private void styleButton(Button button, String theme) {
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        if ("primary".equals(theme)) {
+            button.getStyle().set("color", "var(--lumo-primary-text-color)");
+        } else {
+            button.getStyle().set("color", "var(--lumo-error-text-color)");
+        }
+        button.getStyle().set("margin-right", "1em");
     }
 }

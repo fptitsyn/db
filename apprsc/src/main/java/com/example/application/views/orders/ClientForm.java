@@ -68,18 +68,17 @@ public class ClientForm extends FormLayout {
         binder.readBean(client); // Загрузка данных
 
         Button saveBtn = new Button("Сохранить", VaadinIcon.CHECK_SQUARE_O.create(), ignored -> save());
-        saveBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        saveBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(saveBtn, "primary");
 
         Button cancelBtn = new Button("Отмена", VaadinIcon.CLOSE_CIRCLE_O.create(), ignored -> this.setVisible(false));
-        cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        cancelBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(cancelBtn, "error");
 
-        add(firstName, lastName, middleName, dateOfBirth, gender, email, phoneNumber, cityOfResidence, new HorizontalLayout(saveBtn, cancelBtn));
+        add(firstName, lastName, middleName, dateOfBirth, gender, email, phoneNumber, cityOfResidence,
+                new HorizontalLayout(saveBtn, cancelBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }}
+                );
     }
 
     private void save() {
@@ -88,5 +87,14 @@ public class ClientForm extends FormLayout {
             refreshCallback.run();
             this.setVisible(false);
         }
+    }
+    private void styleButton(Button button, String theme) {
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        if ("primary".equals(theme)) {
+            button.getStyle().set("color", "var(--lumo-primary-text-color)");
+        } else {
+            button.getStyle().set("color", "var(--lumo-error-text-color)");
+        }
+        button.getStyle().set("margin-right", "1em");
     }
 }

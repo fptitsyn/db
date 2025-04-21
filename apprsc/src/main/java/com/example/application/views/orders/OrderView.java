@@ -1,5 +1,6 @@
 package com.example.application.views.orders;
 
+import com.example.application.data.components.ComponentRepository;
 import com.example.application.data.components.ComponentService;
 import com.example.application.data.employees.*;
 import com.example.application.data.inventory.InventoryIssueService;
@@ -48,6 +49,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
     private final LocationsService locationsService;
     private final ScheduleService scheduleService;
     private final InventoryIssueService inventoryIssueService;
+    private final ComponentRepository componentRepo;
 
     private final Grid<Orders> orderGrid = new Grid<>(Orders.class);
     private final Span clientFullName = new Span();
@@ -70,7 +72,8 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                      InvoiceForPaymentService invoiceForPaymentService,
                      LocationsService locationsService,
                      ScheduleService scheduleService,
-                     InventoryIssueService inventoryIssueService
+                     InventoryIssueService inventoryIssueService,
+                     ComponentRepository componentRepo
     ) {
         this.orderService = orderService;
         this.clientService = clientService;
@@ -89,6 +92,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         this.locationsService = locationsService;
         this.scheduleService = scheduleService;
         this.inventoryIssueService = inventoryIssueService;
+        this.componentRepo = componentRepo;
         initView();
     }
 
@@ -120,21 +124,14 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
         orderGrid.addComponentColumn(this::createOrderActions).setHeader("Действия").setWidth("125px");
 
         Button addOrderBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(), ignored -> showOrderForm(new Orders()));
-        addOrderBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        addOrderBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(addOrderBtn, "primary");
         setSizeFull();
         add(clientFullName, addOrderBtn, orderGrid, backButton);
     }
 
     private void configureBackButton() {
         backButton.setIcon(VaadinIcon.ARROW_BACKWARD.create());
-
-        backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        backButton.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(backButton, "primary");
         backButton.addClickListener(ignored ->
                 getUI().ifPresent(ui -> ui.navigate(ClientsView.class))
         );
@@ -174,10 +171,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                                         user.getEmployee() != null &&
                                         order.getEmployee().getId().equals(user.getEmployee().getId())))
                 .orElse(false));
-        editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        editBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(editBtn, "primary");
         return new HorizontalLayout(editBtn);
 
     }
@@ -261,6 +255,7 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
                 locationsService,
                 scheduleService,
                 inventoryIssueService,
+                componentRepo,
                 createCloseDialogOrderFormHandler(dialog)
         );
     }
@@ -270,6 +265,15 @@ public class OrderView extends VerticalLayout implements BeforeEnterObserver {
             updateGrid();
             dialog.close();
         };
+    }
+    private void styleButton(Button button, String theme) {
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        if ("primary".equals(theme)) {
+            button.getStyle().set("color", "var(--lumo-primary-text-color)");
+        } else {
+            button.getStyle().set("color", "var(--lumo-error-text-color)");
+        }
+        button.getStyle().set("margin-right", "1em");
     }
 }
 

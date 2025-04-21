@@ -52,10 +52,7 @@ public class ClientsView extends VerticalLayout {
 
         Button addClientBtn = new Button("Новый", VaadinIcon.PLUS_SQUARE_O.create(),
                 e -> showClientForm(new Clients()));
-        addClientBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        addClientBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(addClientBtn, "primary");
         setSizeFull();
         add(addClientBtn, clientGrid);
     }
@@ -166,31 +163,19 @@ public class ClientsView extends VerticalLayout {
 
     private HorizontalLayout createActions(Clients client) {
         Button editBtn = new Button("Изменить", VaadinIcon.EDIT.create(), e -> showClientForm(client));
-        editBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        editBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(editBtn, "primary");
 
         Button ordersBtn = new Button("Заказы", VaadinIcon.CART.create(), e -> showOrders(client));
-        ordersBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        ordersBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(ordersBtn, "primary");
 
         Button bonusBtn = new Button("Бонусы", VaadinIcon.GIFT.create(), e -> showBonus(client));
-        bonusBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        bonusBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(bonusBtn, "primary");
 
         Button deleteBtn = new Button("Удалить", VaadinIcon.TRASH.create(), e -> {
             clientService.delete(client);
             updateGrid();
         });
-        deleteBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        deleteBtn.getStyle()
-                .set("margin-right", "1em")
-                .set("color", "var(--lumo-primary-text-color)");
+        styleButton(deleteBtn, "primary");
         return new HorizontalLayout(editBtn, deleteBtn, ordersBtn, bonusBtn);
     }
 
@@ -310,5 +295,14 @@ public class ClientsView extends VerticalLayout {
 
             return value.toLowerCase().contains(searchTerm.toLowerCase());
         }
+    }
+    private void styleButton(Button button, String theme) {
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        if ("primary".equals(theme)) {
+            button.getStyle().set("color", "var(--lumo-primary-text-color)");
+        } else {
+            button.getStyle().set("color", "var(--lumo-error-text-color)");
+        }
+        button.getStyle().set("margin-right", "1em");
     }
 }
