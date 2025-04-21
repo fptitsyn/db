@@ -19,8 +19,6 @@ public class ToDoView extends VerticalLayout {
         setSpacing(false);
         add(new Span("WorkOrderForm. Кнопка Сменить исполнителя - Выбрать другого исполнителя, заполнить ему график, старому очистить график"));
 
-        add(new Span("В перемещениях добавить контроль - один человек на место (берем нового, старому проставляем дату увольнения)."));
-
         add(new Span("Сгорание бонусов???"));
 
         setSizeFull();

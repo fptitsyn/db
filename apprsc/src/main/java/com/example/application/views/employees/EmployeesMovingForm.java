@@ -28,6 +28,7 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @PageTitle("Приём/Увольнение")
 @Route("EmployeesMoving")
@@ -177,16 +178,30 @@ public class EmployeesMovingForm extends VerticalLayout {
         // Обработчик кнопки "Привязать"
         bindButton.addClickListener(ignored -> {
             if (selectedStaffingTable != null && employeeCombo.getValue() != null) {
+                // Находим текущего сотрудника на этой должности (если есть)
+                Optional<EmployeesMoving> currentEmployeeOpt = employeesMovingRepository
+                        .findByStaffingTableAndDateOfDismissalIsNull(selectedStaffingTable);
+
                 EmployeesMoving moving = new EmployeesMoving();
                 moving.setStaffingTable(selectedStaffingTable);
                 moving.setEmployee(employeeCombo.getValue());
                 moving.setDateOfEmployment(employmentDate.getValue());
-                moving.setDateOfDismissal(dismissalDate.getValue());
+
+                // Если есть текущий сотрудник - увольняем его
+                currentEmployeeOpt.ifPresent(current -> {
+                    current.setDateOfDismissal(employmentDate.getValue());
+                    employeesMovingRepository.save(current);
+                    Notification.show("Предыдущий сотрудник " + current.getEmployee().getFullName() +
+                            " уволен с должности " + selectedStaffingTable.getPosition());
+                });
 
                 employeesMovingRepository.save(moving);
-                Notification.show("Привязка сохранена");
+                Notification.show("Новый сотрудник " + moving.getEmployee().getFullName() +
+                        " принят на должность " + selectedStaffingTable.getPosition());
+
                 updateHistory();
                 clearForm();
+                UpdateEmployees(selectedStaffingTable.getLocation().getCity());
             }
         });
         bindButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -219,19 +234,38 @@ public class EmployeesMovingForm extends VerticalLayout {
             if (selected != null) {
                 ConfirmDialog dialog = new ConfirmDialog(
                         "Подтверждение удаления",
-                        "Вы уверены что хотите удалить это перемещение?",
-                        "Да", ignoredEvent -> {
+                        "Вы уверены, что хотите удалить эту запись о сотруднике?",
+                        "Да", confirmEvent -> {
+                    // Проверяем, является ли сотрудник текущим на должности
+                    boolean isActive = selected.getDateOfDismissal() == null;
+
+                    if (isActive) {
+                        // Если это активная запись, ищем предыдущего сотрудника
+                        Optional<EmployeesMoving> previousEmployee = employeesMovingRepository
+                                .findPreviousEmployee(selected.getStaffingTable(), selected.getDateOfEmployment());
+
+                        if (previousEmployee.isPresent()) {
+                            // Восстанавливаем предыдущего сотрудника
+                            EmployeesMoving previous = previousEmployee.get();
+                            previous.setDateOfDismissal(null);
+                            employeesMovingRepository.save(previous);
+                            Notification.show("Восстановлен предыдущий сотрудник: " +
+                                    previous.getEmployee().getFullName());
+                        }
+                    }
+
                     employeesMovingRepository.delete(selected);
-                    Notification.show("Перемещение удалено");
+                    Notification.show("Запись удалена");
                     updateHistory();
                     clearForm();
+                    UpdateEmployees(selectedStaffingTable.getLocation().getCity());
                 },
-                        "Нет", ignoredEvent -> {
-                }
+                        "Нет", cancelEvent -> {}
                 );
+                dialog.setConfirmButtonTheme("error primary");
                 dialog.open();
             } else {
-                Notification.show("Выберите перемещение для удаления", 3000, Notification.Position.BOTTOM_START);
+                Notification.show("Выберите запись для удаления", 3000, Notification.Position.BOTTOM_START);
             }
         });
         deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -256,12 +290,11 @@ public class EmployeesMovingForm extends VerticalLayout {
         employeeCombo.clear();
         employmentDate.clear();
         dismissalDate.clear();
-        historyGrid.asSingleSelect().clear(); // Снимаем выделение в гриде истории
+        historyGrid.asSingleSelect().clear();
         bindButton.setEnabled(true);
         editButton.setEnabled(false);
-        deleteButton.setEnabled(false);
+        // Кнопка удаления остается активной, если есть выделенная запись
     }
-
     private void clearFormOnlyDate() {
         employmentDate.clear();
         dismissalDate.clear();
@@ -287,6 +320,11 @@ public class EmployeesMovingForm extends VerticalLayout {
                 .setHeader("Дата увольнения")
                 .setAutoWidth(true);
 
+        // Добавляем колонку со статусом
+        historyGrid.addColumn(m -> m.getDateOfDismissal() == null ? "Активен" : "Уволен")
+                .setHeader("Статус")
+                .setAutoWidth(true);
+
         // Обработчик выбора записи в истории
         historyGrid.asSingleSelect().addValueChangeListener(e -> {
             EmployeesMoving selected = e.getValue();
@@ -299,14 +337,21 @@ public class EmployeesMovingForm extends VerticalLayout {
 
     private void populateForm(EmployeesMoving moving) {
         if (moving != null) {
-            // Устанавливаем сотрудника в ComboBox
             employeeCombo.setValue(moving.getEmployee());
+            binderForMoving.readBean(moving);
 
-            // Устанавливаем даты через Binder
-            binderForMoving.readBean(moving); // Заполняем форму данными из выбранного перемещения
-            bindButton.setEnabled(false);
-            editButton.setEnabled(true);
+            // Разрешаем удаление для любой записи
             deleteButton.setEnabled(true);
+
+            // Блокируем редактирование/привязку для неактивных записей
+            boolean isActive = moving.getDateOfDismissal() == null;
+            bindButton.setEnabled(isActive);
+            editButton.setEnabled(isActive);
+
+            if (!isActive) {
+                Notification.show("Этот сотрудник уже уволен с должности", 3000,
+                        Notification.Position.BOTTOM_START);
+            }
         }
     }
 
