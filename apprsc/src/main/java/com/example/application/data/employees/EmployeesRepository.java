@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,6 +17,26 @@ public interface EmployeesRepository extends JpaRepository<Employees, Long>, Jpa
             String firstNamePart,
             String middleNamePart
     );
+
+    @Query(value = "SELECT * FROM get_available_employees_by_city(:city, :staffingTableId)",
+            nativeQuery = true)
+    List<Object[]> findAvailableEmployeesByCityAndOffice(
+            @Param("city") String city,
+            @Param("staffingTableId") Long staffingTableId
+    );
+
+    default List<Employees> findAvailableEmployees(String city, Long staffingTableId) {
+        return findAvailableEmployeesByCityAndOffice(city, staffingTableId).stream()
+                .map(arr -> {
+                    Employees employee = new Employees();
+                    employee.setId(((Number) arr[0]).longValue());
+                    employee.setFirstName((String) arr[1]);
+                    employee.setLastName((String) arr[2]);
+                    employee.setMiddleName((String) arr[3]);
+                    return employee;
+                })
+                .collect(Collectors.toList());
+    }
 
     Optional<Employees> findById(Long id);
 

@@ -35,15 +35,17 @@ public class Employees {
     @Email
     private String email;
     private String phone_number;
+    private String city;
     private String comment;
     private LocalDate date_of_birth;
     private String gender;
 
+    public String getCity() {return city;}
+    public void setCity(String city) {this.city = city;}
     public Long getId() { return employee_id;  }
     public void setId(Long id) {
         this.employee_id = id;
     }
-
     public String getFirstName() { return firstName; }
     public void setFirstName(String first_name) { this.firstName = first_name; }
     public String getLastName() {

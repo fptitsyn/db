@@ -57,6 +57,7 @@ public class EmployeesService {
             existing.setDateOfBirth(employee.getDateOfBirth());
             existing.setLastName(employee.getLastName());
             existing.setMiddleName(employee.getMiddleName());
+            existing.setCity(employee.getCity());
             existing.setPhone(employee.getPhone());
             existing.setGender(employee.getGender());
 

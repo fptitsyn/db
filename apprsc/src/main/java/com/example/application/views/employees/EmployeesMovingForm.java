@@ -117,6 +117,7 @@ public class EmployeesMovingForm extends VerticalLayout {
         // Обработчик выбора должности
         grid.asSingleSelect().addValueChangeListener(e -> {
             selectedStaffingTable = e.getValue();
+            UpdateEmployees(selectedStaffingTable.getLocation().getCity());
             bindingForm.setVisible(selectedStaffingTable != null);
             updateHistory(); // Обновляем историю при выборе должности
             clearForm(); // Очищаем форму
@@ -135,12 +136,26 @@ public class EmployeesMovingForm extends VerticalLayout {
         grid.sort(sortOrder);
     }
 
+    private void UpdateEmployees(String city) {
+        if (selectedStaffingTable != null && city != null) {
+            List<Employees> availableEmployees = employeesRepository.findAvailableEmployees(
+                    city,
+                    selectedStaffingTable.getId()
+            );
+
+            employeeCombo.setItems(availableEmployees);
+        }
+
+        employeeCombo.setItemLabelGenerator(e -> {
+            if (e == null) return "Неизвестный сотрудник";
+            return (e.getLastName() != null ? e.getLastName() : "") + " " +
+                    (e.getFirstName() != null ? e.getFirstName() : "");
+        });
+    }
+
     private void configureBindingForm() {
         bindingForm = new FormLayout();
         binderForMoving = new Binder<>(EmployeesMoving.class);
-
-        employeeCombo.setItems(employeesRepository.findAll());
-        employeeCombo.setItemLabelGenerator(e -> e.getLastName() + " " + e.getFirstName());
 
         // Привязка данных к полям формы
         binderForMoving.bind(employmentDate, EmployeesMoving::getDateOfEmployment, EmployeesMoving::setDateOfEmployment);

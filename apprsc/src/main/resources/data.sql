@@ -998,3 +998,31 @@ CREATE OR REPLACE TRIGGER set_order_last_modified
     FOR EACH ROW
     EXECUTE FUNCTION public.set_last_modified();
 ------------------------------------------------------------------------------------------------------------
+--Функция для выборки сотрудников по городу проживания
+--DROP FUNCTION IF EXISTS public.get_available_employees_by_city(p_city text, p_staffing_table_id bigint);
+CREATE OR REPLACE FUNCTION get_available_employees_by_city(p_city text, p_staffing_table_id bigint)
+RETURNS TABLE (
+    employee_id bigint,
+    first_name character varying(255),
+    last_name character varying(255),
+    middle_name character varying(255)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        e.employee_id,
+        e.first_name,
+        e.last_name,
+        e.middle_name
+    FROM
+        employees e
+    WHERE
+        e.city = p_city
+        AND e.employee_id NOT IN (
+            SELECT em.employee_id
+            FROM employees_moving em
+            WHERE em.staffing_table_id = p_staffing_table_id
+            AND em.date_of_dismissal IS NULL
+        );
+END;
+$$ LANGUAGE plpgsql;
