@@ -551,11 +551,13 @@ public class OrderForm extends VerticalLayout {
         // Обработчик выбора слотов
         scheduleGrid.addSelectionListener(event -> {
             int selectedCount = event.getAllSelectedItems().size();
-            if (totalTime > 0 && selectedCount < totalTime) {
+            if (totalTime > 0 && selectedCount != totalTime) {
                 warningSpan.setText("Необходимо выбрать слотов на " + totalTime + " часа");
                 warningSpan.setVisible(true);
+                transferButton.setEnabled(false);
             } else {
                 warningSpan.setVisible(false);
+                transferButton.setEnabled(true);
             }
         });
 
