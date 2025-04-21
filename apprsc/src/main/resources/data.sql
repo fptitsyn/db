@@ -859,7 +859,7 @@ ALTER FUNCTION public.get_order_info()
 -- Функция для получения графика для отдельного наряда
 -- FUNCTION: public.get_schedule_by_work_order_filtered(bigint)
 
--- DROP FUNCTION IF EXISTS public.get_schedule_by_work_order_filtered(bigint);
+DROP FUNCTION IF EXISTS public.get_schedule_by_work_order_filtered(bigint);
 
 CREATE OR REPLACE FUNCTION public.get_schedule_by_work_order_filtered(
     p_work_orders_id bigint
