@@ -113,7 +113,7 @@ public class InventoryView extends VerticalLayout {
             IntegerField quantityField = new IntegerField("Количество");
             quantityField.setWidthFull();
 
-            Button submit = new Button("Принять на склад", VaadinIcon.PLUS_SQUARE_O.create(), event -> {
+            Button submit = new Button("Принять на склад", VaadinIcon.PLUS_SQUARE_O.create(), ignored -> {
                 try {
                     inventoryReceiptService.receiveComponent(
                             componentCombo.getValue().getComponentId(),
@@ -128,12 +128,11 @@ public class InventoryView extends VerticalLayout {
                 }
             });
 
-            Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), event -> close());
+            Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), ignored -> close());
 
             styleButton(submit, "primary");
             styleButton(closeBtn, "error");
 
-            // Настройка лейаута
             VerticalLayout layout = new VerticalLayout(
                     new H3("Приём на склад"),
                     componentCombo,
@@ -156,7 +155,7 @@ public class InventoryView extends VerticalLayout {
         private final Grid<InventoryReceipt> gridReceipt = new Grid<>(InventoryReceipt.class);
 
         private ReceiptInventoryForm() {
-            Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), event -> close());
+            Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), ignored -> close());
             styleButton(closeBtn, "error");
 
             createInventoryReceiptGrid();
@@ -188,7 +187,7 @@ public class InventoryView extends VerticalLayout {
     private class IssueInventoryForm extends Dialog {
         private final Grid<InventoryIssue> gridIssue = new Grid<>(InventoryIssue.class);
         private IssueInventoryForm() {
-            Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), event -> close());
+            Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), ignored -> close());
             styleButton(closeBtn, "error");
 
             createInventoryIssueGrid();
@@ -210,7 +209,7 @@ public class InventoryView extends VerticalLayout {
             gridIssue.addColumn(inv -> inv.getLocations().getName()).setHeader("Офис");
             gridIssue.addColumn(inv -> inv.getComponent().getName()).setHeader("Комплектующая");
             gridIssue.addColumn(InventoryIssue::getQuantity).setHeader("Количество");
-            gridIssue.addColumn(inv -> inv.getOrder().getId()).setHeader("Номер заказа");
+            gridIssue.addColumn(inv -> inv.getOrder().getNumberOfOrder()).setHeader("Номер заказа");
             gridIssue.setItems(inventoryIssueService.getAllInventoryIssueItems());
 
             gridIssue.setWidth("800px");
