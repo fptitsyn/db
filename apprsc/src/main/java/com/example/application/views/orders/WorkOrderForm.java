@@ -35,7 +35,7 @@ import java.util.Set;
 
 public class WorkOrderForm extends VerticalLayout {
     private final WorkOrders workOrder;
-    private final OrdersService orderService;
+    private final WorkOrdersService workOrdersService;
     private final ScheduleService scheduleService;
     private final OrderServicesService orderServicesService;
     private final OrderComponentsService orderComponentsService;
@@ -44,8 +44,10 @@ public class WorkOrderForm extends VerticalLayout {
     private final Runnable onProceed;
     private final Runnable onCancel;
 
+    private Grid<ScheduleData> scheduleGrid;
+
     public WorkOrderForm(WorkOrders workOrder,
-                         OrdersService orderService, ScheduleService scheduleService,
+                         WorkOrdersService workOrdersService, ScheduleService scheduleService,
                          OrderServicesService orderServicesService,
                          OrderComponentsService orderComponentsService,
                          LocationsService locationsService,
@@ -53,7 +55,7 @@ public class WorkOrderForm extends VerticalLayout {
                          Runnable onProceed,
                          Runnable onCancel) {
         this.workOrder = workOrder;
-        this.orderService = orderService;
+        this.workOrdersService = workOrdersService;
         this.scheduleService = scheduleService;
         this.orderServicesService = orderServicesService;
         this.orderComponentsService = orderComponentsService;
@@ -102,12 +104,11 @@ public class WorkOrderForm extends VerticalLayout {
         componentsContainer.add(componentsGrid);
 
         // Schedule grid
-        Grid<ScheduleData> scheduleGrid = createScheduleGrid();
+        scheduleGrid = createScheduleGrid();
         Div scheduleContainer = new Div();
         scheduleContainer.setWidthFull();
         scheduleContainer.add(new Span("График"));
         scheduleContainer.add(scheduleGrid);
-
 
         // Buttons
         HorizontalLayout buttonsLayout = new HorizontalLayout();
@@ -234,7 +235,7 @@ public class WorkOrderForm extends VerticalLayout {
         grid.setHeight("100px");
 
         // Получаем данные расписания
-        List<ScheduleData> scheduleData = scheduleService.getScheduleByWorkOrderId(workOrder.getId());
+        List<ScheduleData> scheduleData = scheduleService.getScheduleDataByWorkOrderId(workOrder.getId());
 
         // Добавляем колонку с именем сотрудника
         grid.addColumn(ScheduleData::getEmployeeName)
@@ -242,7 +243,7 @@ public class WorkOrderForm extends VerticalLayout {
                 .setWidth("250px")
                 .setResizable(true);
 
-        grid.addColumn(ScheduleData::getWork_day)
+        grid.addColumn(ScheduleData::getWorkDay)
                 .setHeader("Дата")
                 .setWidth("50px")
                 .setResizable(true);
@@ -307,6 +308,10 @@ public class WorkOrderForm extends VerticalLayout {
         locationComboBox.setItems(locationsService.findAll());
         locationComboBox.setItemLabelGenerator(Locations::getName);
 
+        List<ScheduleData> scheduleData = scheduleService.getScheduleDataByWorkOrderId(workOrder.getId());
+
+        String currentEmployeeName = scheduleData.getFirst().getEmployeeName();
+
         employeeComboBox.setEnabled(false);
         employeeComboBox.setItemLabelGenerator(e -> e.getLastName() + " " + e.getFirstName());
 
@@ -320,11 +325,16 @@ public class WorkOrderForm extends VerticalLayout {
         scheduleChangeGrid.setSelectionMode(Grid.SelectionMode.MULTI);
         scheduleChangeGrid.setEmptyStateText("Нет свободного времени");
 
+        int totalTime = scheduleData.getFirst().getTotal();
+
         // Логика взаимодействия
         locationComboBox.addValueChangeListener(e -> {
             Locations loc = e.getValue();
             employeeComboBox.setEnabled(loc != null);
-            employeeComboBox.setItems(employeesService.getOrderEmployeesByLocation(workOrder.getOrders().getId(), loc.getId()));
+            List<Employees> filteredEmployees = employeesService.getOrderEmployeesByLocation(workOrder.getOrders().getId(), loc.getId()).stream()
+                    .filter(emp -> !(emp.getLastName() + " " + emp.getFirstName()).equals(currentEmployeeName))
+                    .toList();
+            employeeComboBox.setItems(filteredEmployees);
         });
 
         employeeComboBox.addValueChangeListener(e -> {
@@ -342,31 +352,28 @@ public class WorkOrderForm extends VerticalLayout {
         });
 
         // Обработчик выбора слотов
-        /*
         scheduleChangeGrid.addSelectionListener(event -> {
             int selectedCount = event.getAllSelectedItems().size();
-            if (totalTime > 0 && selectedCount < totalTime) {
+            if (totalTime > 0 && selectedCount != totalTime) {
                 warningSpan.setText("Необходимо выбрать слотов на " + totalTime + " часа");
                 warningSpan.setVisible(true);
+                transferButton.setEnabled(false);
             } else {
                 warningSpan.setVisible(false);
+                transferButton.setEnabled(true);
             }
         });
-
-         */
 
         transferButton.addClickListener(e -> {
             Set<Schedule> selectedSlots = scheduleChangeGrid.getSelectedItems();
 
             // Проверка на минимальное количество слотов
-            /*
+
             if (totalTime > 0 && selectedSlots.size() < totalTime) {
                 Notification.show("Требуется выбрать минимум " + totalTime + " слотов!",
                         3000, Notification.Position.MIDDLE);
                 return;
             }
-
-             */
 
             if (selectedSlots.isEmpty()) {
                 Notification.show("Выберите хотя бы один временной слот!");
@@ -374,10 +381,19 @@ public class WorkOrderForm extends VerticalLayout {
             }
 
             try {
+                // Очистка
+                Set<Schedule> prevSchedule = scheduleService.getSchedule(workOrder.getId());
+                prevSchedule.forEach(slot -> {
+                    slot.setWorkOrders(null);
+                    scheduleService.save(slot);
+                });
+
                 // Обновляем выбранные слоты расписания
                 selectedSlots.forEach(slot -> {
+                    workOrder.setEmployee(slot.getEmployee());
                     slot.setWorkOrders(workOrder);
                     scheduleService.save(slot);
+                    workOrdersService.save(workOrder);
                 });
 
                 Notification.show("Заказ передан в работу! Выбрано слотов: " + selectedSlots.size());
@@ -391,7 +407,7 @@ public class WorkOrderForm extends VerticalLayout {
         // Компоновка с добавлением предупреждения
         VerticalLayout layout = new VerticalLayout(
                 new H2("Текущий Мастер:"),
-                new Span("---Тут могла быть ваша реклама---"),
+                new Span(currentEmployeeName),
                 new H2("Новый Мастер:"),
                 new HorizontalLayout(locationComboBox, employeeComboBox, datePicker),
                 scheduleChangeGrid,

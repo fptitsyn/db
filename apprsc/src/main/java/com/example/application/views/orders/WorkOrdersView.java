@@ -158,7 +158,7 @@ workOrderGrid.addComponentColumn(this::createWorkOrderActions)
 
         WorkOrderForm form = new WorkOrderForm(
                 workOrder,
-                orderService,
+                workOrdersService,
                 scheduleService,
                 orderServicesService,
                 orderComponentsService,
