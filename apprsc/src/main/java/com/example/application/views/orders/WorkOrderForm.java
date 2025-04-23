@@ -45,6 +45,7 @@ public class WorkOrderForm extends VerticalLayout {
     private final Runnable onCancel;
 
     private Grid<ScheduleData> scheduleGrid;
+    private VerticalLayout scheduleContainer;
 
     public WorkOrderForm(WorkOrders workOrder,
                          WorkOrdersService workOrdersService, ScheduleService scheduleService,
@@ -105,7 +106,7 @@ public class WorkOrderForm extends VerticalLayout {
 
         // Schedule grid
         scheduleGrid = createScheduleGrid();
-        Div scheduleContainer = new Div();
+        scheduleContainer = new VerticalLayout();
         scheduleContainer.setWidthFull();
         scheduleContainer.add(new Span("График"));
         scheduleContainer.add(scheduleGrid);
@@ -202,7 +203,7 @@ public class WorkOrderForm extends VerticalLayout {
         Grid<Component> grid = new Grid<>(Component.class);
         grid.removeAllColumns();
         grid.setWidthFull();
-        grid.setHeight("200px");
+        grid.setHeight("150px");
 
         grid.addColumn(c -> c.getCategory().getTypeOfDevice().getTypeOfDeviceName())
                 .setHeader("Устройство")
@@ -292,6 +293,13 @@ public class WorkOrderForm extends VerticalLayout {
 
     private String convertStatus(int status) {
         return status == 0 ? "Свободно" : "Занято";
+    }
+
+    private void refreshScheduleGrid() {
+        // Удаляем старый Grid и добавляем новый
+        scheduleContainer.remove(scheduleGrid);
+        scheduleGrid = createScheduleGrid();
+        scheduleContainer.add(scheduleGrid);
     }
 
     // Методы смены мастера
@@ -404,6 +412,7 @@ public class WorkOrderForm extends VerticalLayout {
 
                 Notification.show("Заказ передан в работу! Выбрано слотов: " + selectedSlots.size());
                 dialog.close();
+                refreshScheduleGrid();
             } catch (Exception ex) {
                 Notification.show("Ошибка: " + ex.getMessage());
                 ex.printStackTrace();
