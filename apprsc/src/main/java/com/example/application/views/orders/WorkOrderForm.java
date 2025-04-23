@@ -129,15 +129,21 @@ public class WorkOrderForm extends VerticalLayout {
 
         Button ChangeMasterBtn = new Button("Сменить мастера", VaadinIcon.REFRESH.create(), ignored -> openChangeMasterDialog());
         styleButton(saveBtn, "primary");
+        styleButton(ChangeMasterBtn, "primary");
 
         if (buttonText.equals("Ошибка!")) {
             buttonsLayout.add(cancelBtn);
         } else {
-            buttonsLayout.add(ChangeMasterBtn, saveBtn, cancelBtn);
+            buttonsLayout.add(ChangeMasterBtn, saveBtn);
         }
 
         // Main layout
         add(buttonsLayout, headerLayout, scheduleContainer, servicesContainer, componentsContainer);
+        add(
+                new HorizontalLayout(cancelBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }});
         setFlexGrow(1, servicesContainer, componentsContainer);
     }
 
@@ -298,7 +304,7 @@ public class WorkOrderForm extends VerticalLayout {
         ComboBox<Employees> employeeComboBox = new ComboBox<>("Сотрудник");
         DatePicker datePicker = new DatePicker("Дата работ");
         Grid<Schedule> scheduleChangeGrid = new Grid<>(Schedule.class);
-        Button transferButton = new Button("Передать");
+        Button transferButton = new Button("Сменить мастера", VaadinIcon.REFRESH.create());
         Span warningSpan = new Span(); // Добавляем Span для сообщения
         warningSpan.getStyle().setColor("red");
         warningSpan.setVisible(false);
@@ -389,6 +395,9 @@ public class WorkOrderForm extends VerticalLayout {
         });
 
         // Компоновка с добавлением предупреждения
+        Button closeBtn = new Button("Отмена", VaadinIcon.CLOSE.create(), ev -> dialog.close());
+        styleButton(closeBtn, "error");
+        styleButton(transferButton, "primary");
         VerticalLayout layout = new VerticalLayout(
                 new H2("Текущий Мастер:"),
                 new Span("---Тут могла быть ваша реклама---"),
@@ -396,7 +405,10 @@ public class WorkOrderForm extends VerticalLayout {
                 new HorizontalLayout(locationComboBox, employeeComboBox, datePicker),
                 scheduleChangeGrid,
                 warningSpan, // Сообщение под Grid
-                new HorizontalLayout(transferButton, new Button("Отмена", ev -> dialog.close()))
+                new HorizontalLayout(transferButton, closeBtn) {{
+                    setWidthFull();
+                    setJustifyContentMode(JustifyContentMode.END);
+                }}
         );
 
         dialog.add(layout);

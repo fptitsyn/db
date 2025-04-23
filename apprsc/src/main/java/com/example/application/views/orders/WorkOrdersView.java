@@ -153,8 +153,8 @@ workOrderGrid.addComponentColumn(this::createWorkOrderActions)
         dialog.setModal(true);
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(false);
-        dialog.setHeaderTitle(workOrder.getId() == null ? "Новый заказ"
-                : "Редактирование заказа #" + workOrder.getNumberOfWorkOrder() + " от " + workOrder.getDateOfWorkOrder() + ", статус: " + workOrder.getWorkOrderStatusName());
+        dialog.setHeaderTitle(workOrder.getId() == null ? "Новый наряд"
+                : "Наряд #" + workOrder.getNumberOfWorkOrder() + " от " + workOrder.getDateOfWorkOrder() + ", статус: " + workOrder.getWorkOrderStatusName());
 
         WorkOrderForm form = new WorkOrderForm(
                 workOrder,
