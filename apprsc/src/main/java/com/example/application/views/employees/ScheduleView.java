@@ -233,7 +233,7 @@ public class ScheduleView extends VerticalLayout {
 
         if (selectedDate != null && selectedLocation != null) {
             grid.setItems(
-                    scheduleService.getSchedule(selectedDate, selectedLocation.getId())
+                    scheduleService.getScheduleData(selectedDate, selectedLocation.getId())
             );
         }
     }

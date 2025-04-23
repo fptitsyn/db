@@ -1026,3 +1026,32 @@ BEGIN
         );
 END;
 $$ LANGUAGE plpgsql;
+-- Функция для получения графика (для преобразования в класс Schedule, не ScheduleData)
+CREATE OR REPLACE FUNCTION public.get_schedule_unfiltered(
+    work_order_id bigint
+)
+    RETURNS TABLE (
+                      schedule_id bigint,
+                      time_interval varchar(255),
+                      work_day date,
+                      employee_id bigint,
+                      location_id bigint,
+                      work_orders_id bigint
+                  )
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+        SELECT
+            s.schedule_id,
+            s.time_interval,
+            s.work_day,
+            s.employee_id,
+            s.location_id,
+            s.work_orders_id
+        FROM
+            schedule s
+        WHERE
+            s.work_orders_id = work_order_id;
+END;
+$$;

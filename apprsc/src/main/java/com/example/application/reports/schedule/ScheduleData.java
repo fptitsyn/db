@@ -89,7 +89,7 @@ public class ScheduleData {
         return total;
     }
 
-    public LocalDate getWork_day() {
+    public LocalDate getWorkDay() {
         return work_day;
     }
 }

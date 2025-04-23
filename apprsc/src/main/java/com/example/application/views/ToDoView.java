@@ -17,8 +17,6 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 public class ToDoView extends VerticalLayout {
     public ToDoView() {
         setSpacing(false);
-        add(new Span("WorkOrderForm. Кнопка Сменить исполнителя - Выбрать другого исполнителя, заполнить ему график, старому очистить график"));
-
         add(new Span("Сгорание бонусов???"));
 
         setSizeFull();

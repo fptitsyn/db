@@ -29,6 +29,19 @@ public class Schedule {
     @JoinColumn(name = "work_orders_id")
     private WorkOrders workOrders;
 
+    public Schedule(Long schedule_id, String timeInterval, LocalDate workDay, Employees employee, Locations location, WorkOrders workOrders) {
+        this.schedule_id = schedule_id;
+        this.timeInterval = timeInterval;
+        this.workDay = workDay;
+        this.employee = employee;
+        this.location = location;
+        this.workOrders = workOrders;
+    }
+
+    public Schedule() {
+
+    }
+
     //Геттеры и сеттеры
     public Long getId() {
         return schedule_id;
